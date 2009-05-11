@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="lib/devil/include;lib/glut/include;lib/glew/include"
+				AdditionalIncludeDirectories="lib;lib/devil/include;lib/glut/include;lib/glew/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -178,7 +178,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\main.cpp"
+				RelativePath=".\src\camera.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\gpuhelper.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\icosphere.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\main.cpp"
 				>
 			</File>
 		</Filter>
@@ -187,6 +199,18 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\src\camera.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\gpuhelper.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\icosphere.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
