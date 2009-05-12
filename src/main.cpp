@@ -1,14 +1,24 @@
-//##ifdef WIN32
-//#include <windows.h>
-//#endif
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <iostream>
 #include "GL/glut.h"
+#include "camera.h"
+
+using namespace Eigen;
 
 int gWndWidth = 640;
 int gWndHeight = 480;
 
 GLdouble gNear = 0.1;
 GLdouble gFar = 120.0;
+
+Vector2i _mouseCoord = Vector2i(0,0);
+
+Camera cam;
+
+int _x, _y;
 
 
 
@@ -18,10 +28,8 @@ void display(void){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glLoadIdentity();
-	gluLookAt(0.0, 0.0, 5,
-			  0.0, 0.0, 0.0,
-			  0.0, 1.0, 0.0);
-
+		
+	cam.activateGL();
 	glutSolidTorus(0.3, 2, 12, 36);
 	
 	glutSwapBuffers();
@@ -29,12 +37,8 @@ void display(void){
 }
 
 void reshape (int w, int h){
-	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-	glMatrixMode (GL_PROJECTION);
+	cam.setViewport(0, 0, w, h);
 	glLoadIdentity();
-
-	gluPerspective(60.0, (float)w / (float)h, gNear, gFar);
-	
 	glMatrixMode (GL_MODELVIEW);
 }
 
@@ -52,15 +56,17 @@ void keyboard(unsigned char key, int x, int y)
 
 void mouse(int button, int state, int x, int y)
 {
-	/*switch(button)
-	{
-		case GL_LEFT_BUTTON:
-			if(state == GLUT_DOWN)
-			{
+	float dx = static_cast<float>(x - _mouseCoord.x()) / static_cast<float>(cam.vpHeight());
+	float dy = - static_cast<float>(y - _mouseCoord.y()) / static_cast<float>(cam.vpWidth());
 
-			}
+	std::cout << dx << std::endl;
 
-	}*/
+	 Quaternionf q = AngleAxisf( dx*M_PI, Vector3f::UnitY())
+                            * AngleAxisf(-dy*M_PI, Vector3f::UnitX());
+     cam.rotateAroundTarget(q);
+
+	 _mouseCoord = Vector2i(x,y);
+	 display();
 }
 
 void idle()
@@ -87,10 +93,12 @@ void init(void){
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+	
+	cam.setTarget(Eigen::Vector3f(0, 0, 0));
+	cam.setPosition(Eigen::Vector3f(10,10,10));
 
 	reshape(gWndWidth, gWndHeight);
 }
-
 
 
 int main(int argc, char* argv[])
@@ -103,7 +111,7 @@ int main(int argc, char* argv[])
 	glutCreateWindow("Demo");
 	
 	init();
-		
+
 	//registering callback functions
 	glutReshapeFunc(reshape);	
     glutDisplayFunc(display);

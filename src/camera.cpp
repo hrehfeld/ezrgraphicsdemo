@@ -21,11 +21,13 @@
 // You should have received a copy of the GNU Lesser General Public
 // License and a copy of the GNU General Public License along with
 // Eigen. If not, see <http://www.gnu.org/licenses/>.
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 #include "camera.h"
-#include <GL/glut.h>
+#include <GL/gl.h>
 #include "gpuhelper.h"
-
 #include "Eigen/LU"
 using namespace Eigen;
 
@@ -35,8 +37,8 @@ Camera::Camera()
     mViewMatrix.setIdentity();
     
     mFovY = M_PI/3.;
-    mNearDist = 1.;
-    mFarDist = 50000.;
+    mNearDist = 0.1;
+    mFarDist = 1000.;
     
     mVpX = 0;
     mVpY = 0;
