@@ -4,6 +4,8 @@
 #include <iostream>
 #include "GL/glut.h"
 
+#include "stdlib.h"
+
 int gWndWidth = 640;
 int gWndHeight = 480;
 
