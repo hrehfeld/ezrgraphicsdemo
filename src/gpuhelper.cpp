@@ -24,7 +24,7 @@
 
 #include "gpuhelper.h"
 #include "icosphere.h"
-#include <GL/glu.h>
+//#include <GL/gl.h>
 // PLEASE don't look at this old code... ;)
 
 #include <fstream>
