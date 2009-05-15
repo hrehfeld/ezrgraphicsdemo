@@ -14,7 +14,7 @@ VPATH := $(BIN) $(SRC)
 #find cpp files in src/
 sources := $(subst $(SRC)/,,$(wildcard $(SRC)/*.cpp))
 objects := $(addsuffix .o, $(basename $(sources)))
-includes := lib lib/glut lib/glu
+includes := lib lib/glut lib/glu lib/glm
 libs = GL GLU glut
 
 .PHONY: clean
