@@ -5,6 +5,7 @@
 #include <iostream>
 #include "GL/glut.h"
 #include "Camera.h"
+#include "Scene.h"
 
 using namespace Eigen;
 
@@ -17,6 +18,7 @@ GLdouble gFar = 100.0;
 Vector2i _mouseCoord = Vector2i(0,0);
 
 Camera* cam;
+Scene* scene;
 
 int _x, _y;
 
@@ -27,6 +29,7 @@ void display(void){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	glLoadIdentity();
 	cam->CamLookAt();		
+	scene->drawScene();
 	glutSolidTorus(0.3, 2, 12, 36);	
 	glutSwapBuffers();
 }
@@ -117,6 +120,8 @@ void init(void){
 
 	cam = new Camera(wndWidth, wndHeight);
 	cam->PositionCamera( 0, 0, 7,   0, 0, -1,   0, 1, 0);
+
+	scene = new Scene();
 	
 	reshape(wndWidth, wndHeight);
 }

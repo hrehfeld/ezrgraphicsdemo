@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="lib;lib/devil/include;lib/glut/include;lib/glew/include"
+				AdditionalIncludeDirectories="lib/glm;lib;lib/devil/include;lib/glut/include;lib/glew/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NOMINMAX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -178,11 +178,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\camera.cpp"
+				RelativePath=".\src\Camera.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\lib\glm\glm.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\src\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Scene.cpp"
 				>
 			</File>
 		</Filter>
@@ -192,11 +200,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\src\camera.h"
+				RelativePath=".\src\Camera.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lib\glm\glm.h"
 				>
 			</File>
 			<File
 				RelativePath=".\src\OpenGL.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Scene.h"
 				>
 			</File>
 		</Filter>

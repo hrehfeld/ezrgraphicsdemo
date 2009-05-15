@@ -9,9 +9,17 @@ using std::cerr;
 using std::endl;
 
 Scene::Scene() {
-	_model = glmReadOBJ(const_cast<char*> (MODELPATH.c_str()));
+	_model = glmReadOBJ("res/models/Lighthouse.obj");
 	if (!_model){
 		cerr << "couldn't load model" << endl;
 		exit(0);
 	}
+}
+
+void Scene::drawScene() const
+{
+	glmUnitize(_model);
+	glmFacetNormals(_model);
+	glmVertexNormals(_model,90);
+	glmDraw(_model, GLM_SMOOTH | GLM_MATERIAL);
 }
