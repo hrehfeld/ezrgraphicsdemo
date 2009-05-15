@@ -67,7 +67,7 @@ void Camera::SetMouseView(int mousePosX, int mousePosY)
 	mousePos.y() = mousePosY;
 	
 	// If our cursor is still in the middle, we never moved... so don't update the screen
-	if( (mousePos.x == middleX) && (mousePos.y == middleY) ) return;
+	if( (mousePos.x() == middleX) && (mousePos.y() == middleY) ) return;
 
 	//Set cursor position in the middle of the screen
 	glutWarpPointer(middleX, middleY);

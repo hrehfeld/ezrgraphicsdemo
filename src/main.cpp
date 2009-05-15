@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "GL/glut.h"
-#include "camera.h"
+#include "Camera.h"
 
 using namespace Eigen;
 
