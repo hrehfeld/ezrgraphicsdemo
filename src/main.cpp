@@ -8,38 +8,31 @@
 
 using namespace Eigen;
 
-#include "stdlib.h"
-
-int gWndWidth = 640;
-int gWndHeight = 480;
+int wndWidth = 640;
+int wndHeight = 480;
 
 GLdouble gNear = 0.1;
-GLdouble gFar = 120.0;
+GLdouble gFar = 100.0;
 
 Vector2i _mouseCoord = Vector2i(0,0);
 
-Camera cam;
+Camera* cam;
 
 int _x, _y;
 
+bool camMove, w, s, a, d = false;
 
 
-
-void display(void){
-    
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+void display(void){    
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	glLoadIdentity();
-		
-	cam.activateGL();
-	glutSolidTorus(0.3, 2, 12, 36);
-	
+	cam->CamLookAt();		
+	glutSolidTorus(0.3, 2, 12, 36);	
 	glutSwapBuffers();
-
 }
 
 void reshape (int w, int h){
-	cam.setViewport(0, 0, w, h);
+	glViewport(0, 0, w, h);
 	glLoadIdentity();
 	glMatrixMode (GL_MODELVIEW);
 }
@@ -53,26 +46,44 @@ void keyboard(unsigned char key, int x, int y)
 		case 27:
 			exit(0);
 			break;
+		case 'w' :
+			w=true;
+			break;
+		case 's' :
+			s=true;
+			break;
+		  case 'a' :
+			a=true;
+			break;
+		  case 'd' :
+			d=true;
+			break;
 	}
+}
+
+void releaseKey(unsigned char key, int x, int y)
+{
+	if(key=='w') w=false;
+    if(key=='s') s=false;
+	if(key=='a') a=false;
+    if(key=='d') d=false;
 }
 
 void mouse(int button, int state, int x, int y)
 {
-	float dx = static_cast<float>(x - _mouseCoord.x()) / static_cast<float>(cam.vpHeight());
-	float dy = - static_cast<float>(y - _mouseCoord.y()) / static_cast<float>(cam.vpWidth());
-
-	std::cout << dx << std::endl;
-
-	 Quaternionf q = AngleAxisf( dx*M_PI, Vector3f::UnitY())
-                            * AngleAxisf(-dy*M_PI, Vector3f::UnitX());
-     cam.rotateAroundTarget(q);
-
-	 _mouseCoord = Vector2i(x,y);
-	 display();
+	if (button == GLUT_LEFT_BUTTON)
+	{
+		camMove = !state;
+		//glutSetCursor(state ? GLUT_CURSOR_INHERIT : GLUT_CURSOR_NONE);
+		if (state == GLUT_DOWN)
+			cam->SetRotationCenter(x, y);
+	}
 }
 
-void idle()
+void mouseMotion(int x, int y)
 {
+	if (camMove)
+		cam->SetMouseView(x, y);
 	display();
 }
 
@@ -96,10 +107,18 @@ void init(void){
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	
-	cam.setTarget(Eigen::Vector3f(0, 0, 0));
-	cam.setPosition(Eigen::Vector3f(10,10,10));
+	glViewport(0, 0, wndWidth, wndHeight);
 
-	reshape(gWndWidth, gWndHeight);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60.0f,(GLfloat)wndWidth/(GLfloat)wndHeight, 0.1 ,100.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	cam = new Camera(wndWidth, wndHeight);
+	cam->PositionCamera( 0, 0, 7,   0, 0, -1,   0, 1, 0);
+	
+	reshape(wndWidth, wndHeight);
 }
 
 
@@ -108,7 +127,7 @@ int main(int argc, char* argv[])
 	//setup a GLUT window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
-    glutInitWindowSize(gWndWidth, gWndHeight);
+    glutInitWindowSize(wndWidth, wndHeight);
 
 	glutCreateWindow("Demo");
 	
@@ -119,8 +138,9 @@ int main(int argc, char* argv[])
     glutDisplayFunc(display);
     glutIdleFunc(display);   
     glutKeyboardFunc(keyboard);
+	glutKeyboardUpFunc(releaseKey);
 	glutMouseFunc(mouse);
-	glutIdleFunc(idle);
+	glutMotionFunc(mouseMotion);
 	
 	glutMainLoop();
 		

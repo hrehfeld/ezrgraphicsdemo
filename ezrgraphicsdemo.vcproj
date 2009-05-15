@@ -182,14 +182,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\gpuhelper.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\icosphere.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\main.cpp"
 				>
 			</File>
@@ -204,11 +196,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\gpuhelper.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\icosphere.h"
+				RelativePath=".\src\OpenGL.h"
 				>
 			</File>
 		</Filter>
