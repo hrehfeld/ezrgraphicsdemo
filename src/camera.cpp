@@ -1,280 +1,236 @@
-// This file is part of Eigen, a lightweight C++ template library
-// for linear algebra. Eigen itself is part of the KDE project.
+/*******************************************************************************
+ *  Camera.cpp
+ *
+ *  Echtzeit-Rendering Framework 2009
+ *
+ *  Questions?: <fronc@uni-koblenz.de>, <mfreidank@uni-koblenz.de>
+ ******************************************************************************/
+
+#include "Camera.h"
+#include "OpenGL.h"
+#include <Eigen/Geometry>
+
+
+//// CAMERA ////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
+// This is our camera constructor. Set the camera speed
+////////////////////////////////////////////////////////////////////////
+Camera::Camera(int screenWidth, int screenHeight)
+{
+	Vec3 m_camPosition(0.0, 0.0, 0.0);	
+	Vec3 m_camView(0.0, 1.0, 0.5);	 
+	Vec3 m_camUpVector(0.0, 0.0, 1.0);	
+
+	m_screenWidth  = screenWidth;
+	m_screenHeight = screenHeight;
+
+	m_camSpeed = 25.0f;
+}
+
+//// POSITION CAMERA ///////////////////////////////////////////////////
 //
-// Eigen is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3 of the License, or (at your option) any later version.
+// This function sets the camera's position and view and up vector.
+////////////////////////////////////////////////////////////////////////
+void Camera::PositionCamera(const float positionX, const float positionY, const float positionZ,
+				  		     const float viewX,     const float viewY,     const float viewZ,
+							 const float upVectorX, const float upVectorY, const float upVectorZ)
+{
+	m_camPosition	= Vec3(positionX, positionY, positionZ);
+	m_camView	    = Vec3(viewX, viewY, viewZ);
+	m_camUpVector	= Vec3(upVectorX, upVectorY, upVectorZ);
+}
+
+//// SET ROTATION CENTER ///////////////////////////////////////////////
 //
-// Alternatively, you can redistribute it and/or
-// modify it under the terms of the GNU General Public License as
-// published by the Free Software Foundation; either version 2 of
-// the License, or (at your option) any later version.
+// Sets the current rotation center.
+////////////////////////////////////////////////////////////////////////
+void Camera::SetRotationCenter(int x, int y)
+{
+	m_rotCenterX = x; 
+	m_rotCenterY = y;
+}
+
+//// SET MOUSE VIEW ////////////////////////////////////////////////////
 //
-// Eigen is distributed in the hope that it will be useful, but WITHOUT ANY
-// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License or the
-// GNU General Public License for more details.
+// Allows us to look around using the mouse.
+////////////////////////////////////////////////////////////////////////
+void Camera::SetMouseView(int mousePosX, int mousePosY)
+{
+	Vec2 mousePos;
+	int middleX = m_rotCenterX;				
+	int middleY = m_rotCenterY;				
+	float angleY = 0.0f;							
+	float angleZ = 0.0f;							
+	static float currentRotX = 0.0f;
+	
+	mousePos.x() = mousePosX;
+	mousePos.y() = mousePosY;
+	
+	// If our cursor is still in the middle, we never moved... so don't update the screen
+	if( (mousePos.x == middleX) && (mousePos.y == middleY) ) return;
+
+	//Set cursor position in the middle of the screen
+	glutWarpPointer(middleX, middleY);
+
+	angleY = (float)( (middleX - mousePos.x()) ) / 1000.0f;		
+	angleZ = (float)( (middleY - mousePos.y()) ) / 1000.0f;		
+
+	// Here we keep track of the current rotation (for up and down) so that
+	// we can restrict the camera from doing a full 360 loop.
+	currentRotX -= angleZ;  
+
+	// If the current rotation (in radians) is greater than 1.0, we want to cap it.
+	if(currentRotX > 1.0f)
+		currentRotX = 1.0f;
+	// Check if the rotation is below -1.0, if so we want to make sure it doesn't continue
+	else if(currentRotX < -2.0f)
+		currentRotX = -2.0f;
+
+	// Otherwise, we can rotate the view around our position
+	else
+	{
+		Vec3 vAxis = (m_camView - m_camPosition).cross(m_camUpVector);
+		vAxis.normalize();
+
+		// Rotate around our perpendicular axis and along the y-axis
+		RotateView(angleZ, vAxis.x(), vAxis.y(), vAxis.z());
+	}
+
+	// Rotate around the y axis no matter what the currentRotX is
+	RotateView(angleY, 0, 1, 0);
+}
+
+//// ROTATE VIEW ///////////////////////////////////////////////////////
 //
-// You should have received a copy of the GNU Lesser General Public
-// License and a copy of the GNU General Public License along with
-// Eigen. If not, see <http://www.gnu.org/licenses/>.
-#ifdef WIN32
-#include <windows.h>
-#endif
-
-#include "camera.h"
-#include <GL/gl.h>
-#include "gpuhelper.h"
-#include "Eigen/LU"
-using namespace Eigen;
-
-Camera::Camera()
-    : mViewIsUptodate(false), mProjIsUptodate(false)
+// Rotates the view around the position using a quaternion rotation
+////////////////////////////////////////////////////////////////////////
+void Camera::RotateView(const float angle, const float x, const float y, const float z)
 {
-    mViewMatrix.setIdentity();
-    
-    mFovY = M_PI/3.;
-    mNearDist = 0.1;
-    mFarDist = 1000.;
-    
-    mVpX = 0;
-    mVpY = 0;
+	//quaternion rotation
+	//r' = q * r * q.conjugiert
 
-    setPosition(Vector3f::Constant(100.));
-    setTarget(Vector3f::Zero());
+	Eigen::Quaternionf temp, quat_view, result;
+	
+	float sinAngle = sinf(angle*0.5f);
+	temp.x() = x * sinAngle;
+	temp.y() = y * sinAngle;
+	temp.z() = z * sinAngle;
+	temp.w() = cosf(angle*0.5f);
+
+	Vec3 view = m_camView - m_camPosition;
+
+	quat_view.x() = view.x();
+	quat_view.y() = view.y();
+	quat_view.z() = view.z();
+	quat_view.w() = 0;
+
+	result = (temp*quat_view)*temp.conjugate();
+
+	m_camView.x() = m_camPosition.x() + result.x();
+	m_camView.y() = m_camPosition.y() + result.y();
+	m_camView.z() = m_camPosition.z() + result.z(); 
 }
 
-Camera& Camera::operator=(const Camera& other)
-{
-    mViewIsUptodate = false;
-    mProjIsUptodate = false;
-    
-    mVpX = other.mVpX;
-    mVpY = other.mVpY;
-    mVpWidth = other.mVpWidth;
-    mVpHeight = other.mVpHeight;
+//// STRAFE CAMERA /////////////////////////////////////////////////////
+//
+// Strafes the camera left and right depending on the speed (-/+)
+////////////////////////////////////////////////////////////////////////
+void Camera::StrafeCamera(const float camSpeed)
+{	
+	// Add the strafe vector to our position
+	m_camPosition.x() += m_camStrafe.x() * camSpeed;
+	m_camPosition.z() += m_camStrafe.z() * camSpeed;
 
-    mTarget = other.mTarget;
-    mFovY = other.mFovY;
-    mNearDist = other.mNearDist;
-    mFarDist = other.mFarDist;
-    
-    mViewMatrix = other.mViewMatrix;
-    mProjectionMatrix = other.mProjectionMatrix;
-
-    return *this;
+	// Add the strafe vector to our view
+	m_camView.x() += m_camStrafe.x() * camSpeed;
+	m_camView.z() += m_camStrafe.z() * camSpeed;
 }
 
-Camera::Camera(const Camera& other)
+//// MOVE CAMERA ///////////////////////////////////////////////////////
+//
+// Move the camera forward or backward depending on the speed
+////////////////////////////////////////////////////////////////////////
+void Camera::MoveCamera(const float camSpeed)
 {
-    *this = other;
+	// Get the current view vector (the direction we are looking)
+	Vec3 viewVector = m_camView - m_camPosition;
+	viewVector.normalize();
+
+	m_camPosition.x() += viewVector.x() * camSpeed;		
+	m_camPosition.y() += viewVector.y() * camSpeed;		
+	m_camPosition.z() += viewVector.z() * camSpeed;		
+	m_camView.x() += viewVector.x() * camSpeed;			
+	m_camView.y() += viewVector.y() * camSpeed;			
+	m_camView.z() += viewVector.z() * camSpeed;			
 }
 
-Camera::~Camera()
+//// CHECK MOVEMENT KEYS ///////////////////////////////////////////////
+//
+// If you push a movement key (w,a,s,d), the camera will move
+////////////////////////////////////////////////////////////////////////
+void Camera::CheckMovementKeys(const float frameInterval, bool w, bool s, bool a, bool d)
 {
+	float camSpeed = m_camSpeed * frameInterval;
+
+	if(w) 
+	{				
+		MoveCamera(camSpeed);				
+	}
+
+	if(s) {			
+
+		MoveCamera(-camSpeed);				
+	}
+
+	if(a) 
+	{			
+		StrafeCamera(-camSpeed);
+	}
+
+	if(d) 
+	{			
+		StrafeCamera(camSpeed);
+	}
 }
 
-
-void Camera::setViewport(unsigned int offsetx, unsigned int offsety, unsigned int width, unsigned int height)
+//// UPDATE CAMERA POSITION ////////////////////////////////////////////
+//
+// This function updates the camera position
+////////////////////////////////////////////////////////////////////////
+void Camera::UpdateCamPos(const float frameInterval, bool w, bool s, bool a, bool d) 
 {
-    mVpX = offsetx;
-    mVpY = offsety;
-    mVpWidth = width;
-    mVpHeight = height;
-    
-    mProjIsUptodate = false;
+	Vec3 vCross = (m_camView - m_camPosition).cross(m_camUpVector);
+
+	m_camStrafe.normalize();
+
+	CheckMovementKeys(frameInterval,w,s,a,d);
 }
 
-void Camera::setViewport(unsigned int width, unsigned int height)
+//// CAMERA LOOK AT ////////////////////////////////////////////////////
+//
+//	Set gluLookAt()
+////////////////////////////////////////////////////////////////////////
+void Camera::CamLookAt()
 {
-    mVpWidth = width;
-    mVpHeight = height;
-    
-    mProjIsUptodate = false;
+	gluLookAt(m_camPosition.x(), m_camPosition.y(), m_camPosition.z(),	
+			  m_camView.x(),	   m_camView.y(),     m_camView.z(),	
+			  m_camUpVector.x(), m_camUpVector.y(), m_camUpVector.z());
 }
 
-void Camera::setFovY(float value)
+//// GET CAMERA POSITION ///////////////////////////////////////////////
+//
+//	Returns the current camera position
+////////////////////////////////////////////////////////////////////////
+Vec3 Camera::GetCamPos() const
 {
-    mFovY = value;
-    mProjIsUptodate = false;
+	return m_camPosition;
 }
 
-Vector3f Camera::direction(void) const
+//// GET LOOK AT ///////////////////////////////////////////////////////
+//
+//	Returns the current position, the camera is looking at
+////////////////////////////////////////////////////////////////////////
+Vec3 Camera::GetLookAt() const
 {
-    return - (orientation() * Vector3f::UnitZ());
-}
-Vector3f Camera::up(void) const
-{
-    return orientation() * Vector3f::UnitY();
-}
-Vector3f Camera::right(void) const
-{
-    return orientation() * Vector3f::UnitX();
-}
-
-void Camera::setDirection(const Vector3f& newDirection)
-{
-    // TODO implement it computing the rotation between newDirection and current dir ?
-    Vector3f up = this->up();
-    
-    Matrix3f camAxes;
-
-    camAxes.col(2) = (-newDirection).normalized();
-    camAxes.col(0) = up.cross( camAxes.col(2) ).normalized();
-    camAxes.col(1) = camAxes.col(2).cross( camAxes.col(0) ).normalized();
-    setOrientation(Quaternionf(camAxes));
-    
-    mViewIsUptodate = false;
-}
-
-void Camera::setTarget(const Vector3f& target)
-{
-    mTarget = target;
-    if (!mTarget.isApprox(position()))
-    {
-        Vector3f newDirection = mTarget - position();
-        setDirection(newDirection.normalized());
-    }
-}
-
-void Camera::setPosition(const Vector3f& p)
-{
-    mFrame.position = p;
-    mViewIsUptodate = false;
-}
-
-void Camera::setOrientation(const Quaternionf& q)
-{
-    mFrame.orientation = q;
-    mViewIsUptodate = false;
-}
-
-void Camera::setFrame(const Frame& f)
-{
-  mFrame = f;
-  mViewIsUptodate = false;
-}
-
-void Camera::rotateAroundTarget(const Quaternionf& q)
-{
-    Matrix4f mrot, mt, mtm;
-    
-    // update the transform matrix
-    updateViewMatrix();
-    Vector3f t = mViewMatrix * mTarget;
-
-    mViewMatrix = Translation3f(t)
-                * q
-                * Translation3f(-t)
-                * mViewMatrix;
-    
-    Quaternionf qa(mViewMatrix.linear());
-    qa = qa.conjugate();
-    setOrientation(qa);
-    setPosition(- (qa * mViewMatrix.translation()) );
-
-    mViewIsUptodate = true;
-}
-
-void Camera::localRotate(const Quaternionf& q)
-{
-    float dist = (position() - mTarget).norm();
-    setOrientation(orientation() * q);
-    mTarget = position() + dist * direction();
-    mViewIsUptodate = false;
-}
-
-void Camera::zoom(float d)
-{
-    float dist = (position() - mTarget).norm();
-    if(dist > d)
-    {
-        setPosition(position() + direction() * d);
-        mViewIsUptodate = false;
-    }
-}
-
-void Camera::localTranslate(const Vector3f& t)
-{
-  Vector3f trans = orientation() * t;
-  setPosition( position() + trans );
-  setTarget( mTarget + trans );
-
-  mViewIsUptodate = false;
-}
-
-void Camera::updateViewMatrix(void) const
-{
-    if(!mViewIsUptodate)
-    {
-        Quaternionf q = orientation().conjugate();
-        mViewMatrix.linear() = q.toRotationMatrix();
-        mViewMatrix.translation() = - (mViewMatrix.linear() * position());
-
-        mViewIsUptodate = true;
-    }
-}
-
-const Transform3f& Camera::viewMatrix(void) const
-{
-  updateViewMatrix();
-  return mViewMatrix;
-}
-
-void Camera::updateProjectionMatrix(void) const
-{
-  if(!mProjIsUptodate)
-  {
-    mProjectionMatrix.setIdentity();
-    float aspect = float(mVpWidth)/float(mVpHeight);
-    float theta = mFovY*0.5;
-    float range = mFarDist - mNearDist;
-    float invtan = 1./tan(theta);
-
-    mProjectionMatrix(0,0) = invtan / aspect;
-    mProjectionMatrix(1,1) = invtan;
-    mProjectionMatrix(2,2) = -(mNearDist + mFarDist) / range;
-    mProjectionMatrix(3,2) = -1;
-    mProjectionMatrix(2,3) = -2 * mNearDist * mFarDist / range;
-    mProjectionMatrix(3,3) = 0;
-    
-    mProjIsUptodate = true;
-  }
-}
-
-const Matrix4f& Camera::projectionMatrix(void) const
-{
-  updateProjectionMatrix();
-  return mProjectionMatrix;
-}
-
-void Camera::activateGL(void)
-{
-  glViewport(vpX(), vpY(), vpWidth(), vpHeight());
-  gpu.loadMatrix(projectionMatrix(),GL_PROJECTION);
-  gpu.loadMatrix(viewMatrix().matrix(),GL_MODELVIEW);
-}
-
-
-Vector3f Camera::unProject(const Vector2f& uv, float depth) const
-{
-    Matrix4f inv = mViewMatrix.inverse();
-    return unProject(uv, depth, inv);
-}
-
-Vector3f Camera::unProject(const Vector2f& uv, float depth, const Matrix4f& invModelview) const
-{
-    updateViewMatrix();
-    updateProjectionMatrix();
-    
-    Vector3f a(2.*uv.x()/float(mVpWidth)-1., 2.*uv.y()/float(mVpHeight)-1., 1.);
-    a.x() *= depth/mProjectionMatrix(0,0);
-    a.y() *= depth/mProjectionMatrix(1,1);
-    a.z() = -depth;
-    // FIXME /\/|
-    Vector4f b = invModelview * Vector4f(a.x(), a.y(), a.z(), 1.);
-    return Vector3f(b.x(), b.y(), b.z());
+	return m_camView;
 }

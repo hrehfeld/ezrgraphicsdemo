@@ -25,8 +25,12 @@
 #ifndef EIGEN_GPUHELPER_H
 #define EIGEN_GPUHELPER_H
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <Eigen/Geometry>
-#include <GL/glut.h>
+#include <GL/gl.h>
 #include <vector>
 
 using namespace Eigen;
@@ -96,11 +100,6 @@ class GpuHelper
     /** Pop the OpenGL matrix \a matrixTarget
     */
     inline void popMatrix(GLenum matrixTarget);
-
-    void drawVector(const Vector3f& position, const Vector3f& vec, const Color& color, float aspect = 50.);
-    void drawVectorBox(const Vector3f& position, const Vector3f& vec, const Color& color, float aspect = 50.);
-    void drawUnitCube(void);
-    void drawUnitSphere(int level=0);
 
     /// draw the \a nofElement first elements
     inline void draw(GLenum mode, unsigned int nofElement);
