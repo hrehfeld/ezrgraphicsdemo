@@ -18,6 +18,14 @@ BIN := bin
 
 #stop editing here
 
+ifeq ($(BUILDVARIANT),debug)
+CFLAGS += -O0 -g -Wall
+else ifeq ($(BUILDVARIANT),normal)
+CFLAGS += -O2 -g -Wall
+else ifeq ($(BUILDVARIANT),release)
+CFLAGS += -O2 -Wall
+endif
+
 VPATH := $(BIN)
 
 bin := $(BIN)/${BUILDVARIANT}
@@ -29,19 +37,19 @@ libs = $(LIBS)
 
 .PHONY: clean
 
-all: $(BIN)/$(EXE)
+all: $(bin)/$(EXE)
 
-$(BIN)/$(EXE): $(BIN) $(objects)
-	$(CC) $(foreach lib,$(libs), -l $(lib) ) -o $@ $(foreach obj,$(objects), $(BIN)/$(obj) )
+$(bin)/$(EXE): $(bin) $(objects)
+	$(CC) $(foreach lib,$(libs), -l $(lib) ) -o $@ $(foreach obj,$(objects), $(bin)/$(obj) )
 
 
 %.o: %.cpp
-	mkdir -p $(BIN)/$(dir $<)
-	${CC} ${CFLAGS} $(foreach include,$(includes),-I$(include) ) -o $(BIN)/$@ -c $(filter %.cpp,$^)
+	mkdir -p $(bin)/$(dir $<)
+	${CC} ${CFLAGS} $(foreach include,$(includes),-I$(include) ) -o $(bin)/$@ -c $(filter %.cpp,$^)
 
 
 clean:
-	-rm -rf $(BIN)/
+	-rm -rf $(bin)/
 
 %:
 	\mkdir -p $@
