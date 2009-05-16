@@ -9,16 +9,13 @@ class Scene {
 
 public:
 	Scene();
+	void drawScene()const;
 
 private:
-	const static std::string MODELPATH;
-
-	const GLMmodel* _model;
+	 GLMmodel* _model;
 	
 	
 };
-
-const std::string Scene::MODELPATH("res/models/Lighthouse.obj");
 
 
 #endif
