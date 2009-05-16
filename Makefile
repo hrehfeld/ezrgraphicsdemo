@@ -1,34 +1,47 @@
 CC = g++
 CFLAGS =
 
+#build debug or release
+BUILDVARIANT := debug
 
-VARIANT := debug
-
+#name of the executable
 EXE = ezr
 
-SRC := src
-BIN := bin/${VARIANT}
+#all directories with source files (cpp/h) in them. edit if you add a new one
+SRC := src lib/glm
+#include these dirs for headers
+INCLUDES := lib lib/glut lib/glu
+#names of the libs at linking time
+LIBS = GL GLU glut
+#put binaries in BIN/$(BUILDVARIANT)
+BIN := bin
 
-VPATH := $(BIN) $(SRC)
+#stop editing here
 
-#find cpp files in src/
-sources := $(subst $(SRC)/,,$(wildcard $(SRC)/*.cpp))
+VPATH := $(BIN)
+
+bin := $(BIN)/${BUILDVARIANT}
+#find cpp files in all source dirs
+sources := $(foreach dir,$(SRC),$(wildcard $(dir)/*.cpp))
 objects := $(addsuffix .o, $(basename $(sources)))
-includes := lib lib/glut lib/glu lib/glm
-libs = GL GLU glut
+includes := $(INCLUDES) $(SRC)
+libs = $(LIBS)
 
 .PHONY: clean
 
-all: $(BIN) $(objects)
-	$(CC) $(foreach lib,$(libs), -l $(lib) ) \
--o $(BIN)/$(EXE) $(foreach obj,$(objects), $(BIN)/$(obj) )
+all: $(BIN)/$(EXE)
 
-$(BIN):
-	\mkdir -p $(BIN)
+$(BIN)/$(EXE): $(BIN) $(objects)
+	$(CC) $(foreach lib,$(libs), -l $(lib) ) -o $@ $(foreach obj,$(objects), $(BIN)/$(obj) )
+
 
 %.o: %.cpp
-	${CC} ${CFLAGS} $(foreach include,$(includes),-I$(include) ) -o $(BIN)/$@ -c $<
+	mkdir -p $(BIN)/$(dir $<)
+	${CC} ${CFLAGS} $(foreach include,$(includes),-I$(include) ) -o $(BIN)/$@ -c $(filter %.cpp,$^)
 
 
 clean:
-	-rm $(BIN)/*.o
+	-rm -rf $(BIN)/
+
+%:
+	\mkdir -p $@
