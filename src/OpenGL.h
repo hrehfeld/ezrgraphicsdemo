@@ -19,12 +19,23 @@
 #ifdef __APPLE__
 #  include <GLUT/gl.h>
 #else
-//#  include <stdlib.h> 
-#  include <GL/glew.h>
-#  include <GL/wglew.h>
+
+
+#include <GL/glew.h>
+
 #  include <GL/gl.h>
 #  include <GL/glu.h>
 #  include "GL/glut.h"
+#ifdef LINUX
+#  include <GL/glext.h>
+#endif
+
+#ifdef WIN32
+#  include <GL/wglew.h>
+#elseifdef LINUX
+#  include <GL/glxew.h>
+#endif
+
 #endif
 
 #endif
