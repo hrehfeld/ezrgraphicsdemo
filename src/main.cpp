@@ -177,7 +177,7 @@ void init(void){
 	}
 	
 	//disable vsync
-	wglSwapIntervalEXT(0);
+	//wglSwapIntervalEXT(0);
 
 	fbo = new EZR::FBO(wndWidth, wndHeight, true);
 	fbo->bind();
