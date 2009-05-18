@@ -85,14 +85,14 @@ namespace EZR{
 	// This function binds the FBO as current renderbuffer
 	////////////////////////////////////////////////////////////////////////
 	void FBO::bind(){
-		glBindFramebufferEXT(GL_FRAMEBUFFER, _fboID);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fboID);
 		if(glGetError() != GL_NO_ERROR)
 			throw std::string("Error: Could not bind framebuffer"); 
 
 		if(_useDepth)
 		{
-			glBindRenderbufferEXT(GL_RENDERBUFFER, _rboID);
-			glRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, _textureResX, _textureResY);
+			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _rboID);
+			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, _textureResX, _textureResY);
 			
 			if(glGetError() != GL_NO_ERROR)
 				throw std::string("Error: Could not bind renderbuffer"); 
@@ -105,7 +105,7 @@ namespace EZR{
 	////////////////////////////////////////////////////////////////////////
 	void FBO::attachFBOTexture(GLenum attachment, GLuint target, GLuint texID)
 	{
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER, attachment, target, texID, 0);
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, attachment, target, texID, 0);
 
 		if(glGetError() != GL_NO_ERROR)
 			throw std::string("Error: Could not attach texture to framebuffer"); 
@@ -117,7 +117,7 @@ namespace EZR{
 	////////////////////////////////////////////////////////////////////////
 	void FBO::attachRBO(GLenum attachment)
 	{
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _rboID);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, _rboID);
 	}
 
 	//// GET MAX COLOR ATTACHMENTS /////////////////////////////////////////
@@ -127,7 +127,7 @@ namespace EZR{
 	int FBO::getMaxColorAttach()const
 	{
 		GLint max = 0;
-		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &max);
+		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &max);
 		return (int)max;
 	}
 
@@ -138,11 +138,11 @@ namespace EZR{
 
 	void FBO::unbindFBO()
 	{
-		glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		if(glGetError() != GL_NO_ERROR)
 			throw std::string("Error: Could not bind default fixed function framebuffer"); 
 		if(_useDepth){
-			glBindRenderbufferEXT(GL_RENDERBUFFER, 0);
+			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 			if(glGetError() != GL_NO_ERROR)
 				throw std::string("Error: Could not unbind renderbuffer"); 
 		}
@@ -154,7 +154,7 @@ namespace EZR{
 	////////////////////////////////////////////////////////////////////////
 	void FBO::checkFBO()
 	{
-		GLenum error = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER);
+		GLenum error = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 		
 		//Console output
 		printf("\n");
@@ -183,7 +183,7 @@ namespace EZR{
 		if(error==GL_FRAMEBUFFER_UNSUPPORTED_EXT){
 			printf("GL_FRAMEBUFFER_UNSUPPORTED_EXT\n");
 		}
-		if(error==GL_FRAMEBUFFER_COMPLETE){
+		if(error==GL_FRAMEBUFFER_COMPLETE_EXT){
 			printf("FBO complete!\n");
 		}
 	}
