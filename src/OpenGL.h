@@ -20,7 +20,8 @@
 #  include <GLUT/gl.h>
 #else
 //#  include <stdlib.h> 
-//#  include <GL/glew.h>
+#  include <GL/glew.h>
+#  include <GL/wglew.h>
 #  include <GL/gl.h>
 #  include <GL/glu.h>
 #  include "GL/glut.h"

@@ -182,6 +182,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\FBO.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\lib\glm\glm.cpp"
 				>
 			</File>
@@ -191,6 +195,10 @@
 			</File>
 			<File
 				RelativePath=".\src\Scene.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Time.cpp"
 				>
 			</File>
 		</Filter>
@@ -204,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\FBO.h"
+				>
+			</File>
+			<File
 				RelativePath=".\lib\glm\glm.h"
 				>
 			</File>
@@ -213,6 +225,10 @@
 			</File>
 			<File
 				RelativePath=".\src\Scene.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Time.h"
 				>
 			</File>
 		</Filter>

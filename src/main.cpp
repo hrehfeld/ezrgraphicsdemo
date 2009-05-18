@@ -3,41 +3,95 @@
 #endif
 
 #include <iostream>
-#include "GL/glut.h"
+#include "OpenGL.h"
 #include "Camera.h"
+#include "FBO.h"
 #include "Scene.h"
+#include "Time.h"
 
 using namespace Eigen;
 
-int wndWidth = 640;
-int wndHeight = 480;
+int wndWidth = 1024;
+int wndHeight = 768;
 
 GLdouble gNear = 0.1;
 GLdouble gFar = 100.0;
 
-Vector2i _mouseCoord = Vector2i(0,0);
-
-Camera* cam;
-Scene* scene;
-
+EZR::Camera* cam;
+EZR::FBO* fbo;
+EZR::Scene* scene;
+EZR::Time* time;
 int _x, _y;
 
 bool camMove, w, s, a, d = false;
+GLuint textureID;
+GLuint depthbuffer;
 
 
 void display(void){    
+ 
+	cam->UpdateCamPos(time->GetFrameInterval(), w, s, a, d);
+	time->CalculateFrameRate();
+	
+	fbo->bind();
+	//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+	
+	//glPushAttrib(GL_VIEWPORT_BIT);
+	//glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+	glClearColor(0.0,0.0,0.0,1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	glLoadIdentity();
-	cam->CamLookAt();		
-	scene->drawScene();
-	glutSolidTorus(0.3, 2, 12, 36);	
+	cam->CamLookAt();
+	
+	glutSolidTeapot(1);
+	//scene->drawScene();
+		
+	//glPopAttrib();
+	//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	fbo->unbindFBO();
+	
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+
+	//draw a screensize rectangle with the fbo rendered scene as texture on it
+	glMatrixMode(GL_MODELVIEW);	
+	glPushMatrix();
+	glLoadIdentity();						
+	glMatrixMode (GL_PROJECTION); 
+	glPushMatrix (); 
+	glLoadIdentity ();
+	
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	glBegin (GL_QUADS); 
+		glNormal3f( 0.0f, 0.0f, 1.0);
+		glTexCoord2f(0.0f, 0.0f); glVertex3i (-1, -1, -1); 
+		glTexCoord2f(1.0f, 0.0f); glVertex3i (1, -1, -1); 
+		glTexCoord2f(1.0f, 1.0f); glVertex3i (1, 1, -1); 
+		glTexCoord2f(0.0f, 1.0f); glVertex3i (-1, 1, -1); 
+	glEnd ();
+
+	glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D,0);
+
+	glPopMatrix();
+	glMatrixMode (GL_MODELVIEW); 
+	glPopMatrix(); 
+			
+	//std::cout << time->GetFramesPerSecond() << std::endl;
 	glutSwapBuffers();
 }
 
 void reshape (int w, int h){
-	glViewport(0, 0, w, h);
-	glLoadIdentity();
-	glMatrixMode (GL_MODELVIEW);
+	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+
+	glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(60.0f, (float)(w)/h , 1.0f, 100.0f); // FOV, AspectRatio, NearClip, FarClip
+
+    glMatrixMode(GL_MODELVIEW);
 }
 
 
@@ -55,10 +109,10 @@ void keyboard(unsigned char key, int x, int y)
 		case 's' :
 			s=true;
 			break;
-		  case 'a' :
+		case 'a' :
 			a=true;
 			break;
-		  case 'd' :
+		case 'd' :
 			d=true;
 			break;
 	}
@@ -66,10 +120,20 @@ void keyboard(unsigned char key, int x, int y)
 
 void releaseKey(unsigned char key, int x, int y)
 {
-	if(key=='w') w=false;
-    if(key=='s') s=false;
-	if(key=='a') a=false;
-    if(key=='d') d=false;
+	switch(key){
+		case 'w' :
+			w=false;
+			break;
+		case 's' :
+			s=false;
+			break;
+		case 'a' :
+			a=false;
+			break;
+		case 'd' :
+			d=false;
+			break;
+	}
 }
 
 void mouse(int button, int state, int x, int y)
@@ -78,37 +142,71 @@ void mouse(int button, int state, int x, int y)
 	{
 		camMove = !state;
 		//glutSetCursor(state ? GLUT_CURSOR_INHERIT : GLUT_CURSOR_NONE);
-		if (state == GLUT_DOWN)
+		if (state == GLUT_DOWN){
 			cam->SetRotationCenter(x, y);
+		}
 	}
 }
 
 void mouseMotion(int x, int y)
 {
-	if (camMove)
+	if (camMove){
 		cam->SetMouseView(x, y);
-	display();
+		//std::cout << x << "," << y << std::endl;
+	}
 }
 
 
 //init openGL
 void init(void){
 	glShadeModel (GL_SMOOTH);				
-	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);	
+	glClearColor (0.0f, 0.0f, 0.0f, 1.0f);	
 	glClearDepth (0.0f);
 	glClearDepth (gFar);
 	glEnable (GL_DEPTH_TEST);				
-	glDepthFunc (GL_LEQUAL);				
+	glDepthFunc (GL_LEQUAL);	
+
+	glewInit();
+	if (glewIsSupported("GL_VERSION_2_0"))
+	{
+		std::cerr << "Ready for OpenGL 2.0\n" << std::endl;; 
+	}
+	else{
+		std::cerr << "OpenGL 2.0 not supported\n" << std::endl;
+		exit(1);
+	}
 	
-	//glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	
+	//disable vsync
+	wglSwapIntervalEXT(0);
+
+	fbo = new EZR::FBO(wndWidth, wndHeight, true);
+	fbo->bind();
+
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D,textureID);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, wndWidth, wndHeight, 0, GL_RGB, GL_FLOAT, NULL);
+	
+	fbo->attachFBOTexture(GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureID);
+	fbo->attachRBO(GL_DEPTH_ATTACHMENT_EXT);
+	
+	fbo->checkFBO();
+
+	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+		
+	glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	
+	//glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-	GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0};
+	GLfloat light_position[] = {3.0, 3.0, 2.0, 0.0};
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+
+	time = new EZR::Time();
 	
 	glViewport(0, 0, wndWidth, wndHeight);
 
@@ -116,14 +214,12 @@ void init(void){
 	glLoadIdentity();
 	gluPerspective(60.0f,(GLfloat)wndWidth/(GLfloat)wndHeight, 0.1 ,100.0f);
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	glLoadIdentity();	
 
-	cam = new Camera(wndWidth, wndHeight);
+	cam = new EZR::Camera(wndWidth, wndHeight);
 	cam->PositionCamera( 0, 0, 7,   0, 0, -1,   0, 1, 0);
 
-	scene = new Scene();
-	
-	reshape(wndWidth, wndHeight);
+	//scene = new EZR::Scene();
 }
 
 
@@ -142,6 +238,7 @@ int main(int argc, char* argv[])
 	glutReshapeFunc(reshape);	
     glutDisplayFunc(display);
     glutIdleFunc(display);   
+	glutIgnoreKeyRepeat(1);
     glutKeyboardFunc(keyboard);
 	glutKeyboardUpFunc(releaseKey);
 	glutMouseFunc(mouse);
