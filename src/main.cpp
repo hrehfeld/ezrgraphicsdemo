@@ -80,7 +80,7 @@ void display(void){
 	glMatrixMode (GL_MODELVIEW); 
 	glPopMatrix(); 
 			
-	//std::cout << time->GetFramesPerSecond() << std::endl;
+	std::cout << time->GetFramesPerSecond() << std::endl;
 	glutSwapBuffers();
 }
 

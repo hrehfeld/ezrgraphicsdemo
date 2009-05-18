@@ -32,7 +32,7 @@
 
 #ifdef WIN32
 #  include <GL/wglew.h>
-#elseifdef LINUX
+#elif LINUX
 #  include <GL/glxew.h>
 #endif
 

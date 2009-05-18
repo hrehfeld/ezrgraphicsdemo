@@ -118,6 +118,7 @@ namespace EZR{
 	void FBO::attachRBO(GLenum attachment)
 	{
 		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, _rboID);
+	}
 
 	//// GET MAX COLOR ATTACHMENTS /////////////////////////////////////////
 	//
@@ -135,7 +136,7 @@ namespace EZR{
 	// Switch back to screen buffer, screen bufferID=0
 	////////////////////////////////////////////////////////////////////////
 
-	void FBO::unbindFBO()
+	void FBO::unbindFBO() 
 	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		if(glGetError() != GL_NO_ERROR)
