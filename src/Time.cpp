@@ -22,6 +22,10 @@ namespace EZR{
 		m_fps           = 0.0f;
 	}
 
+	Time::~Time()
+	{
+	}
+
 	//// CALCULATE FRAME RATE //////////////////////////////////////////////
 	//
 	// This function calculates the current framerate as frames per second

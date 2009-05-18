@@ -16,7 +16,7 @@ namespace EZR{
 	// FBO constructor: create our FBO
 	////////////////////////////////////////////////////////////////////////
 	FBO::FBO(int textureResX, int textureResY, bool renderbuffer)
-		:_fboID(-1), _rboID(-1), _useDepth(renderbuffer),_textureResX(textureResX),
+		:_fboID(0), _rboID(0), _useDepth(renderbuffer),_textureResX(textureResX),
 		_textureResY(textureResY)
 	{
 		generateFBO();
@@ -91,8 +91,8 @@ namespace EZR{
 
 		if(_useDepth)
 		{
-			glBindRenderbufferEXT(GL_RENDERBUFFER, _rboID);
-			glRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, _textureResX, _textureResY);
+			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _rboID);
+			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, _textureResX, _textureResY);
 			
 			if(glGetError() != GL_NO_ERROR)
 				throw std::string("Error: Could not bind renderbuffer"); 
@@ -117,7 +117,7 @@ namespace EZR{
 	////////////////////////////////////////////////////////////////////////
 	void FBO::attachRBO(GLenum attachment)
 	{
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _rboID);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, _rboID);
 	}
 
 	//// GET MAX COLOR ATTACHMENTS /////////////////////////////////////////

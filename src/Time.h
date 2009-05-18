@@ -16,6 +16,7 @@ namespace EZR{
 	public:
 
 		Time();
+		~Time();
 		void CalculateFrameRate();
 		const float GetFramesPerSecond() const;
 		const float GetFrameInterval() const;
