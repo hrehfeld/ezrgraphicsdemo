@@ -9,7 +9,7 @@
 #ifndef _TIME_H
 #define _TIME_H
 
-namespace EZR{
+namespace Ezr{
 
 	class Time {
 

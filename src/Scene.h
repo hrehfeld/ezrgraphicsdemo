@@ -4,7 +4,7 @@
 #include <string>
 #include "glm.h"
 
-namespace EZR{
+namespace Ezr{
 
 class Scene {
 
