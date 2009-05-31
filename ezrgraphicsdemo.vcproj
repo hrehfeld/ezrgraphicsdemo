@@ -46,7 +46,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
@@ -182,7 +182,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\FBO.cpp"
+				RelativePath=".\src\Fbo.cpp"
 				>
 			</File>
 			<File
@@ -212,7 +212,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\FBO.h"
+				RelativePath=".\src\Fbo.h"
 				>
 			</File>
 			<File

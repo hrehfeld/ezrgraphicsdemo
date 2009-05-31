@@ -1,53 +1,58 @@
 /*******************************************************************************
- *  FBO.cpp
+ *  Fbo.cpp
  *
  *  Echtzeit-Rendering Framework 2009
  *
  *  Questions?: <fronc@uni-koblenz.de>
  ******************************************************************************/
 #include<string>
-#include "FBO.h"
+#include<iostream>
+#include "Fbo.h"
 
 
-namespace EZR{
+namespace Ezr{
 
-	//// FBO ///////////////////////////////////////////////////////////////
+	//// Fbo ///////////////////////////////////////////////////////////////
 	//
-	// FBO constructor: create our FBO
+	// Fbo constructor: create our Fbo
 	////////////////////////////////////////////////////////////////////////
-	FBO::FBO(int textureResX, int textureResY, bool renderbuffer)
-		:_fboID(-1), _rboID(-1), _useDepth(renderbuffer),_textureResX(textureResX),
+	Fbo::Fbo(int textureResX, int textureResY, bool renderbuffer)
+		:_fboID(0), _rboID(0), _useDepth(renderbuffer),_textureResX(textureResX),
 		_textureResY(textureResY)
 	{
-		generateFBO();
+		generateFbo();
 	}
 
-	//// ~FBO //////////////////////////////////////////////////////////////
+	//// ~Fbo //////////////////////////////////////////////////////////////
 	//
-	// FBO destructor: call release
+	// Fbo destructor: call release
 	////////////////////////////////////////////////////////////////////////
-	FBO::~FBO()
+	Fbo::~Fbo()
 	{
-		release();
+		try{
+			release();
+		}catch(std::string e){
+			std::cerr << e << std::endl;
+		}
 	}
 
 	
 	//// release ////////////////////////////////////////////////////////////
 	//
-	// free our memory and delete the FBO and 
+	// free our memory and delete the Fbo and 
 	// RBO (RenderBufferObject)
 	////////////////////////////////////////////////////////////////////////
-	void FBO::release()
+	void Fbo::release()
 	{
 		glDeleteFramebuffersEXT(1, &_fboID);
 		if(glGetError() != GL_NO_ERROR)
-			throw std::string("Error: Could not delete framebuffer in FBO::release()"); 
+			throw std::string("Error: Could not delete framebuffer in Fbo::release()"); 
 		
 		if(_useDepth)
 		{
 			glDeleteRenderbuffersEXT(1, &_rboID);		
 			if(glGetError() != GL_NO_ERROR)
-				throw std::string("Error: Could not delete renderbuffer in FBO::release()"); 
+				throw std::string("Error: Could not delete renderbuffer in Fbo::release()"); 
 		}
 	}
 
@@ -56,23 +61,23 @@ namespace EZR{
 	// This creates our renderbuffer. We need this for later 
 	// attaching a depth buffer
 	////////////////////////////////////////////////////////////////////////
-	void FBO::generateRBO()
+	void Fbo::generateRBO()
 	{
 		glGenRenderbuffersEXT(1, &_rboID);
 		if(glGetError() != GL_NO_ERROR)
-			throw std::string("Error: Could not generate renderbuffer in FBO::generateRBO()"); 
+			throw std::string("Error: Could not generate renderbuffer in Fbo::generateRBO()"); 
 	}
 
-	//// CREATE FBO ////////////////////////////////////////////////////////
+	//// CREATE Fbo ////////////////////////////////////////////////////////
 	//
-	// This creates our FBO and if we need a depth buffer, 
+	// This creates our Fbo and if we need a depth buffer, 
 	// create a renderbuffer 
 	////////////////////////////////////////////////////////////////////////
-	void FBO::generateFBO()
+	void Fbo::generateFbo()
 	{
 		glGenFramebuffersEXT(1, &_fboID);
 		if(glGetError() != GL_NO_ERROR)
-			throw std::string("Error: Could not generate renderbuffer in FBO::generateFBO()");
+			throw std::string("Error: Could not generate renderbuffer in Fbo::generateFbo()");
 
 		if(_useDepth)
 		{
@@ -82,9 +87,9 @@ namespace EZR{
 
 	//// BIND //////////////////////////////////////////////////////////////
 	//
-	// This function binds the FBO as current renderbuffer
+	// This function binds the Fbo as current renderbuffer
 	////////////////////////////////////////////////////////////////////////
-	void FBO::bind(){
+	void Fbo::bind(){
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fboID);
 		if(glGetError() != GL_NO_ERROR)
 			throw std::string("Error: Could not bind framebuffer"); 
@@ -99,11 +104,11 @@ namespace EZR{
 		}
 	}
 
-	//// ATTACH FBO TEXTURE ////////////////////////////////////////////////
+	//// ATTACH Fbo TEXTURE ////////////////////////////////////////////////
 	//
-	// Attach a new texture to the FBO
+	// Attach a new texture to the Fbo
 	////////////////////////////////////////////////////////////////////////
-	void FBO::attachFBOTexture(GLenum attachment, GLuint target, GLuint texID)
+	void Fbo::attachFboTexture(GLenum attachment, GLuint target, GLuint texID)
 	{
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, attachment, target, texID, 0);
 
@@ -115,28 +120,28 @@ namespace EZR{
 	//
 	// Attach a renderbuffer, e.g. a depth buffer
 	////////////////////////////////////////////////////////////////////////
-	void FBO::attachRBO(GLenum attachment)
+	void Fbo::attachRBO(GLenum attachment)
 	{
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, _rboID);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, _rboID);
 	}
 
 	//// GET MAX COLOR ATTACHMENTS /////////////////////////////////////////
 	//
 	// Returns max supported color attachment points of your GPU
 	////////////////////////////////////////////////////////////////////////
-	int FBO::getMaxColorAttach()const
+	int Fbo::getMaxColorAttach()const
 	{
 		GLint max = 0;
 		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &max);
 		return (int)max;
 	}
 
-	//// DISABLE FBO ///////////////////////////////////////////////////////
+	//// DISABLE Fbo ///////////////////////////////////////////////////////
 	//
 	// Switch back to screen buffer, screen bufferID=0
 	////////////////////////////////////////////////////////////////////////
 
-	void FBO::unbindFBO()
+	void Fbo::unbindFbo() 
 	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		if(glGetError() != GL_NO_ERROR)
@@ -148,19 +153,19 @@ namespace EZR{
 		}
 	}
 
-	//// CHECK FBO ////////////////////////////////////////////////////////
+	//// CHECK Fbo ////////////////////////////////////////////////////////
 	//
 	// This function checks the fbo status 
 	////////////////////////////////////////////////////////////////////////
-	void FBO::checkFBO()
+	void Fbo::checkFbo()
 	{
 		GLenum error = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 		
 		//Console output
 		printf("\n");
-		printf("FBO debugging: \n");
+		printf("Fbo debugging: \n");
 		printf("-----------------------------------------------------------------\n");
-		printf("Max supported FBO color attachments (textures) of your GPU: %d\n",getMaxColorAttach());
+		printf("Max supported Fbo color attachments (textures) of your GPU: %d\n",getMaxColorAttach());
 
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT){
 			printf("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT\n");
@@ -184,7 +189,7 @@ namespace EZR{
 			printf("GL_FRAMEBUFFER_UNSUPPORTED_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_COMPLETE_EXT){
-			printf("FBO complete!\n");
+			printf("Fbo complete!\n");
 		}
 	}
 }

@@ -9,7 +9,7 @@ using std::cerr;
 using std::endl;
 
 
-namespace EZR{
+namespace Ezr{
 
 	Scene::Scene() {
 		_model = glmReadOBJ("res/models/Lighthouse.obj");

@@ -10,7 +10,7 @@
 #include "OpenGL.h"
 
 
-namespace EZR{
+namespace Ezr{
 
 	//// TIME //////////////////////////////////////////////////////////////
 	//
@@ -20,6 +20,10 @@ namespace EZR{
 	{
 		m_frameInterval = 0.0f;
 		m_fps           = 0.0f;
+	}
+
+	Time::~Time()
+	{
 	}
 
 	//// CALCULATE FRAME RATE //////////////////////////////////////////////

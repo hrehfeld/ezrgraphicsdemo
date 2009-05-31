@@ -11,15 +11,15 @@
 
 #include <Eigen/Core>
 
-namespace EZR{
+namespace Ezr{
 
 	typedef Eigen::Vector3f Vec3;
 	typedef Eigen::Vector2f Vec2;
-
+	
 	class Camera {
 		
 	public:
-
+		
 		Camera(int screenWidth, int screenHeight);
 
 		Vec3 Position() {	return m_camPosition;	}
