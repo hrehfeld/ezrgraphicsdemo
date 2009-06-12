@@ -1,7 +1,3 @@
-#ifdef WIN32
-#include <windows.h>
-#endif
-
 #include <iostream>
 #include "OpenGL.h"
 #include "Camera.h"
