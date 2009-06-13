@@ -28,7 +28,7 @@ BIN := bin
 
 #stop editing here
 
-CFLAGS = -D $(SYSTEM) -D __cplusplus -D __WIN32__
+CFLAGS = -D $(SYSTEM) -D __cplusplus
 
 ifeq ($(BUILDVARIANT),debug)
 CFLAGS += -O0 -g -Wall
