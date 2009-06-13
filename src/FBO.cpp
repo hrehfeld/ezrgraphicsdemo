@@ -8,6 +8,7 @@
 #include<string>
 #include<iostream>
 #include "Fbo.h"
+#include <stdio.h>
 
 
 namespace Ezr{
