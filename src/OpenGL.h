@@ -22,9 +22,9 @@
 
 #include <GL/glew.h>
 
-#  include <GL/gl.h>
-#  include <GL/glu.h>
-#  include "GL/glut.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include "GL/glut.h"
 #ifdef LINUX
 #  include <GL/glext.h>
 #elif MINGW

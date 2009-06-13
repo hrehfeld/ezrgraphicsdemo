@@ -19,7 +19,7 @@ ifeq ($(SYSTEM),LINUX)
   LIBS += GL GLU glut GLEW
 else
   ifeq ($(SYSTEM),MINGW)
-    LIBS += glew32 glu32 freeglut opengl32 gdi32 user32 kernel32
+    LIBS +=  opengl32 glu32 freeglut glew32
   endif
 endif
 
@@ -28,7 +28,7 @@ BIN := bin
 
 #stop editing here
 
-CFLAGS = -D $(SYSTEM) -D __cplusplus
+CFLAGS = -D $(SYSTEM) -D __cplusplus -D __WIN32__
 
 ifeq ($(BUILDVARIANT),debug)
 CFLAGS += -O0 -g -Wall
@@ -56,7 +56,7 @@ libs = $(LIBS)
 all: $(bin)/$(EXE)
 
 $(bin)/$(EXE): $(bin) $(objects)
-	$(CC) -o $@ $(foreach lib,$(libs), -l$(lib) ) $(objects)
+	$(CC) -o $@  $(objects) $(foreach lib,$(libs),-l$(lib))
 
 
 $(bin)/%.o: %.cpp
@@ -69,4 +69,4 @@ clean:
 	-rm -rf $(bin)/
 
 %:
-	\mkdir -p $@
+
