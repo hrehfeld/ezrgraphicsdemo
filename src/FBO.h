@@ -12,7 +12,7 @@
 #include "OpenGL.h" 
 
 namespace Ezr{
-
+	
 	class Fbo {
 
 	public:

@@ -8,6 +8,7 @@
 #include<string>
 #include<iostream>
 #include "Fbo.h"
+#include <stdio.h>
 
 
 namespace Ezr{
@@ -35,7 +36,6 @@ namespace Ezr{
 			std::cerr << e << std::endl;
 		}
 	}
-
 	
 	//// release ////////////////////////////////////////////////////////////
 	//

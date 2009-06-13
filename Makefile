@@ -12,8 +12,17 @@ SYSTEM = LINUX
 SRC := src lib/glm
 #include these dirs for headers
 INCLUDES := lib #lib/glut #lib/glu #lib/glew/include
+
 #names of the libs at linking time
-LIBS = GL GLU glut GLEW
+LIBS = 
+ifeq ($(SYSTEM),LINUX)
+  LIBS += GL GLU glut GLEW
+else
+  ifeq ($(SYSTEM),MINGW)
+    LIBS +=  opengl32 glu32 freeglut glew32
+  endif
+endif
+
 #put binaries in BIN/$(BUILDVARIANT)
 BIN := bin
 
@@ -23,10 +32,14 @@ CFLAGS = -D $(SYSTEM) -D __cplusplus
 
 ifeq ($(BUILDVARIANT),debug)
 CFLAGS += -O0 -g -Wall
-else ifeq ($(BUILDVARIANT),normal)
+else
+ifeq ($(BUILDVARIANT),normal)
 CFLAGS += -O2 -g -Wall
-else ifeq ($(BUILDVARIANT),release)
+else
+ifeq ($(BUILDVARIANT),release)
 CFLAGS += -O2 -Wall
+endif
+endif
 endif
 
 VPATH := $(BIN)
@@ -43,7 +56,7 @@ libs = $(LIBS)
 all: $(bin)/$(EXE)
 
 $(bin)/$(EXE): $(bin) $(objects)
-	$(CC) $(foreach lib,$(libs), -l $(lib) ) -o $@ $(objects)
+	$(CC) -o $@  $(objects) $(foreach lib,$(libs),-l$(lib))
 
 
 $(bin)/%.o: %.cpp
@@ -56,4 +69,4 @@ clean:
 	-rm -rf $(bin)/
 
 %:
-	\mkdir -p $@
+
