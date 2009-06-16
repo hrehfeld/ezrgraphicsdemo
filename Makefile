@@ -6,12 +6,12 @@ BUILDVARIANT := debug
 #name of the executable
 EXE = ezr
 
-SYSTEM = LINUX
+SYSTEM = MINGW
 
 #all directories with source files (cpp/h) in them. edit if you add a new one
-SRC := src lib/glm
+SRC := src src/gl lib/glm 
 #include these dirs for headers
-INCLUDES := lib #lib/glut #lib/glu #lib/glew/include
+INCLUDES := lib 
 
 #names of the libs at linking time
 LIBS = 
@@ -27,6 +27,7 @@ endif
 BIN := bin
 
 #stop editing here
+include librarypaths.makefile
 
 CFLAGS = -D $(SYSTEM) -D __cplusplus
 
@@ -48,7 +49,7 @@ bin := $(BIN)/${BUILDVARIANT}
 #find cpp files in all source dirs
 sources := $(foreach dir,$(SRC),$(wildcard $(dir)/*.cpp))
 objects := $(addprefix $(bin)/,$(addsuffix .o, $(basename $(sources))))
-includes := $(INCLUDES) $(SRC)
+includes := $(INCLUDES) $(SRC) $(BOOST)
 libs = $(LIBS)
 
 .PHONY: clean
