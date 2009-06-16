@@ -1,22 +1,22 @@
 /*******************************************************************************
- *  Time.h
+ *  Timer.h
  *
  *  Echtzeit-Rendering Framework 2009
  *
  *  Questions?: <fronc@uni-koblenz.de>
  ******************************************************************************/
 
-#ifndef _TIME_H
-#define _TIME_H
+#ifndef _TIMER_H
+#define _TIMER_H
 
 namespace Ezr{
 
-	class Time {
+	class Timer {
 
 	public:
 
-		Time();
-		~Time();
+		Timer();
+		~Timer();
 		void CalculateFrameRate();
 		const float GetFramesPerSecond() const;
 		const float GetFrameInterval() const;
