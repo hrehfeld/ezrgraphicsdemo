@@ -5,7 +5,11 @@
 #include "Scene.h"
 #include "Timer.h"
 
+#include "boost/filesystem.hpp"
+
 using namespace Eigen;
+
+namespace fs = boost::filesystem;
 
 int wndWidth = 1024;
 int wndHeight = 768;
@@ -16,18 +20,19 @@ GLdouble gFar = 100.0;
 Ezr::Camera* cam;
 Ezr::Fbo* fbo;
 Ezr::Scene* scene;
-Ezr::Timer* time;
+Ezr::Timer* timer;
 int _x, _y;
 
 bool camMove, useFbo, w, s, a, d = false;
 GLuint textureID;
 GLuint depthbuffer;
 
+fs::path deferredVertexShader("res/shaders/deferred/basic_vertex.shader");
 
 void display(void){    
  
-	cam->UpdateCamPos(time->GetFrameInterval(), w, s, a, d);
-	time->CalculateFrameRate();
+	cam->UpdateCamPos(timer->GetFrameInterval(), w, s, a, d);
+	timer->CalculateFrameRate();
 	
 	if(useFbo)
 	{
@@ -79,7 +84,7 @@ void display(void){
 		glMatrixMode (GL_MODELVIEW); 
 		glPopMatrix(); 
 	}
-	std::cout << time->GetFramesPerSecond() << std::endl;
+	std::cout << timer->GetFramesPerSecond() << std::endl;
 	glutSwapBuffers();
 }
 
@@ -212,7 +217,7 @@ void init(void){
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
-	time = new Ezr::Timer();
+	timer = new Ezr::Timer();
 	
 	glViewport(0, 0, wndWidth, wndHeight);
 
