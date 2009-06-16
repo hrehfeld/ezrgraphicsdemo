@@ -3,7 +3,7 @@
 #include "Camera.h"
 #include "Fbo.h"
 #include "Scene.h"
-#include "Time.h"
+#include "Timer.h"
 
 using namespace Eigen;
 
@@ -16,7 +16,7 @@ GLdouble gFar = 100.0;
 Ezr::Camera* cam;
 Ezr::Fbo* fbo;
 Ezr::Scene* scene;
-Ezr::Time* time;
+Ezr::Timer* time;
 int _x, _y;
 
 bool camMove, useFbo, w, s, a, d = false;
@@ -212,7 +212,7 @@ void init(void){
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
-	time = new Ezr::Time();
+	time = new Ezr::Timer();
 	
 	glViewport(0, 0, wndWidth, wndHeight);
 
