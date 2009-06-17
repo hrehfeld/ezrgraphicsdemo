@@ -4,12 +4,10 @@
 #include "Fbo.h"
 #include "Scene.h"
 #include "Timer.h"
-
-#include "boost/filesystem.hpp"
+#include "Utilities.h"
 
 using namespace Eigen;
 
-namespace fs = boost::filesystem;
 
 int wndWidth = 1024;
 int wndHeight = 768;
@@ -27,7 +25,7 @@ bool camMove, useFbo, w, s, a, d = false;
 GLuint textureID;
 GLuint depthbuffer;
 
-fs::path deferredVertexShader("res/shaders/deferred/basic_vertex.shader");
+std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
 
 void display(void){    
  
@@ -37,6 +35,8 @@ void display(void){
 	if(useFbo)
 	{
 		fbo->bind();
+
+		std::string deferredVS = Ezr::Utilities::loadFile(deferredVertexShaderPath);
 	}
 
 	//glPushAttrib(GL_VIEWPORT_BIT);
@@ -84,7 +84,7 @@ void display(void){
 		glMatrixMode (GL_MODELVIEW); 
 		glPopMatrix(); 
 	}
-	std::cout << timer->GetFramesPerSecond() << std::endl;
+//	std::cout << timer->GetFramesPerSecond() << std::endl;
 	glutSwapBuffers();
 }
 
