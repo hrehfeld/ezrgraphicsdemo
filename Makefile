@@ -61,7 +61,7 @@ includes := $(INCLUDES) $(SRC) $(BOOST)
 libs = $(LIBS) $(BOOSTLINK)
 libincludes = $(LIBINCLUDES) $(BOOSTBIN)/lib
 
-.PHONY: clean
+.PHONY: clean all
 
 all: $(bin)/$(EXE)
 
