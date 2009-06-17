@@ -79,4 +79,4 @@ clean:
 	-rm -rf $(bin)/
 
 %:
-
+	mkdir $@
