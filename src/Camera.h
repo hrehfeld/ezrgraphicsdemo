@@ -9,23 +9,25 @@
 #ifndef _CAMERA_H
 #define _CAMERA_H
 
+#define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
+
 #include <Eigen/Core>
 
 namespace Ezr{
-
+		
 	typedef Eigen::Vector3f Vec3;
 	typedef Eigen::Vector2f Vec2;
 	
 	class Camera {
 		
 	public:
-		
+				
 		Camera(int screenWidth, int screenHeight);
 
-		Vec3& Position() {	return m_camPosition;	}
-		Vec3& View()	    {	return m_camView;		}
-		Vec3& UpVector() {	return m_camUpVector;	}
-		Vec3& Strafe()	{	return m_camStrafe;		}
+		Vec3& Position() {return m_camPosition;}
+		Vec3& View() {return m_camView;}
+		Vec3& UpVector() {return m_camUpVector;}
+		Vec3& Strafe()	{return m_camStrafe;}
 		
 		//This function sets the camera's position and view and up vector.
 		void PositionCamera(const float positionX, const float positionY, const float positionZ,
