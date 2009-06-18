@@ -22,10 +22,10 @@ namespace Ezr{
 		
 		Camera(int screenWidth, int screenHeight);
 
-		Vec3 Position() {	return m_camPosition;	}
-		Vec3 View()	    {	return m_camView;		}
-		Vec3 UpVector() {	return m_camUpVector;	}
-		Vec3 Strafe()	{	return m_camStrafe;		}
+		Vec3& Position() {	return m_camPosition;	}
+		Vec3& View()	    {	return m_camView;		}
+		Vec3& UpVector() {	return m_camUpVector;	}
+		Vec3& Strafe()	{	return m_camStrafe;		}
 		
 		//This function sets the camera's position and view and up vector.
 		void PositionCamera(const float positionX, const float positionY, const float positionZ,
@@ -54,13 +54,16 @@ namespace Ezr{
 		void CamLookAt();
 
 		//Returns the current camera position
-		Vec3 GetCamPos() const;
+		Vec3& GetCamPos();
 
 		//Returns the current position, the camera is looking at
-		Vec3 GetLookAt() const;
+		Vec3& GetLookAt();
 
 		//sets the center of the current rotation axis
 		void SetRotationCenter(int, int);
+
+		//http://eigen.tuxfamily.org/dox/StructHavingEigenMembers.html
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW			
 
 	private:
 		
