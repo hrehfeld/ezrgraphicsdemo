@@ -90,8 +90,8 @@ namespace Ezr{
 		//Set cursor position in the middle of the screen
 		glutWarpPointer(middleX, middleY);
 
-		angleY = static_cast<float>(middleX - mousePos.x()) / 1000.0f;		
-		angleZ = static_cast<float>(middleY - mousePos.y()) / 1000.0f;		
+		angleY = (static_cast<float>(middleX) - mousePos.x()) / 1000.0f;		
+		angleZ = (static_cast<float>(middleY) - mousePos.y()) / 1000.0f;		
 
 		// Here we keep track of the current rotation (for up and down) so that
 		// we can restrict the camera from doing a full 360 loop.
@@ -111,11 +111,11 @@ namespace Ezr{
 			vAxis.normalize();
 
 			// Rotate around our perpendicular axis and along the y-axis
-			RotateView(angleZ, vAxis.x(), vAxis.y(), vAxis.z());
+			RotateView(-angleZ, vAxis.x(), vAxis.y(), vAxis.z());
 		}
 
 		// Rotate around the y axis no matter what the currentRotX is
-		RotateView(angleY, 0, 1, 0);
+		RotateView(-angleY, 0, 1, 0);
 	}
 
 	//// ROTATE VIEW ///////////////////////////////////////////////////////

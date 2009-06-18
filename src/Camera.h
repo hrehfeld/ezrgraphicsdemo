@@ -9,8 +9,6 @@
 #ifndef _CAMERA_H
 #define _CAMERA_H
 
-#define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
-
 #include <Eigen/Core>
 
 namespace Ezr{
@@ -21,6 +19,9 @@ namespace Ezr{
 	class Camera {
 		
 	public:
+			
+		//http://eigen.tuxfamily.org/dox/StructHavingEigenMembers.html
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW			
 				
 		Camera(int screenWidth, int screenHeight);
 
@@ -62,10 +63,7 @@ namespace Ezr{
 		Vec3& GetLookAt();
 
 		//sets the center of the current rotation axis
-		void SetRotationCenter(int, int);
-
-		//http://eigen.tuxfamily.org/dox/StructHavingEigenMembers.html
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW			
+		void SetRotationCenter(int, int);	
 
 	private:
 		
