@@ -198,7 +198,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Time.cpp"
+				RelativePath=".\src\Timer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Utilities.cpp"
 				>
 			</File>
 		</Filter>
@@ -228,7 +232,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Time.h"
+				RelativePath=".\src\Timer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Utilities.h"
 				>
 			</File>
 		</Filter>

@@ -12,20 +12,23 @@
 #include <Eigen/Core>
 
 namespace Ezr{
-
-	typedef Eigen::Vector3f Vec3;
-	typedef Eigen::Vector2f Vec2;
+		
+	typedef Eigen::Matrix<float, 3, 1> Vec3;
+	typedef Eigen::Matrix<float, 2, 1> Vec2;
 	
 	class Camera {
 		
 	public:
-		
+			
+		//http://eigen.tuxfamily.org/dox/StructHavingEigenMembers.html
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW			
+				
 		Camera(int screenWidth, int screenHeight);
 
-		Vec3& Position() {	return m_camPosition;	}
-		Vec3& View()	    {	return m_camView;		}
-		Vec3& UpVector() {	return m_camUpVector;	}
-		Vec3& Strafe()	{	return m_camStrafe;		}
+		Vec3& Position() {return m_camPosition;}
+		Vec3& View() {return m_camView;}
+		Vec3& UpVector() {return m_camUpVector;}
+		Vec3& Strafe()	{return m_camStrafe;}
 		
 		//This function sets the camera's position and view and up vector.
 		void PositionCamera(const float positionX, const float positionY, const float positionZ,
@@ -60,10 +63,7 @@ namespace Ezr{
 		Vec3& GetLookAt();
 
 		//sets the center of the current rotation axis
-		void SetRotationCenter(int, int);
-
-		//http://eigen.tuxfamily.org/dox/StructHavingEigenMembers.html
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW			
+		void SetRotationCenter(int, int);	
 
 	private:
 		
