@@ -19,17 +19,9 @@ namespace Ezr{
 	////////////////////////////////////////////////////////////////////////
 	Camera::Camera(int screenWidth, int screenHeight)
 	{
-		m_camPosition.x() = 0.0;
-		m_camPosition.y() = 0.0;
-		m_camPosition.z() = 0.0;
-		
-		m_camView.x() = 0.0;
-		m_camView.y() = 1.0;
-		m_camView.z() = 0.5;
-		
-		m_camUpVector.x()= 0.0;
-		m_camUpVector.y()= 0.0;
-		m_camUpVector.z()= 1.0;
+		m_camPosition << 0.0, 0.0, 0.0;
+		m_camView << 0.0, 1.0, 0.5;
+		m_camUpVector << 0.0, 0.0, 1.0;
 
 		m_screenWidth  = screenWidth;
 		m_screenHeight = screenHeight;
@@ -45,17 +37,9 @@ namespace Ezr{
 				  				 const float viewX,     const float viewY,     const float viewZ,
 								 const float upVectorX, const float upVectorY, const float upVectorZ)
 	{
-		m_camPosition.x()	= positionX;
-		m_camPosition.y()	= positionY;
-		m_camPosition.z()	= positionZ;
-
-		m_camView.x() = viewX;
-		m_camView.y() = viewY;
-		m_camView.z() = viewZ;
-
-		m_camUpVector.x() = upVectorX;
-		m_camUpVector.y() = upVectorY;
-		m_camUpVector.z() = upVectorZ;
+		m_camPosition << positionX, positionY, positionZ;
+        m_camView << viewX, viewY, viewZ;
+        m_camUpVector << upVectorX, upVectorY, upVectorZ;
 	}
 
 	//// SET ROTATION CENTER ///////////////////////////////////////////////
@@ -81,11 +65,11 @@ namespace Ezr{
 		float angleZ = 0.0f;							
 		static float currentRotX = 0.0f;
 		
-		mousePos.x() = mousePosX;
-		mousePos.y() = mousePosY;
+		mousePos << mousePosX, mousePosY;
 		
 		// If our cursor is still in the middle, we never moved... so don't update the screen
-		if( (mousePos.x() == middleX) && (mousePos.y() == middleY) ) return;
+		if( (mousePos.x() == middleX) && (mousePos.y() == middleY) ) 
+            return;
 
 		//Set cursor position in the middle of the screen
 		glutWarpPointer(middleX, middleY);
@@ -99,7 +83,7 @@ namespace Ezr{
 
 		// If the current rotation (in radians) is greater than 1.0, we want to cap it.
 		if(currentRotX > 1.0f)
-			currentRotX = 1.0f;
+            currentRotX = 1.0f;
 		// Check if the rotation is below -1.0, if so we want to make sure it doesn't continue
 		else if(currentRotX < -2.0f)
 			currentRotX = -2.0f;
@@ -111,11 +95,11 @@ namespace Ezr{
 			vAxis.normalize();
 
 			// Rotate around our perpendicular axis and along the y-axis
-			RotateView(-angleZ, vAxis.x(), vAxis.y(), vAxis.z());
+			RotateView(angleZ, vAxis.x(), vAxis.y(), vAxis.z());
 		}
 
 		// Rotate around the y axis no matter what the currentRotX is
-		RotateView(-angleY, 0, 1, 0);
+		RotateView(angleY, 0, 1, 0);
 	}
 
 	//// ROTATE VIEW ///////////////////////////////////////////////////////
@@ -218,8 +202,8 @@ namespace Ezr{
 	void Camera::UpdateCamPos(const float frameInterval, bool w, bool s, bool a, bool d) 
 	{
 		Vec3 vCross = (m_camView - m_camPosition).cross(m_camUpVector);
-
-		m_camStrafe.normalize();
+        vCross.normalize();
+        m_camStrafe = vCross;  
 
 		CheckMovementKeys(frameInterval,w,s,a,d);
 	}
