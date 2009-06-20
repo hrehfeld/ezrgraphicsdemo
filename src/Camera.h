@@ -13,8 +13,8 @@
 
 namespace Ezr{
 		
-	typedef Eigen::Vector3f Vec3;
-	typedef Eigen::Vector2f Vec2;
+	typedef Eigen::Matrix<float, 3, 1> Vec3;
+	typedef Eigen::Matrix<float, 2, 1> Vec2;
 	
 	class Camera {
 		
