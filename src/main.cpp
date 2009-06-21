@@ -182,7 +182,7 @@ void mouseMotion(int x, int y)
 		Vector2i half = window->getWindowSize() / 2;
         /** @todo 2009-06-20 23:19 hrehfeld    move somewhere central */
 		glutWarpPointer(half.x(), half.y());
-		
+		display();
 	}
 }
 
