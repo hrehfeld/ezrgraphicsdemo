@@ -8,7 +8,7 @@ namespace Ezr
 {
 	GlBindShader::GlBindShader(const std::string& vertexshader, const std::string& fragmentshader) {
 
-		GLhandleARB vertex, fragment;
+		GLhandleARB vertex;
 		if (!vertexshader.empty())
 		{
 			vertex = compileShader(vertexshader, true);
@@ -17,7 +17,7 @@ namespace Ezr
 			std::cerr << "Vertexshader must be set!" << std::endl;
 			return;
 		}
-
+		GLhandleARB fragment;
 		if (!fragmentshader.empty())
 		{
 			fragment = compileShader(fragmentshader, false);
@@ -39,7 +39,7 @@ namespace Ezr
 	}
 
 	GLhandleARB GlBindShader::compileShader(const std::string& shader, const bool vertex) {
-		GLint typeBit = (!vertex) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
+		GLint typeBit = (vertex) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
 	
 		GLhandleARB handle =  glCreateShader(typeBit);
 
@@ -63,7 +63,7 @@ namespace Ezr
 			? glGetShaderiv(handle, GL_COMPILE_STATUS, &success)
 			: glGetProgramiv(handle, GL_LINK_STATUS, &success);
 
-		return (success != GL_FALSE);
+		return (success == GL_TRUE);
 	}
 	
 	std::string GlBindShader::getInfoLog(GLuint handle, bool shader)
