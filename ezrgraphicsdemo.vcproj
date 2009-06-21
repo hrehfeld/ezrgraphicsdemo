@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="ezrgraphicsdemo"
 	ProjectGUID="{A9AB59D1-1BA3-4527-94D1-BFEDD6F4D798}"
 	RootNamespace="ezrgraphicsdemo"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -40,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="lib/glm;lib;lib/devil/include;lib/glut/include;lib/glew/include"
+				AdditionalIncludeDirectories="src;&quot;$(BOOST_DIR)&quot;;lib/glm;lib/Eigen;lib/devil/include;lib/glut/include;lib/glew/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NOMINMAX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,9 +64,11 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="opengl32.lib glut32.lib glew32.lib ILUT.lib ILU.lib DevIL.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="lib/devil/lib; lib/glut/lib; lib/glew/lib"
+				AdditionalLibraryDirectories="lib/devil/lib;lib/glut/lib;lib/glew/lib;$(BOOST_DIR)/lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -85,9 +88,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -141,6 +141,8 @@
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -160,9 +162,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -186,6 +185,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\gl\GlBindShader.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\lib\glm\glm.cpp"
 				>
 			</File>
@@ -205,6 +208,10 @@
 				RelativePath=".\src\Utilities.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\src\Viewport.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -220,7 +227,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\gl\GlBindShader.h"
+				>
+			</File>
+			<File
 				RelativePath=".\lib\glm\glm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\MyMath.h"
 				>
 			</File>
 			<File
@@ -237,6 +252,10 @@
 			</File>
 			<File
 				RelativePath=".\src\Utilities.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Viewport.h"
 				>
 			</File>
 		</Filter>

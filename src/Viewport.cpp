@@ -10,13 +10,13 @@ namespace Ezr
 	{
 	}
 	
-	Vector2f* Viewport::getMousePosition(Vector2i& mousePosition)
+	Vector2f Viewport::getMousePosition(Vector2i& mousePosition)
 	{
 		Vector2i half = _windowSize / 2;
 
 		Vector2i relativeMousePos = mousePosition - half;
 
-		return new Vector2f(static_cast<float>(relativeMousePos.x()) / static_cast<float>(half.x()),
+		return Vector2f(static_cast<float>(relativeMousePos.x()) / static_cast<float>(half.x()),
 							static_cast<float>(relativeMousePos.y()) / static_cast<float>(half.y()));
 	}
 

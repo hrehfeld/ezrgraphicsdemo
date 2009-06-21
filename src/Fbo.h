@@ -17,13 +17,18 @@ namespace Ezr{
 
 	public:
 
-		Fbo(int textureResX, int textureResY, bool renderbuffer=false);
-		~Fbo();
+        enum Attachment
+        {
+            None = 0x1,
+            Depth = None << 1,
+            Normal = Depth << 1,
+        };
 
-		//This creates a RenderBufferObject, e.g. a depthbuffer
-		void generateRBO();
+		Fbo(int textureResX, int textureResY);
+		~Fbo();
+		
 		//This creates our FrameBufferObject
-		void generateFbo();
+        void generateFbo(unsigned short att = None);
 
 		//This enables our Fbo as current buffer to render in
 		void bind();
@@ -50,11 +55,14 @@ namespace Ezr{
 		void release();
 
 	private:
+        //This creates a RenderBufferObject, e.g. a depthbuffer
+		void generateRbo(unsigned short att);
+
 		GLuint _fboID;
 		GLuint _rboID;
 		int _textureResX;
 		int _textureResY;
-		bool _useDepth;
+		bool _useDepth, _useNormal;
 	};
 }
 #endif

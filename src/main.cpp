@@ -173,8 +173,8 @@ void mouse(int button, int state, int x, int y)
 			leftButtonJustDown = false;
 		}
 
-		// huh?
-		//glutSetCursor(state ? GLUT_CURSOR_INHERIT : GLUT_CURSOR_NONE);
+		// hide cursor on move
+		glutSetCursor(state ? GLUT_CURSOR_INHERIT : GLUT_CURSOR_NONE);
 	}
 }
 
@@ -196,9 +196,7 @@ void mouseMotion(int x, int y)
 		}
 			
 		Vector2i mousePosition(x,y);
-		Vector2f* relativeMousePos = window->getMousePosition(mousePosition);
-		cam->rotateView(*relativeMousePos);
-		delete relativeMousePos;
+		cam->rotateView(window->getMousePosition(mousePosition));
 		
 		display();
 	}
@@ -232,7 +230,7 @@ void init(void)
 
 	//if(useFbo)
 	//{
-		fbo = new Ezr::Fbo(wndWidth, wndHeight, true);
+		fbo = new Ezr::Fbo(wndWidth, wndHeight);
 		fbo->bind();
 
 		glGenTextures(1, &textureID);

@@ -20,7 +20,7 @@ namespace Ezr
 		/**
 		 * Return mouse position from center in percent of window size
 		 */
-		Vector2f* getMousePosition(Vector2i& mousePosition);
+		Vector2f getMousePosition(Vector2i& mousePosition);
 
 		/**
 		 * Return the window size
