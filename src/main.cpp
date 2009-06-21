@@ -28,7 +28,7 @@ Ezr::Timer* timer;
 Ezr::Viewport* window;
 int _x, _y;
 
-bool camMove, useFbo, w, s, a, d = false;
+bool leftButtonDown, leftButtonJustDown, useFbo, w, s, a, d = false;
 GLuint textureID;
 GLuint depthbuffer;
 
@@ -101,6 +101,9 @@ void display(void){
 }
 
 void reshape (int w, int h){
+	Vector2i windowSize(w, h);
+	window->setWindowSize(windowSize);
+	
 	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
 
 	glMatrixMode(GL_PROJECTION);
@@ -159,27 +162,45 @@ void mouse(int button, int state, int x, int y)
 {
 	if (button == GLUT_LEFT_BUTTON)
 	{
-		camMove = !state;
-		//glutSetCursor(state ? GLUT_CURSOR_INHERIT : GLUT_CURSOR_NONE);
-		if (state == GLUT_DOWN){
-			//cam->SetRotationCenter(x, y);
+		if (state == GLUT_DOWN) {
+			leftButtonDown = true;
+			leftButtonJustDown = true;
 		}
+		else
+		{
+			std::cout << "up!" << std::endl;
+			leftButtonDown = false;
+			leftButtonJustDown = false;
+		}
+
+		// huh?
+		//glutSetCursor(state ? GLUT_CURSOR_INHERIT : GLUT_CURSOR_NONE);
 	}
 }
 
 void mouseMotion(int x, int y)
 {
-	if (camMove){
+	if (leftButtonDown) {
+		std::cout << x << "," << y << std::endl;
+
+		Vector2i half = window->getWindowSize() / 2;
+		/** @todo 2009-06-20 23:19 hrehfeld    move somewhere central */
+		glutWarpPointer(half.x(), half.y());
+
+		//ignore first down
+		if (leftButtonJustDown)
+		{
+			leftButtonJustDown = false;
+			std::cout << "first  press!" << std::endl;
+			return;
+		}
+			
 		Vector2i mousePosition(x,y);
-		//std::cout << x << "," << y << std::endl;
 		Vector2f* relativeMousePos = window->getMousePosition(mousePosition);
 		cam->rotateView(*relativeMousePos);
 		delete relativeMousePos;
 		
-		Vector2i half = window->getWindowSize() / 2;
-        /** @todo 2009-06-20 23:19 hrehfeld    move somewhere central */
-		glutWarpPointer(half.x(), half.y());
-		
+		display();
 	}
 }
 
@@ -251,7 +272,7 @@ void init(void)
 	glLoadIdentity();	
 
 	cam = new Ezr::Camera(wndWidth, wndHeight);
-	cam->PositionCamera( 7, 0, 0,   1, 0, 0,   0, 1, 0);
+	cam->PositionCamera( -7, 0, 0,   1, 0, 0,   0, 1, 0);
 
 	//scene = new Ezr::Scene();
 }

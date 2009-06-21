@@ -20,7 +20,10 @@ namespace Ezr{
 	//
 	// This is our camera constructor. Set the camera speed
 	////////////////////////////////////////////////////////////////////////
-	Camera::Camera(int screenWidth, int screenHeight) : sensitivity(1), invertMouseY(true)
+	Camera::Camera(int screenWidth, int screenHeight) : sensitivity(1),
+														invertMouseY(true),
+														_pitch(0),
+														_yaw(0)
 	{
 		m_camPosition << 0.0, 0.0, 0.0;
 		m_camView << 0.0, 1.0, 0;
@@ -80,14 +83,14 @@ namespace Ezr{
 		Eigen::Vector3f newView(1, 0, 0);
 		Eigen::AngleAxisf pitchRotation(_pitch, Eigen::Vector3f::UnitZ());
 		newView = pitchRotation * newView;
-		std::cout << "pitch rotation (" << _pitch << "): "
-				  << newView.x() <<  ", " << newView.y() << ", " <<  newView.z()
-				  << std::endl;
+		// std::cout << "pitch rotation (" << _pitch << "): "
+		// 		  << newView.x() <<  ", " << newView.y() << ", " <<  newView.z()
+		// 		  << std::endl;
 		Eigen::AngleAxisf yawRotation(_yaw, Eigen::Vector3f::UnitY());
 		newView = yawRotation * newView;
-		std::cout << "yaw rotation (" << _yaw << "): "
-				  << newView.x() << ", " << newView.y() << ", " <<  newView.z()
-				  << std::endl;
+		// std::cout << "yaw rotation (" << _yaw << "): "
+		// 		  << newView.x() << ", " << newView.y() << ", " <<  newView.z()
+		// 		  << std::endl;
 		newView.normalize();
 		m_camView = newView;
 		
