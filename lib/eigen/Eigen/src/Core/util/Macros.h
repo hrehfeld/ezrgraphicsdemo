@@ -30,7 +30,7 @@
 
 #define EIGEN_WORLD_VERSION 2
 #define EIGEN_MAJOR_VERSION 0
-#define EIGEN_MINOR_VERSION 1
+#define EIGEN_MINOR_VERSION 2
 
 #define EIGEN_VERSION_AT_LEAST(x,y,z) (EIGEN_WORLD_VERSION>x || (EIGEN_WORLD_VERSION>=x && \
                                       (EIGEN_MAJOR_VERSION>y || (EIGEN_MAJOR_VERSION>=y && \
@@ -42,7 +42,9 @@
 // if the compiler is not GNUC, just cross fingers that the architecture isn't too exotic, because we don't want
 // to keep track of all the different preprocessor symbols for all compilers.
 #if !defined(__GNUC__) || defined(__i386__) || defined(__x86_64__) || defined(__ppc__) || defined(__ia64__)
-  #define EIGEN_ARCH_WANTS_ALIGNMENT 1
+  //hrehfeld
+  //#define EIGEN_ARCH_WANTS_ALIGNMENT 1
+  #define EIGEN_ARCH_WANTS_ALIGNMENT 0
 #else
   #ifdef EIGEN_VECTORIZE
     #error Vectorization enabled, but the architecture is not listed among those for which we require 16 byte alignment. If you added vectorization for another architecture, you also need to edit this list.
@@ -108,6 +110,8 @@ using Eigen::ei_cos;
 #ifdef EIGEN_NO_DEBUG
 #define ei_assert(x)
 #else
+//hrehfeld make it crash on assertion so we get a bt
+//#define ei_assert(x) do { if(!(x)) *((int*)0)=0; } while(0)
 #define ei_assert(x) assert(x)
 #endif
 #endif
@@ -167,10 +171,16 @@ using Eigen::ei_cos;
  */
 #if !EIGEN_ARCH_WANTS_ALIGNMENT
 #define EIGEN_ALIGN_128
+//hrehfeld
+#warning !EIGEN_ARCH_WANTS_ALIGNMENT
 #elif (defined __GNUC__)
 #define EIGEN_ALIGN_128 __attribute__((aligned(16)))
+//hrehfeld
+#warning GNUC
 #elif (defined _MSC_VER)
 #define EIGEN_ALIGN_128 __declspec(align(16))
+//hrehfeld
+#warning MSC_VER
 #else
 #error Please tell me what is the equivalent of __attribute__((aligned(16))) for your compiler
 #endif
@@ -235,5 +245,16 @@ _EIGEN_GENERIC_PUBLIC_INTERFACE(Derived, Eigen::MatrixBase<Derived>)
 
 #define EIGEN_ENUM_MIN(a,b) (((int)a <= (int)b) ? (int)a : (int)b)
 #define EIGEN_ENUM_MAX(a,b) (((int)a >= (int)b) ? (int)a : (int)b)
+
+// just an empty macro !
+#define EIGEN_EMPTY
+
+// concatenate two tokens
+#define EIGEN_CAT2(a,b) a ## b
+#define EIGEN_CAT(a,b) EIGEN_CAT2(a,b)
+
+// convert a token to a string
+#define EIGEN_MAKESTRING2(a) #a
+#define EIGEN_MAKESTRING(a) EIGEN_MAKESTRING2(a)
 
 #endif // EIGEN_MACROS_H

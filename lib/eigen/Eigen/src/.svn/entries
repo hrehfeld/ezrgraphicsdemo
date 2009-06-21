@@ -1,89 +1,0 @@
-9
-
-dir
-966817
-svn://anonsvn.kde.org/home/kde/branches/eigen/2.0/Eigen/src
-svn://anonsvn.kde.org/home/kde
-
-
-
-2009-05-06T21:42:31.076830Z
-964561
-bjacob
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-283d02a7-25f6-0310-bc7c-ecb5cbfe19da
-
-LU
-dir
-
-Cholesky
-dir
-
-QR
-dir
-
-Core
-dir
-
-Geometry
-dir
-
-LeastSquares
-dir
-
-SVD
-dir
-
-Sparse
-dir
-
-CMakeLists.txt
-file
-
-
-
-
-2009-05-11T22:17:56.093750Z
-7d2120c62568cfe11f8cd92a313075b7
-2009-03-24T08:20:43.824377Z
-943679
-ggael
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-221
-
-Array
-dir
-
