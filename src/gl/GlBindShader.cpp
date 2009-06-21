@@ -32,11 +32,9 @@ namespace Ezr
 		glAttachShader(_program, fragment);
 		glLinkProgram(_program);
 
-		int success = 0;
-		glGetProgramiv(_program, GL_LINK_STATUS, &success);
-		if (success == GL_FALSE)
+		if (!success(_program, false))
 		{
-			std::cout << getProgramInfoLog(_program) << std::endl;
+			std::cout << getInfoLog(_program, false) << std::endl;
 		}
 	}
 
@@ -51,20 +49,29 @@ namespace Ezr
 		glShaderSource(handle, 1, &fuckCplusplus, NULL);
 		glCompileShader(handle);
 
-		int success = 0;
-		glGetShaderiv(handle, GL_COMPILE_STATUS, &success);
-		if (success == GL_FALSE)
+		if (!success(handle, true))
 		{
-			std::cout << getShaderInfoLog(handle) << std::endl;
+			std::cout << getInfoLog(handle, true) << std::endl;
 		}
 
 		return handle;
 	}
+
+	bool GlBindShader::success(GLuint handle, bool shader) {
+		int success = 0;
+		(shader)
+			? glGetShaderiv(handle, GL_COMPILE_STATUS, &success)
+			: glGetProgramiv(handle, GL_LINK_STATUS, &success);
+
+		return (success != GL_FALSE);
+	}
 	
-	std::string GlBindShader::getShaderInfoLog(GLuint shader)
+	std::string GlBindShader::getInfoLog(GLuint handle, bool shader)
 	{
 	    int infologLength = 0;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infologLength);
+		(shader)
+			? glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &infologLength)
+			: glGetProgramiv(handle, GL_INFO_LOG_LENGTH,&infologLength);
 
 	    if (infologLength <= 0)
 	    {
@@ -74,34 +81,14 @@ namespace Ezr
 		char *infoLog = (char *)malloc(infologLength);
 		
 		int charsWritten  = 0;
-		glGetShaderInfoLog(shader, infologLength, &charsWritten, infoLog);
+		(shader) 
+			? glGetShaderInfoLog(handle, infologLength, &charsWritten, infoLog)
+			: glGetProgramInfoLog(handle, infologLength, &charsWritten, infoLog);
 		
 		std::string result(infoLog, infologLength);
 		free(infoLog);
 		return result;
 	}
-
-	std::string GlBindShader::getProgramInfoLog(GLuint program)
-	{
-
-	    int infologLength = 0;
-		glGetProgramiv(program, GL_INFO_LOG_LENGTH,&infologLength);
-
-	    if (infologLength <= 0)
-	    {
-			return "";
-	    }
-
-		char *infoLog = (char *)malloc(infologLength);
-		
-		int charsWritten  = 0;
-		glGetProgramInfoLog(program, infologLength, &charsWritten, infoLog);
-		
-		std::string result(infoLog, infologLength);
-		free(infoLog);
-		return result;
-	}	
-
 
 	GlBindShader::~GlBindShader()
 	{
