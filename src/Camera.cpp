@@ -129,19 +129,19 @@ namespace Ezr{
 								y * sinAngle,
 								z * sinAngle,
 								cosf(angle * 0.5f));
-		// Eigen::Quaternionf temp(x * sinAngle,
-		// 						y * sinAngle,
-		// 						z * sinAngle,
-		// 						cosf(angle * 0.5f));
+		Eigen::Quaternionf temp(x * sinAngle,
+								y * sinAngle,
+								z * sinAngle,
+								cosf(angle * 0.5f));
 
-		// Eigen::Vector3f view = m_camView - m_camPosition;
-		// Eigen::Quaternionf quat_view(view.x(), view.y(), view.z(), 0);
+		Eigen::Vector3f view = m_camView - m_camPosition;
+		Eigen::Quaternionf quat_view(view.x(), view.y(), view.z(), 0);
 
-		// Eigen::Quaternionf result = (temp * quat_view) * temp.conjugate();
+		Eigen::Quaternionf result = (temp * quat_view) * temp.conjugate();
 
-		// m_camView.x() = m_camPosition.x() + result.x();
-		// m_camView.y() = m_camPosition.y() + result.y();
-		// m_camView.z() = m_camPosition.z() + result.z();
+		m_camView.x() = m_camPosition.x() + result.x();
+		m_camView.y() = m_camPosition.y() + result.y();
+		m_camView.z() = m_camPosition.z() + result.z();
 	}
 
 	//// STRAFE CAMERA /////////////////////////////////////////////////////
