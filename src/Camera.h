@@ -13,9 +13,6 @@
 
 namespace Ezr{
 		
-	typedef Eigen::Matrix<float, 3, 1> Vec3;
-	typedef Eigen::Matrix<float, 2, 1> Vec2;
-	
 	class Camera {
 		
 	public:
@@ -25,10 +22,10 @@ namespace Ezr{
 				
 		Camera(int screenWidth, int screenHeight);
 
-		Vec3& Position() {return m_camPosition;}
-		Vec3& View() {return m_camView;}
-		Vec3& UpVector() {return m_camUpVector;}
-		Vec3& Strafe()	{return m_camStrafe;}
+		Eigen::Vector3f& Position() {return m_camPosition;}
+		Eigen::Vector3f& View() {return m_camView;}
+		Eigen::Vector3f& UpVector() {return m_camUpVector;}
+		Eigen::Vector3f& Strafe()	{return m_camStrafe;}
 		
 		//This function sets the camera's position and view and up vector.
 		void PositionCamera(const float positionX, const float positionY, const float positionZ,
@@ -57,10 +54,10 @@ namespace Ezr{
 		void CamLookAt();
 
 		//Returns the current camera position
-		Vec3& GetCamPos();
+		Eigen::Vector3f& GetCamPos();
 
 		//Returns the current position, the camera is looking at
-		Vec3& GetLookAt();
+		Eigen::Vector3f& GetLookAt();
 
 		//sets the center of the current rotation axis
 		void SetRotationCenter(int, int);	
@@ -68,16 +65,16 @@ namespace Ezr{
 	private:
 		
 		//camera position
-		Vec3 m_camPosition;					
+		Eigen::Vector3f m_camPosition;					
 
 		//camera view
-		Vec3 m_camView;						
+		Eigen::Vector3f m_camView;						
 
 		//camera up vector
-		Vec3 m_camUpVector;		
+		Eigen::Vector3f m_camUpVector;		
 		
 		//camera strafe vector
-		Vec3 m_camStrafe;
+		Eigen::Vector3f m_camStrafe;
 		
 		//camera speed
 		float m_camSpeed;
