@@ -6,8 +6,9 @@
 #include "Timer.h"
 #include "Utilities.h"
 #include "gl/GlBindShader.h"
+#include "Viewport.h"
 
-//using namespace Eigen;
+using namespace Eigen;
 
 
 int wndWidth = 1024;
@@ -20,6 +21,11 @@ Ezr::Camera* cam;
 Ezr::Fbo* fbo;
 Ezr::Scene* scene;
 Ezr::Timer* timer;
+
+/**
+ * current Viewport we're using
+ */
+Ezr::Viewport* window;
 int _x, _y;
 
 bool camMove, useFbo, w, s, a, d = false;
@@ -156,7 +162,7 @@ void mouse(int button, int state, int x, int y)
 		camMove = !state;
 		//glutSetCursor(state ? GLUT_CURSOR_INHERIT : GLUT_CURSOR_NONE);
 		if (state == GLUT_DOWN){
-			cam->SetRotationCenter(x, y);
+			//cam->SetRotationCenter(x, y);
 		}
 	}
 }
@@ -164,8 +170,16 @@ void mouse(int button, int state, int x, int y)
 void mouseMotion(int x, int y)
 {
 	if (camMove){
-		cam->SetMouseView(x, y);
+		Vector2i mousePosition(x,y);
 		//std::cout << x << "," << y << std::endl;
+		Vector2f* relativeMousePos = window->getMousePosition(mousePosition);
+		cam->rotateView(*relativeMousePos);
+		delete relativeMousePos;
+		
+		Vector2i half = window->getWindowSize() / 2;
+        /** @todo 2009-06-20 23:19 hrehfeld    move somewhere central */
+		glutWarpPointer(half.x(), half.y());
+		
 	}
 }
 
@@ -237,7 +251,7 @@ void init(void)
 	glLoadIdentity();	
 
 	cam = new Ezr::Camera(wndWidth, wndHeight);
-	cam->PositionCamera( 0, 0, 7,   0, 0, -1,   0, 1, 0);
+	cam->PositionCamera( 7, 0, 0,   1, 0, 0,   0, 1, 0);
 
 	//scene = new Ezr::Scene();
 }
@@ -250,6 +264,9 @@ void load()
 
 int main(int argc, char* argv[])
 {
+	Vector2i windowSize(wndWidth, wndHeight);
+	window = new Ezr::Viewport(windowSize);
+
 	//setup a GLUT window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
