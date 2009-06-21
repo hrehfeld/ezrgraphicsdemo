@@ -196,7 +196,8 @@ void mouseMotion(int x, int y)
 		}
 			
 		Vector2i mousePosition(x,y);
-		cam->rotateView(window->getMousePosition(mousePosition));
+		Vector2f relativeMousePos = window->getMousePosition(mousePosition);
+		cam->rotateView(relativeMousePos);
 		
 		display();
 	}
