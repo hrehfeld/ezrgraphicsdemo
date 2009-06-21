@@ -172,15 +172,16 @@ using Eigen::ei_cos;
 #if !EIGEN_ARCH_WANTS_ALIGNMENT
 #define EIGEN_ALIGN_128
 //hrehfeld
-#warning !EIGEN_ARCH_WANTS_ALIGNMENT
 #elif (defined __GNUC__)
+#warning !EIGEN_ARCH_WANTS_ALIGNMENT
 #define EIGEN_ALIGN_128 __attribute__((aligned(16)))
 //hrehfeld
+ifdef __GNUC__
 #warning GNUC
 #elif (defined _MSC_VER)
 #define EIGEN_ALIGN_128 __declspec(align(16))
 //hrehfeld
-#warning MSC_VER
+//#warning MSC_VER
 #else
 #error Please tell me what is the equivalent of __attribute__((aligned(16))) for your compiler
 #endif

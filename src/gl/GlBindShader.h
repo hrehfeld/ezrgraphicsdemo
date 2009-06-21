@@ -1,7 +1,7 @@
 #ifndef _GLBINDSHADER_H_
 #define _GLBINDSHADER_H_
 
-#include "OpenGl.h"
+#include "OpenGL.h"
 
 namespace Ezr
 {
