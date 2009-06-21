@@ -1,9 +1,10 @@
-uniform float time;
-
-void main()
-{  
-
-	vec4 vertex = vec4(gl_Vertex);
-	vertex.z = sin(4.0 * vertex.y + time) * 0.45;
-	gl_Position = gl_ModelViewProjectionMatrix * vertex;
+// varying vec3 normal;
+// varying vec3 v;
+// varying vec3 lightvec;
+void main(void)
+{
+  // normal          = normalize(gl_NormalMatrix * gl_Normal);
+  // v               = vec3(gl_ModelViewMatrix * gl_Vertex);
+  // lightvec        = normalize(gl_LightSource[0].position.xyz - v);
+  gl_Position     = gl_ModelViewProjectionMatrix * (gl_Vertex + vec4(1.0, 1.0, 0.0, 1.0));
 }
