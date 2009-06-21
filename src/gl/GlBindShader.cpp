@@ -2,6 +2,7 @@
 #include <iostream>
 #include "GlBindShader.h"
 #include "OpenGl.h"
+#include <string>
 
 namespace Ezr
 {
@@ -30,6 +31,13 @@ namespace Ezr
 		glAttachShader(_program, vertex);
 		glAttachShader(_program, fragment);
 		glLinkProgram(_program);
+
+		int success = 0;
+		glGetProgramiv(_program, GL_LINK_STATUS, &success);
+		if (success == GL_FALSE)
+		{
+			std::cout << getProgramInfoLog(_program) << std::endl;
+		}
 	}
 
 	GLhandleARB GlBindShader::compileShader(const std::string& shader, const bool vertex) {
@@ -43,8 +51,57 @@ namespace Ezr
 		glShaderSource(handle, 1, &fuckCplusplus, NULL);
 		glCompileShader(handle);
 
+		int success = 0;
+		glGetShaderiv(handle, GL_COMPILE_STATUS, &success);
+		if (success == GL_FALSE)
+		{
+			std::cout << getShaderInfoLog(handle) << std::endl;
+		}
+
 		return handle;
 	}
+	
+	std::string GlBindShader::getShaderInfoLog(GLuint shader)
+	{
+	    int infologLength = 0;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infologLength);
+
+	    if (infologLength <= 0)
+	    {
+			return "";
+		}
+
+		char *infoLog = (char *)malloc(infologLength);
+		
+		int charsWritten  = 0;
+		glGetShaderInfoLog(shader, infologLength, &charsWritten, infoLog);
+		
+		std::string result(infoLog, infologLength);
+		free(infoLog);
+		return result;
+	}
+
+	std::string GlBindShader::getProgramInfoLog(GLuint program)
+	{
+
+	    int infologLength = 0;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH,&infologLength);
+
+	    if (infologLength <= 0)
+	    {
+			return "";
+	    }
+
+		char *infoLog = (char *)malloc(infologLength);
+		
+		int charsWritten  = 0;
+		glGetProgramInfoLog(program, infologLength, &charsWritten, infoLog);
+		
+		std::string result(infoLog, infologLength);
+		free(infoLog);
+		return result;
+	}	
+
 
 	GlBindShader::~GlBindShader()
 	{

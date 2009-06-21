@@ -23,6 +23,9 @@ namespace Ezr
 		GLhandleARB _program;
 		
 		GLhandleARB compileShader(const std::string& shader, bool vertex);
+		std::string getShaderInfoLog(GLuint program);
+		std::string getProgramInfoLog(GLuint program);
+		
 	};
 }
 
