@@ -28,7 +28,7 @@ Ezr::Timer* timer;
 Ezr::Viewport* window;
 int _x, _y;
 
-bool leftButtonDown, leftButtonJustDown, useFbo, w, s, a, d = false;
+bool leftButtonDown, leftButtonJustDown, useFbo, useShader, w, s, a, d = false;
 GLuint textureID;
 GLuint depthbuffer;
 
@@ -52,19 +52,29 @@ void display(void){
 
 	}
 
-	deferredShader->bind();
 
 	//glPushAttrib(GL_VIEWPORT_BIT);
 	//glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-	glClearColor(0.0,0.0,0.0,1.0);
+	glClearColor(1.0,0.0,0.0,1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	glLoadIdentity();
 	cam->CamLookAt();
-	
+
+	if (useShader)
+	{
+		deferredShader->bind();
+		glDisable(GL_LIGHTING);
+		
+	}
+	//draw geometry
 	glutSolidTeapot(1);
 	//scene->drawScene();
-		
-	deferredShader->unbind();
+	
+	if (useShader)
+	{
+		deferredShader->unbind();
+		glEnable(GL_LIGHTING);
+	}
 	
 	if(useFbo)
 	{
@@ -128,7 +138,12 @@ void keyboard(unsigned char key, int x, int y)
 			exit(0);
 			break;
 		case 'f':
-			useFbo = true;
+			useFbo = !useFbo;
+			std::cout << "fbo: " << useFbo << std::endl;
+			break;
+		case 'g':
+			useShader = !useShader;
+			std::cout << "shader: " << useShader << std::endl;
 			break;
 		case 'w' :
 			w=true;
@@ -219,6 +234,9 @@ void init(void)
 	glEnable (GL_DEPTH_TEST);				
 	glDepthFunc (GL_LEQUAL);	
 
+	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
+
 	glewInit();
 	if (glewIsSupported("GL_VERSION_2_0"))
 	{
@@ -234,20 +252,20 @@ void init(void)
 
 	//if(useFbo)
 	//{
-		fbo = new Ezr::Fbo(wndWidth, wndHeight);
-		fbo->bind();
+		// fbo = new Ezr::Fbo(wndWidth, wndHeight);
+		// fbo->bind();
 
-		glGenTextures(1, &textureID);
-		glBindTexture(GL_TEXTURE_2D,textureID);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, wndWidth, wndHeight, 0, GL_RGB, GL_FLOAT, NULL);
+		// glGenTextures(1, &textureID);
+		// glBindTexture(GL_TEXTURE_2D,textureID);
+		// glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		// glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, wndWidth, wndHeight, 0, GL_RGB, GL_FLOAT, NULL);
 		
-		fbo->attachFboTexture(GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureID);
-		fbo->attachRBO(GL_DEPTH_ATTACHMENT_EXT);
+		// fbo->attachFboTexture(GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureID);
+		// fbo->attachRBO(GL_DEPTH_ATTACHMENT_EXT);
 		
-		fbo->checkFbo();
-		fbo->unbindFbo();
+		// fbo->checkFbo();
+		// fbo->unbindFbo();
 
 		//glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 	//}
