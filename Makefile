@@ -38,6 +38,9 @@ BIN := bin
 include librarypaths.makefile
 
 CFLAGS = -D $(SYSTEM) -D __cplusplus
+  ifeq ($(SYSTEM),MINGW)
+	CFLAGS += -mpreferred-stack-boundary=2
+  endif
 
 ifeq ($(BUILDVARIANT),debug)
 CFLAGS += -g -Wall
