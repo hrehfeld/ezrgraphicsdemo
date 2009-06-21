@@ -101,6 +101,9 @@ void display(void){
 }
 
 void reshape (int w, int h){
+	Vector2i windowSize(w, h);
+	window->setWindowSize(windowSize);
+	
 	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
 
 	glMatrixMode(GL_PROJECTION);
