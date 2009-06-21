@@ -116,19 +116,6 @@ namespace Ezr{
 
 		
 		float sinAngle = sinf(angle * 0.5f);
-
-		std::cout << x * sinAngle << ", "
-				  << y * sinAngle << ", "
-				  << z * sinAngle << ", "
-				  << cosf(angle * 0.5f)
-				  << std::endl;
-
-		std::cout << "Vector4f" << std::endl;
-
-		Eigen::Vector4f temp(x * sinAngle,
-								y * sinAngle,
-								z * sinAngle,
-								cosf(angle * 0.5f));
 		Eigen::Quaternionf temp(x * sinAngle,
 								y * sinAngle,
 								z * sinAngle,
