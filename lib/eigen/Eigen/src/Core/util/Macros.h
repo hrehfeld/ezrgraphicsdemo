@@ -43,8 +43,8 @@
 // to keep track of all the different preprocessor symbols for all compilers.
 #if !defined(__GNUC__) || defined(__i386__) || defined(__x86_64__) || defined(__ppc__) || defined(__ia64__)
   //hrehfeld
-  //#define EIGEN_ARCH_WANTS_ALIGNMENT 1
-  #define EIGEN_ARCH_WANTS_ALIGNMENT 0
+  #define EIGEN_ARCH_WANTS_ALIGNMENT 1
+//#define EIGEN_ARCH_WANTS_ALIGNMENT 0
 #else
   #ifdef EIGEN_VECTORIZE
     #error Vectorization enabled, but the architecture is not listed among those for which we require 16 byte alignment. If you added vectorization for another architecture, you also need to edit this list.
