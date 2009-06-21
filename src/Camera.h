@@ -11,6 +11,8 @@
 
 #include <Eigen/Core>
 
+using namespace Eigen;
+
 namespace Ezr{
 		
 	class Camera {
@@ -32,11 +34,13 @@ namespace Ezr{
 			 				const float viewX,     const float viewY,     const float viewZ,
 							const float upVectorX, const float upVectorY, const float upVectorZ);
 
-		//Allows us to look around using the mouse.
-		void SetMouseView(int mousePosX, int mousePosY);
-
-		//Rotates the view around the position using a quaternion rotation
-		void RotateView(const float angle, const float X, const float Y, const float Z);
+		/**
+		 * FPS view rotation (pitch, yaw angles)
+		 *
+		 * @param relativeMouseMovement mouse movement relative to
+		 * window center in fractions of window size.
+		 */
+		void rotateView(Vector2f& relativeMouseMovement);
 
 		//Strafes the camera left and right depending on the speed (-/+)
 		void StrafeCamera(const float camSpeed);
@@ -57,10 +61,7 @@ namespace Ezr{
 		Eigen::Vector3f& GetCamPos();
 
 		//Returns the current position, the camera is looking at
-		Eigen::Vector3f& GetLookAt();
-
-		//sets the center of the current rotation axis
-		void SetRotationCenter(int, int);	
+		Eigen::Vector3f* GetLookAt();
 
 	private:
 		
@@ -82,8 +83,17 @@ namespace Ezr{
 		//screen width and screen heigth
 		int m_screenWidth, m_screenHeight;
 
-		//center of rotation
-		int m_rotCenterX, m_rotCenterY;
+		float _pitch;
+		float _yaw;
+
+		/**
+		 * FPS view rotation (pitch, yaw angles)
+		 */
+		void RotateView();
+
+		float sensitivity;
+		bool invertMouseY;
+		
 	};
 }
 
