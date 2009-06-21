@@ -9,6 +9,10 @@ namespace Ezr
 	std::string Utilities::loadFile(std::string filename)
 	{
 		std::ifstream file(filename.c_str());
+		if (!file) {
+			std::cerr << "Couldn't open file " << filename << std::endl;
+			return "";
+		}
 		std::stringstream result;
 		result << file.rdbuf();
 		return result.str();

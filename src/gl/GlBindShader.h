@@ -11,6 +11,10 @@ namespace Ezr
 		GlBindShader(const std::string& vertexshader, const std::string& fragmentshader);
 		virtual ~GlBindShader();
 
+		/**
+		 * Bind this shader
+		 */
+		void bind();
 	private:
 		GLhandleARB _program;
 		

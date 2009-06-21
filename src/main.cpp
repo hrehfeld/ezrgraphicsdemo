@@ -279,8 +279,8 @@ void init(void)
 
 void load()
 {
-	// deferredShader = new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredVertexShaderPath),
-	// 									   Ezr::Utilities::loadFile("res/shaders/basic.frag"));
+	deferredShader = new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredVertexShaderPath),
+	 									   Ezr::Utilities::loadFile("res/shaders/sample1.frag"));
 }
 
 int main(int argc, char* argv[])
