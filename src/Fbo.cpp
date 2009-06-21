@@ -93,10 +93,15 @@ namespace Ezr{
 	void Fbo::bind(){
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fboID);
 		if(glGetError() != GL_NO_ERROR)
-			throw std::string("Error: Could not bind framebuffer"); 
+		{
+			std::cout << "fbo binding errored out... ";
+			throw std::string("Error: Could not bind framebuffer");
+		}
 
 		if(_useDepth)
 		{
+			std::cout << "binding depth buffer" << std::endl;
+			
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _rboID);
 			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, _textureResX, _textureResY);
 			

@@ -11,11 +11,14 @@
 using namespace Eigen;
 
 
-int wndWidth = 1024;
-int wndHeight = 768;
+//non 2^n sizes make FBOs VERY slow
+int wndWidth = 512;
+int wndHeight = 512;
 
 GLdouble gNear = 0.1;
 GLdouble gFar = 100.0;
+
+float fullscreenQuadSize = 1.0;
 
 Ezr::Camera* cam;
 Ezr::Fbo* fbo;
@@ -48,13 +51,12 @@ void display(void){
 	
 	if(useFbo)
 	{
+		glPushAttrib(GL_VIEWPORT_BIT);
+		glViewport(0, 0, wndWidth, wndHeight);
 		fbo->bind();
-
 	}
 
 
-	//glPushAttrib(GL_VIEWPORT_BIT);
-	//glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 	glClearColor(1.0,0.0,0.0,1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	glLoadIdentity();
@@ -63,8 +65,6 @@ void display(void){
 	if (useShader)
 	{
 		deferredShader->bind();
-		glDisable(GL_LIGHTING);
-		
 	}
 	//draw geometry
 	glutSolidTeapot(1);
@@ -73,43 +73,53 @@ void display(void){
 	if (useShader)
 	{
 		deferredShader->unbind();
-		glEnable(GL_LIGHTING);
 	}
 	
 	if(useFbo)
 	{
-		//glPopAttrib();
 		fbo->unbindFbo();
 		
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glPopAttrib();
+		//glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 
 		//draw a screensize rectangle with the fbo rendered scene as texture on it
 		glMatrixMode(GL_MODELVIEW);	
 		glPushMatrix();
-		glLoadIdentity();						
+		glLoadIdentity();
+
 		glMatrixMode (GL_PROJECTION); 
 		glPushMatrix (); 
 		glLoadIdentity ();
-		
+		float orthoSize = 1.0 / fullscreenQuadSize;
+		glOrtho(-orthoSize, orthoSize, -orthoSize, orthoSize, -1.0, 1.0);
+
+		glDisable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 
 		glBegin (GL_QUADS); 
-			glNormal3f( 0.0f, 0.0f, 1.0);
-			glTexCoord2f(0.0f, 0.0f); glVertex3i (-1, -1, -1); 
-			glTexCoord2f(1.0f, 0.0f); glVertex3i (1, -1, -1); 
-			glTexCoord2f(1.0f, 1.0f); glVertex3i (1, 1, -1); 
-			glTexCoord2f(0.0f, 1.0f); glVertex3i (-1, 1, -1); 
+		//glNormal3f( 0.0f, 0.0f, 1.0);
+   glTexCoord2f(0.0, 0.0);
+        glVertex2f(-1.0, -1.0);
+        glTexCoord2f(1.0, 0.0);
+        glVertex2f( 1.0, -1.0);
+        glTexCoord2f(1.0, 1.0);
+        glVertex2f( 1.0,  1.0);
+        glTexCoord2f(0.0, 1.0);
+        glVertex2f(-1.0,  1.0);
 		glEnd ();
 
 		glDisable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D,0);
-
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glEnable(GL_LIGHTING);
+		
+		glMatrixMode (GL_PROJECTION); 
 		glPopMatrix();
 		glMatrixMode (GL_MODELVIEW); 
-		glPopMatrix(); 
+		glPopMatrix();
 	}
 //	std::cout << timer->GetFramesPerSecond() << std::endl;
 	glutSwapBuffers();
@@ -157,6 +167,12 @@ void keyboard(unsigned char key, int x, int y)
 		case 'd' :
 			d=true;
 			break;
+	case '[':
+		fullscreenQuadSize += 0.1;
+		break;
+	case ']':
+		fullscreenQuadSize -= 0.1;
+		break;
 	}
 }
 
@@ -250,29 +266,35 @@ void init(void)
 	//disable vsync
 	//wglSwapIntervalEXT(0);
 
-	//if(useFbo)
-	//{
-		// fbo = new Ezr::Fbo(wndWidth, wndHeight);
-		// fbo->bind();
-
-		// glGenTextures(1, &textureID);
-		// glBindTexture(GL_TEXTURE_2D,textureID);
-		// glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		// glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, wndWidth, wndHeight, 0, GL_RGB, GL_FLOAT, NULL);
-		
-		// fbo->attachFboTexture(GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureID);
-		// fbo->attachRBO(GL_DEPTH_ATTACHMENT_EXT);
-		
-		// fbo->checkFbo();
-		// fbo->unbindFbo();
-
-		//glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-	//}
-
 	glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	
 	//glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	{
+		glGenTextures(1, &textureID);
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, wndWidth, wndHeight, 0, GL_RGB, GL_FLOAT, NULL);
+//		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, wndWidth, wndHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glGenerateMipmapEXT(GL_TEXTURE_2D);
+
+		fbo = new Ezr::Fbo(wndWidth, wndHeight);
+		fbo->bind();
+
+		fbo->attachFboTexture(GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureID);
+		//fbo->attachRBO(GL_DEPTH_ATTACHMENT_EXT);
+		//glDrawBuffer(GL_NONE);
+		
+		fbo->checkFbo();
+		fbo->unbindFbo();
+
+
+	}
+
+	
 
 	GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
 	GLfloat light_position[] = {3.0, 3.0, 2.0, 0.0};
