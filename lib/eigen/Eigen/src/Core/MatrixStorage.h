@@ -40,7 +40,7 @@ template <typename T, int Size, int MatrixOptions,
   ei_matrix_array()
   {
     //hrehfeld debugging quaternion
-    std::cout << "creating aligned array at " << this << std::endl;	  
+    //std::cout << "creating aligned array at " << this << std::endl;	  
     #ifndef EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
     ei_assert((reinterpret_cast<size_t>(array) & 0xf) == 0
               && "this assertion is explained here: http://eigen.tuxfamily.org/dox/UnalignedArrayAssert.html  **** READ THIS WEB PAGE !!! ****");
