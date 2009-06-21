@@ -207,8 +207,6 @@ void mouseMotion(int x, int y)
 //init openGL
 void init(void)
 {
-	load();
-
 	glShadeModel (GL_SMOOTH);				
 	glClearColor (0.0f, 0.0f, 0.0f, 1.0f);	
 	glClearDepth (0.0f);
@@ -272,6 +270,10 @@ void init(void)
 
 	cam = new Ezr::Camera(wndWidth, wndHeight);
 	cam->PositionCamera( -7, 0, 0,   1, 0, 0,   0, 1, 0);
+
+	load();
+
+
 
 	//scene = new Ezr::Scene();
 }
