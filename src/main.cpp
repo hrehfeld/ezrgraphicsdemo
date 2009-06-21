@@ -5,8 +5,9 @@
 #include "Scene.h"
 #include "Timer.h"
 #include "Utilities.h"
+#include "gl/GlBindShader.h"
 
-using namespace Eigen;
+//using namespace Eigen;
 
 
 int wndWidth = 1024;
@@ -25,7 +26,13 @@ bool camMove, useFbo, w, s, a, d = false;
 GLuint textureID;
 GLuint depthbuffer;
 
-std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
+static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
+
+static Ezr::GlBindShader* deferredShader;
+
+void init();
+void load();
+
 
 void display(void){    
  
@@ -36,7 +43,6 @@ void display(void){
 	{
 		fbo->bind();
 
-		std::string deferredVS = Ezr::Utilities::loadFile(deferredVertexShaderPath);
 	}
 
 	//glPushAttrib(GL_VIEWPORT_BIT);
@@ -165,7 +171,10 @@ void mouseMotion(int x, int y)
 
 
 //init openGL
-void init(void){
+void init(void)
+{
+	load();
+
 	glShadeModel (GL_SMOOTH);				
 	glClearColor (0.0f, 0.0f, 0.0f, 1.0f);	
 	glClearDepth (0.0f);
@@ -233,6 +242,11 @@ void init(void){
 	//scene = new Ezr::Scene();
 }
 
+void load()
+{
+	// deferredShader = new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredVertexShaderPath),
+	// 									   Ezr::Utilities::loadFile("res/shaders/basic.frag"));
+}
 
 int main(int argc, char* argv[])
 {

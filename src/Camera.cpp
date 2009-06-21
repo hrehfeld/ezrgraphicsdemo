@@ -58,40 +58,43 @@ namespace Ezr{
 	////////////////////////////////////////////////////////////////////////
 	void Camera::SetMouseView(int mousePosX, int mousePosY)
 	{
-		Vec2 mousePos(0,0);
 		int middleX = m_rotCenterX;				
 		int middleY = m_rotCenterY;				
-		float angleY = 0.0f;							
-		float angleZ = 0.0f;							
 		static float currentRotX = 0.0f;
 		
-		mousePos << mousePosX, mousePosY;
+		Eigen::Vector2f mousePos(mousePosX, mousePosY);
 		
 		// If our cursor is still in the middle, we never moved... so don't update the screen
 		if( (mousePos.x() == middleX) && (mousePos.y() == middleY) ) 
             return;
 
 		//Set cursor position in the middle of the screen
+		/** @todo 2009-06-20 23:19 hrehfeld    move somewhere central */
 		glutWarpPointer(middleX, middleY);
 
-		angleY = (static_cast<float>(middleX) - mousePos.x()) / 1000.0f;		
-		angleZ = (static_cast<float>(middleY) - mousePos.y()) / 1000.0f;		
+		Eigen::Vector2f middle(middleX, middleY);
+
+		float angleY = (static_cast<float>(middleX) - mousePos.x()) / 1000.0f;		
+		float angleZ = (static_cast<float>(middleY) - mousePos.y()) / 1000.0f;		
 
 		// Here we keep track of the current rotation (for up and down) so that
 		// we can restrict the camera from doing a full 360 loop.
-		currentRotX -= angleZ;  
+		currentRotX -= angleZ;
 
 		// If the current rotation (in radians) is greater than 1.0, we want to cap it.
 		if(currentRotX > 1.0f)
-            currentRotX = 1.0f;
+		{
+			currentRotX = 1.0f;
+		}
 		// Check if the rotation is below -1.0, if so we want to make sure it doesn't continue
 		else if(currentRotX < -2.0f)
+		{
 			currentRotX = -2.0f;
-
+		}
 		// Otherwise, we can rotate the view around our position
 		else
 		{
-			Vec3 vAxis = ((m_camView - m_camPosition).cross(m_camUpVector));
+			Eigen::Vector3f vAxis = ((m_camView - m_camPosition).cross(m_camUpVector));
 			vAxis.normalize();
 
 			// Rotate around our perpendicular axis and along the y-axis
@@ -100,37 +103,45 @@ namespace Ezr{
 
 		// Rotate around the y axis no matter what the currentRotX is
 		RotateView(angleY, 0, 1, 0);
-	}
+ 	}
 
 	//// ROTATE VIEW ///////////////////////////////////////////////////////
 	//
 	// Rotates the view around the position using a quaternion rotation
 	////////////////////////////////////////////////////////////////////////
-	void Camera::RotateView(const float angle, const float x, const float y, const float z)
+	/*__attribute__((force_align_arg_pointer))*/ void Camera::RotateView(const float angle, const float x, const float y, const float z)
 	{
 		//quaternion rotation
 		//r' = q * r * q.conjugiert
 
-		Eigen::Quaternionf temp, quat_view, result;
 		
 		float sinAngle = sinf(angle * 0.5f);
-		temp.x() = x * sinAngle;
-		temp.y() = y * sinAngle;
-		temp.z() = z * sinAngle;
-		temp.w() = cosf(angle * 0.5f);
 
-		Vec3 view = m_camView - m_camPosition;
+		std::cout << x * sinAngle << ", "
+				  << y * sinAngle << ", "
+				  << z * sinAngle << ", "
+				  << cosf(angle * 0.5f)
+				  << std::endl;
 
-		quat_view.x() = view.x();
-		quat_view.y() = view.y();
-		quat_view.z() = view.z();
-		quat_view.w() = 0;
+		std::cout << "Vector4f" << std::endl;
 
-		result = (temp * quat_view) * temp.conjugate();
+		Eigen::Vector4f temp(x * sinAngle,
+								y * sinAngle,
+								z * sinAngle,
+								cosf(angle * 0.5f));
+		// Eigen::Quaternionf temp(x * sinAngle,
+		// 						y * sinAngle,
+		// 						z * sinAngle,
+		// 						cosf(angle * 0.5f));
 
-		m_camView.x() = m_camPosition.x() + result.x();
-		m_camView.y() = m_camPosition.y() + result.y();
-		m_camView.z() = m_camPosition.z() + result.z();
+		// Eigen::Vector3f view = m_camView - m_camPosition;
+		// Eigen::Quaternionf quat_view(view.x(), view.y(), view.z(), 0);
+
+		// Eigen::Quaternionf result = (temp * quat_view) * temp.conjugate();
+
+		// m_camView.x() = m_camPosition.x() + result.x();
+		// m_camView.y() = m_camPosition.y() + result.y();
+		// m_camView.z() = m_camPosition.z() + result.z();
 	}
 
 	//// STRAFE CAMERA /////////////////////////////////////////////////////
@@ -155,7 +166,7 @@ namespace Ezr{
 	void Camera::MoveCamera(const float camSpeed)
 	{
 		// Get the current view vector (the direction we are looking)
-		Vec3 viewVector = m_camView - m_camPosition;
+		Eigen::Vector3f viewVector = m_camView - m_camPosition;
 		viewVector.normalize();
 
 		m_camPosition.x() += viewVector.x() * camSpeed;		
@@ -201,9 +212,8 @@ namespace Ezr{
 	////////////////////////////////////////////////////////////////////////
 	void Camera::UpdateCamPos(const float frameInterval, bool w, bool s, bool a, bool d) 
 	{
-		Vec3 vCross = (m_camView - m_camPosition).cross(m_camUpVector);
-        vCross.normalize();
-        m_camStrafe = vCross;  
+		m_camStrafe = (m_camView - m_camPosition).cross(m_camUpVector);
+		m_camStrafe.normalize();
 
 		CheckMovementKeys(frameInterval,w,s,a,d);
 	}
@@ -223,7 +233,7 @@ namespace Ezr{
 	//
 	//	Returns the current camera position
 	////////////////////////////////////////////////////////////////////////
-	const Vec3& Camera::GetCamPos()
+	Eigen::Vector3f& Camera::GetCamPos()
 	{
 		return m_camPosition;
 	}
@@ -232,7 +242,7 @@ namespace Ezr{
 	//
 	//	Returns the current position, the camera is looking at
 	////////////////////////////////////////////////////////////////////////
-	const Vec3& Camera::GetLookAt()
+	Eigen::Vector3f& Camera::GetLookAt()
 	{
 		return m_camView;
 	}

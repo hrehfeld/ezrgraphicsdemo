@@ -11,7 +11,7 @@ SYSTEM = MINGW
 #all directories with source files (cpp/h) in them. edit if you add a new one
 SRC := src src/gl lib/glm 
 #include these dirs for headers
-INCLUDES := lib 
+INCLUDES := lib lib/eigen
 
 #names of the libs at linking time
 LIBS = 
@@ -40,7 +40,7 @@ include librarypaths.makefile
 CFLAGS = -D $(SYSTEM) -D __cplusplus
 
 ifeq ($(BUILDVARIANT),debug)
-CFLAGS += -O0 -g -Wall
+CFLAGS += -g -Wall
 else
 ifeq ($(BUILDVARIANT),normal)
 CFLAGS += -O2 -g -Wall
