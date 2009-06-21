@@ -172,11 +172,10 @@ using Eigen::ei_cos;
 #if !EIGEN_ARCH_WANTS_ALIGNMENT
 #define EIGEN_ALIGN_128
 //hrehfeld
-#elif (defined __GNUC__)
 #warning !EIGEN_ARCH_WANTS_ALIGNMENT
+#elif (defined __GNUC__)
 #define EIGEN_ALIGN_128 __attribute__((aligned(16)))
 //hrehfeld
-ifdef __GNUC__
 #warning GNUC
 #elif (defined _MSC_VER)
 #define EIGEN_ALIGN_128 __declspec(align(16))
