@@ -223,7 +223,7 @@ namespace Ezr{
 	//
 	//	Returns the current camera position
 	////////////////////////////////////////////////////////////////////////
-	Vec3& Camera::GetCamPos()
+	const Vec3& Camera::GetCamPos()
 	{
 		return m_camPosition;
 	}
@@ -232,7 +232,7 @@ namespace Ezr{
 	//
 	//	Returns the current position, the camera is looking at
 	////////////////////////////////////////////////////////////////////////
-	Vec3& Camera::GetLookAt()
+	const Vec3& Camera::GetLookAt()
 	{
 		return m_camView;
 	}

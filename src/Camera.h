@@ -57,10 +57,10 @@ namespace Ezr{
 		void CamLookAt();
 
 		//Returns the current camera position
-		Vec3& GetCamPos();
+		const Vec3& GetCamPos();
 
 		//Returns the current position, the camera is looking at
-		Vec3& GetLookAt();
+		const Vec3& GetLookAt();
 
 		//sets the center of the current rotation axis
 		void SetRotationCenter(int, int);	

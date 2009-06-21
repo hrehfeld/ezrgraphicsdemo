@@ -188,7 +188,7 @@ void init(void){
 
 	//if(useFbo)
 	//{
-		fbo = new Ezr::Fbo(wndWidth, wndHeight, true);
+		fbo = new Ezr::Fbo(wndWidth, wndHeight);
 		fbo->bind();
 
 		glGenTextures(1, &textureID);

@@ -17,9 +17,9 @@ namespace Ezr{
 	//
 	// Fbo constructor: create our Fbo
 	////////////////////////////////////////////////////////////////////////
-	Fbo::Fbo(int textureResX, int textureResY, bool renderbuffer)
-		:_fboID(0), _rboID(0), _useDepth(renderbuffer),_textureResX(textureResX),
-		_textureResY(textureResY)
+	Fbo::Fbo(int textureResX, int textureResY)
+		:_fboID(0), _rboID(0), _useDepth(false),_textureResX(textureResX),
+		_textureResY(textureResY), _useNormal(false)
 	{
 		generateFbo();
 	}
@@ -54,35 +54,36 @@ namespace Ezr{
 			if(glGetError() != GL_NO_ERROR)
 				throw std::string("Error: Could not delete renderbuffer in Fbo::release()"); 
 		}
-	}
-
-	//// CREATE RBO ////////////////////////////////////////////////////////
-	//
-	// This creates our renderbuffer. We need this for later 
-	// attaching a depth buffer
-	////////////////////////////////////////////////////////////////////////
-	void Fbo::generateRBO()
-	{
-		glGenRenderbuffersEXT(1, &_rboID);
-		if(glGetError() != GL_NO_ERROR)
-			throw std::string("Error: Could not generate renderbuffer in Fbo::generateRBO()"); 
-	}
+	}	
 
 	//// CREATE Fbo ////////////////////////////////////////////////////////
 	//
 	// This creates our Fbo and if we need a depth buffer, 
 	// create a renderbuffer 
 	////////////////////////////////////////////////////////////////////////
-	void Fbo::generateFbo()
+	void Fbo::generateFbo(unsigned short att)
 	{
 		glGenFramebuffersEXT(1, &_fboID);
 		if(glGetError() != GL_NO_ERROR)
 			throw std::string("Error: Could not generate renderbuffer in Fbo::generateFbo()");
 
-		if(_useDepth)
+		if((att & 0x2) == 0x2)
 		{
-			generateRBO();
+			generateRbo(att);
 		}
+	}
+
+    //// CREATE RBO ////////////////////////////////////////////////////////
+	//
+	// This creates our renderbuffer. We need this for later 
+	// attaching a depth buffer
+	////////////////////////////////////////////////////////////////////////
+	void Fbo::generateRbo(unsigned short att)
+    {  
+        glGenRenderbuffersEXT(1, &_rboID);
+	    if(glGetError() != GL_NO_ERROR)
+	    	throw std::string("Error: Could not generate renderbuffer in Fbo::generateRBO()"); 
+        _useDepth = true;
 	}
 
 	//// BIND //////////////////////////////////////////////////////////////
