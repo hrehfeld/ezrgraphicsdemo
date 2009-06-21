@@ -168,7 +168,7 @@ void mouse(int button, int state, int x, int y)
 		}
 		else
 		{
-			std::cout << "up!" << std::endl;
+			//std::cout << "up!" << std::endl;
 			leftButtonDown = false;
 			leftButtonJustDown = false;
 		}
@@ -181,7 +181,7 @@ void mouse(int button, int state, int x, int y)
 void mouseMotion(int x, int y)
 {
 	if (leftButtonDown) {
-		std::cout << x << "," << y << std::endl;
+		//std::cout << x << "," << y << std::endl;
 
 		Vector2i half = window->getWindowSize() / 2;
 		/** @todo 2009-06-20 23:19 hrehfeld    move somewhere central */
@@ -191,7 +191,7 @@ void mouseMotion(int x, int y)
 		if (leftButtonJustDown)
 		{
 			leftButtonJustDown = false;
-			std::cout << "first  press!" << std::endl;
+			//std::cout << "first  press!" << std::endl;
 			return;
 		}
 			
