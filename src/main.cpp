@@ -33,6 +33,7 @@ GLuint textureID;
 GLuint depthbuffer;
 
 static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
+static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
 
 static Ezr::GlBindShader* deferredShader;
 
@@ -51,6 +52,8 @@ void display(void){
 
 	}
 
+	deferredShader->bind();
+
 	//glPushAttrib(GL_VIEWPORT_BIT);
 	//glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 	glClearColor(0.0,0.0,0.0,1.0);
@@ -61,6 +64,8 @@ void display(void){
 	glutSolidTeapot(1);
 	//scene->drawScene();
 		
+	deferredShader->unbind();
+	
 	if(useFbo)
 	{
 		//glPopAttrib();

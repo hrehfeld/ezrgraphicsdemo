@@ -46,10 +46,18 @@ namespace Ezr
 		return handle;
 	}
 
-	GlBindShader::~GlBindShader() {}
+	GlBindShader::~GlBindShader()
+	{
+		
+	}
 
 	void GlBindShader::bind()
 	{
 		glUseProgram(_program);
+	}
+
+	void GlBindShader::unbind()
+	{
+		glUseProgram(0);
 	}
 }

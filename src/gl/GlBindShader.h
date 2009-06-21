@@ -15,6 +15,10 @@ namespace Ezr
 		 * Bind this shader
 		 */
 		void bind();
+		/**
+		 * unbind shader
+		 */
+		void unbind();
 	private:
 		GLhandleARB _program;
 		
