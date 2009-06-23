@@ -83,6 +83,7 @@ void display(void){
 	{
 		deferredShader->bind();
 
+		//multitexturing
 		glActiveTexture(GL_TEXTURE0);
 		colormap->bind();
 		glEnable(GL_TEXTURE_2D);
@@ -90,8 +91,10 @@ void display(void){
 		glActiveTexture(GL_TEXTURE1);
 		normalmap->bind();
 		glEnable(GL_TEXTURE_2D);
+
 		glActiveTexture(GL_TEXTURE0);
-		
+
+		//tell the shader about uniforms
 		GLint program = deferredShader->getProgram();
         GLint colorMapL = glGetUniformLocation(program,"colorMap");
 		glUniform1i(colorMapL, 0);
@@ -102,12 +105,17 @@ void display(void){
 	}
 	//draw geometry
 	glutSolidTeapot(1);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_TEXTURE_2D);
 	//scene->drawScene();
 	
 	if (useShader)
 	{
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_TEXTURE_2D);
+
 		deferredShader->unbind();
 	}
 	
