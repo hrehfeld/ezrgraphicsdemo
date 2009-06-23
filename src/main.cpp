@@ -8,6 +8,10 @@
 #include "gl/GlBindShader.h"
 #include "Viewport.h"
 
+#include "IL/il.h"
+#include "IL/ilu.h"
+#include "IL/ilut.h"
+
 using namespace Eigen;
 
 
@@ -37,11 +41,18 @@ GLuint depthbuffer;
 
 static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
 static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
+//static const std::string deferredVertexShaderPath("res/shaders/phong.vert");
+//static const std::string deferredFragmentShaderPath("res/shaders/phong.frag");
+
+static const std::string colorMapPath("res/textures/Feldweg00Mitte.tga");
+
+GLuint colormap;
 
 static Ezr::GlBindShader* deferredShader;
 
 void init();
 void load();
+void loadImages();
 
 
 void display(void){    
@@ -67,7 +78,11 @@ void display(void){
 		deferredShader->bind();
 	}
 	//draw geometry
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, colormap);
 	glutSolidTeapot(1);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_TEXTURE_2D);
 	//scene->drawScene();
 	
 	if (useShader)
@@ -327,6 +342,49 @@ void load()
 {
 	deferredShader = new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredVertexShaderPath),
 	 									   Ezr::Utilities::loadFile(deferredFragmentShaderPath));
+
+	loadImages();
+}
+
+void loadImages()
+{
+	ilInit();
+
+	ILuint ImageName;
+	ilGenImages(1, &ImageName);
+	
+	ilBindImage(ImageName);
+	ilLoadImage(colorMapPath.c_str());
+
+	ILenum Error;
+	while ((Error = ilGetError()) != IL_NO_ERROR) {
+		printf("%d: %s/n", Error, iluErrorString(Error)); 
+	}
+
+	ilutRenderer(ILUT_OPENGL);
+	ilutEnable(ILUT_OPENGL_CONV);
+	ilutGLBuildMipmaps();
+
+	glGenTextures(1, &colormap);
+	glBindTexture(GL_TEXTURE_2D, colormap);
+
+	//let the gpu generate mipmaps
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+
+	ILinfo img;
+	iluGetImageInfo(&img);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.Width, img.Height, 0, img.Format, img.Type, img.Data );
+	glBindTexture(GL_TEXTURE_2D, NULL);
+
+	ilDeleteImages(1, &ImageName);	
 }
 
 int main(int argc, char* argv[])

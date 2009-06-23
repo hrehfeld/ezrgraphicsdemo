@@ -11,10 +11,10 @@ SYSTEM = MINGW
 #all directories with source files (cpp/h) in them. edit if you add a new one
 SRC := src src/gl lib/glm 
 #include these dirs for headers
-INCLUDES := lib lib/eigen
+INCLUDES := lib lib/eigen lib/devil/include
 
 #names of the libs at linking time
-LIBS = 
+LIBS = DevIL ILU ILUT
 ifeq ($(SYSTEM),LINUX)
   LIBS += GL GLU glut GLEW
 	BOOSTLINK=boost_filesystem-gcc-mt-s boost_system-gcc
@@ -26,7 +26,7 @@ else
 endif
 
 #directories to search when linking libs
-LIBINCLUDES=
+LIBINCLUDES = lib/devil/lib
 
 #put binaries in BIN/$(BUILDVARIANT)
 BIN := bin
