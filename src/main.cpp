@@ -43,13 +43,15 @@ bool leftButtonDown, leftButtonJustDown, useFbo, useShader, w, s, a, d = false;
 GLuint textureID;
 GLuint depthbuffer;
 
-static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
-static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
-//static const std::string deferredVertexShaderPath("res/shaders/phong.vert");
-//static const std::string deferredFragmentShaderPath("res/shaders/phong.frag");
+//static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
+//static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
+static const std::string deferredVertexShaderPath("res/shaders/phong.vert");
+static const std::string deferredFragmentShaderPath("res/shaders/phong.frag");
 
-static const std::string colorMapPath("res/textures/Feldweg00Mitte.tga");
+static const std::string colorMapPath("res/textures/lava.tga");
+static const std::string normalMapPath("res/textures/lava-normal.tga");
 Ezr::Texture* colormap;
+Ezr::Texture* normalmap;
 
 
 static Ezr::GlBindShader* deferredShader;
@@ -80,10 +82,25 @@ void display(void){
 	if (useShader)
 	{
 		deferredShader->bind();
+
+		glActiveTexture(GL_TEXTURE0);
+		colormap->bind();
+		glEnable(GL_TEXTURE_2D);
+
+		glActiveTexture(GL_TEXTURE1);
+		normalmap->bind();
+		glEnable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+		
+		GLint program = deferredShader->getProgram();
+        GLint colorMapL = glGetUniformLocation(program,"colorMap");
+		glUniform1i(colorMapL, 0);
+        GLint normalMapL = glGetUniformLocationARB(program,"normalMap");
+		glUniform1i(normalMapL, 1);
+        GLint invRadiusL = glGetUniformLocationARB(program, "invRadius");
+		glUniform1f(invRadiusL, 0.01);
 	}
 	//draw geometry
-	glEnable(GL_TEXTURE_2D);
-	colormap->bind();
 	glutSolidTeapot(1);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_TEXTURE_2D);
@@ -152,7 +169,7 @@ void reshape (int w, int h){
 
 	glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60.0f, (float)(w)/h , 1.0f, 100.0f); // FOV, AspectRatio, NearClip, FarClip
+    gluPerspective(60.0f, (float)(w)/h , 0.1f, 100.0f); // FOV, AspectRatio, NearClip, FarClip
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -191,6 +208,11 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case ']':
 		fullscreenQuadSize -= 0.1;
+		break;
+	case '\'':
+		anisotropicFiltering = (anisotropicFiltering == 0) ? 8 : 0;
+		colormap->setAnisotropicFiltering(anisotropicFiltering);
+		std::cout << "Anisotropic Filtering: " << anisotropicFiltering << std::endl;
 		break;
 	}
 }
@@ -354,7 +376,8 @@ void loadImages()
 {
 	Ezr::Image colorImage(colorMapPath);
 	colormap = new Ezr::Texture(colorImage);
-	colormap->setAnisotropicFiltering(anisotropicFiltering);
+	Ezr::Image normalImage(normalMapPath);
+	normalmap = new Ezr::Texture(normalImage);
 }
 
 int main(int argc, char* argv[])
