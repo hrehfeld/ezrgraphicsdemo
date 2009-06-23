@@ -63,7 +63,7 @@ namespace Ezr{
 		// 	<< std::endl;
 		
 		_pitch += -relativeMouseMovement.y() * sensitivity * ((invertMouseY) ? -1 : 1);
-		_pitch = MyMath::clamp(_pitch, -0.2f * MyMath::PI, 0.2f * MyMath::PI);
+		_pitch = MyMath::clamp(_pitch, -0.4f * MyMath::PI, 0.4f * MyMath::PI);
 
 		_yaw += -relativeMouseMovement.x() * sensitivity;
 		_yaw = MyMath::clampLoop(_yaw, 0, 2 * MyMath::PI);
