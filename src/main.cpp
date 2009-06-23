@@ -7,6 +7,8 @@
 #include "Utilities.h"
 #include "gl/GlBindShader.h"
 #include "Viewport.h"
+#include "Texture.h"
+#include "Image.h"
 
 #include "IL/il.h"
 #include "IL/ilu.h"
@@ -47,8 +49,8 @@ static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.
 //static const std::string deferredFragmentShaderPath("res/shaders/phong.frag");
 
 static const std::string colorMapPath("res/textures/Feldweg00Mitte.tga");
+Ezr::Texture* colormap;
 
-GLuint colormap;
 
 static Ezr::GlBindShader* deferredShader;
 
@@ -81,7 +83,7 @@ void display(void){
 	}
 	//draw geometry
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, colormap);
+	colormap->bind();
 	glutSolidTeapot(1);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_TEXTURE_2D);
@@ -350,47 +352,9 @@ void load()
 
 void loadImages()
 {
-	ilInit();
-
-	ILuint ImageName;
-	ilGenImages(1, &ImageName);
-	
-	ilBindImage(ImageName);
-	ilLoadImage(colorMapPath.c_str());
-
-	ILenum Error;
-	while ((Error = ilGetError()) != IL_NO_ERROR) {
-		printf("%d: %s/n", Error, iluErrorString(Error)); 
-	}
-
-	ilutRenderer(ILUT_OPENGL);
-	ilutEnable(ILUT_OPENGL_CONV);
-	ilutGLBuildMipmaps();
-
-	glGenTextures(1, &colormap);
-	glBindTexture(GL_TEXTURE_2D, colormap);
-
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-
-	if (anisotropicFiltering > 0) {
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropicFiltering);
-	}
-
-	ILinfo img;
-	iluGetImageInfo(&img);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.Width, img.Height, 0, img.Format, img.Type, img.Data );
-	//with FBO_EXT support, or glGenerateMipmap(GL_TEXTURE_2D)
-	//make sure all drivers gen mipmaps
-	glEnable(GL_TEXTURE_2D);
-	glGenerateMipmapEXT(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, NULL);
-
-	ilDeleteImages(1, &ImageName);	
+	Ezr::Image colorImage(colorMapPath);
+	colormap = new Ezr::Texture(colorImage);
+	colormap->setAnisotropicFiltering(anisotropicFiltering);
 }
 
 int main(int argc, char* argv[])
