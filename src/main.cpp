@@ -79,19 +79,18 @@ void display(void){
 	glLoadIdentity();
 	cam->CamLookAt();
 
+	glActiveTexture(GL_TEXTURE0);
+	colormap->bind();
+	glEnable(GL_TEXTURE_2D);
+	
 	if (useShader)
 	{
 		deferredShader->bind();
 
 		//multitexturing
-		glActiveTexture(GL_TEXTURE0);
-		colormap->bind();
-		glEnable(GL_TEXTURE_2D);
-
 		glActiveTexture(GL_TEXTURE1);
 		normalmap->bind();
 		glEnable(GL_TEXTURE_2D);
-
 		glActiveTexture(GL_TEXTURE0);
 
 		//tell the shader about uniforms
@@ -113,11 +112,11 @@ void display(void){
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDisable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
 
 		deferredShader->unbind();
 	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_TEXTURE_2D);
 	
 	if(useFbo)
 	{
