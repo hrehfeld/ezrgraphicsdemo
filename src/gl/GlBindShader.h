@@ -19,6 +19,10 @@ namespace Ezr
 		 * unbind shader
 		 */
 		void unbind();
+
+
+		GLuint getProgram() { return _program; }
+
 	private:
 		GLhandleARB _program;
 		
