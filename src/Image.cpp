@@ -1,4 +1,5 @@
 #include "Image.h"
+#include <iostream>
 
 using namespace std;
 
@@ -17,7 +18,7 @@ namespace Ezr
 
 		ILenum Error;
 		while ((Error = ilGetError()) != IL_NO_ERROR) {
-			sprintf("%s/n", iluErrorString(Error)); 
+			std::cout << sprintf("%s/n", iluErrorString(Error)) << std::endl;
 		}
 	}
 
