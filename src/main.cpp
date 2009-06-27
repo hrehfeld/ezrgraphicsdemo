@@ -42,8 +42,6 @@ Ezr::Viewport* window;
 int _x, _y;
 
 bool leftButtonDown, leftButtonJustDown, useFbo, useShader, w, s, a, d = false;
-GLuint textureID;
-GLuint depthbuffer;
 
 GLfloat light_position[] = {3.0, 3.0, 2.0, 1.0};
 GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
@@ -158,7 +156,7 @@ void display(void){
 
 		glDisable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, textureID);
+		fbo->getColorAttachmentId(0)->bind();
 
 		glBegin (GL_QUADS); 
 		//glNormal3f( 0.0f, 0.0f, 1.0);
@@ -341,20 +339,8 @@ void init(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	{
-		glGenTextures(1, &textureID);
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, wndWidth, wndHeight, 0, GL_RGB, GL_FLOAT, NULL);
-//		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, wndWidth, wndHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		glGenerateMipmapEXT(GL_TEXTURE_2D);
-
-		fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth|Ezr::Fbo::Stencil);
-		fbo->bind();
-
-		fbo->attachFboTexture(GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureID);
+		fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth);
+		fbo->attachColorbuffer();
 		//glDrawBuffer(GL_NONE);
 		
 		fbo->checkFbo();

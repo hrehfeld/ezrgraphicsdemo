@@ -9,10 +9,13 @@
 #ifndef _Fbo_H
 #define _Fbo_H
 
-#include "OpenGL.h" 
+#include "OpenGL.h"
+#include <vector>
 
 namespace Ezr{
-	
+
+	class Texture;
+
 	class Fbo {
 
 	public:
@@ -33,12 +36,12 @@ namespace Ezr{
 		//This enables our Fbo as current buffer to render in
 		void bind();
 
-		//This attaches a new texture to our fbo, target
-		//attachement: e.g. GL_COLOR_ATTACHMENT0_EXT, 
-		//target:      e.g. GL_TEXTURE_2D, 
-		//texID:       the texture ID 
-		void attachFboTexture(GLenum attachment, GLuint target, GLuint texID);
+		/**
+		 * attach a new texture to our fbo, target
+		 */
+		void attachColorbuffer();
 
+		const Texture* getColorAttachmentId(unsigned int colorAttachment);
 		
 		GLuint getFboID() const {return _fboID;}
 		GLuint getRBOID() const {return _rboID;}
@@ -52,6 +55,8 @@ namespace Ezr{
 		void checkFbo();
 		void release();
 
+		static bool staticInit();
+
 	private:
         /**
 		 * creates a RenderBufferObject, e.g. a depthbuffer
@@ -63,6 +68,9 @@ namespace Ezr{
 		int _textureResX;
 		int _textureResY;
 		bool _useDepth, _useStencil;
+
+		std::vector<Texture*> _colorBuffers;
+		static std::vector<unsigned int> _glColorBufferEnums;
 	};
 }
 #endif

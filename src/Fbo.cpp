@@ -5,13 +5,32 @@
  *
  *  Questions?: <fronc@uni-koblenz.de>
  ******************************************************************************/
-#include<string>
-#include<iostream>
+#include <string>
+#include <iostream>
 #include "Fbo.h"
+#include "Texture.h"
 #include <stdio.h>
 
+namespace Ezr
+{
 
-namespace Ezr{
+	std::vector<unsigned int> Fbo::_glColorBufferEnums;
+
+
+	bool Fbo::staticInit()
+	{
+		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT0_EXT);
+		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT1_EXT);
+		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT2_EXT);
+		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT3_EXT);
+		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT4_EXT);
+		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT5_EXT);
+		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT6_EXT);
+		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT7_EXT);
+		return true;
+	}
+	
+	bool bla = Fbo::staticInit();
 
 	//// Fbo ///////////////////////////////////////////////////////////////
 	//
@@ -42,6 +61,10 @@ namespace Ezr{
 			release();
 		}catch(std::string e){
 			std::cerr << e << std::endl;
+		}
+
+		for (std::vector<Texture*>::iterator it = _colorBuffers.begin(); it != _colorBuffers.end(); ++it) {
+			delete *it;
 		}
 	}
 	
@@ -122,10 +145,8 @@ namespace Ezr{
 			throw std::string("Error: Could not bind framebuffer");
 		}
 
-		if(_useDepth)
+		if(_useDepth || _useStencil)
 		{
-			//std::cout << "binding depth buffer" << std::endl;
-			
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _rboID);
 			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, _textureResX, _textureResY);
 			
@@ -134,17 +155,38 @@ namespace Ezr{
 		}
 	}
 
-	//// ATTACH Fbo TEXTURE ////////////////////////////////////////////////
-	//
-	// Attach a new texture to the Fbo
-	////////////////////////////////////////////////////////////////////////
-	void Fbo::attachFboTexture(GLenum attachment, GLuint target, GLuint texID)
+	void Fbo::attachColorbuffer()
 	{
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, attachment, target, texID, 0);
+		bind();
+		Texture* buffer = new Texture(_textureResX, _textureResY, GL_RGBA32F, GL_RGBA, GL_FLOAT);
+		
+		unsigned int colorAttachments = _colorBuffers.size();
 
-		if(glGetError() != GL_NO_ERROR)
-			throw std::string("Error: Could not attach texture to framebuffer"); 
+		std::cout << "#colorbuffers: "
+				  << Fbo::_glColorBufferEnums[colorAttachments] << ", "
+				  << GL_COLOR_ATTACHMENT0_EXT << ", "
+				  << (_glColorBufferEnums[colorAttachments] == GL_COLOR_ATTACHMENT0_EXT)
+				  << ", bufferid: " << buffer->getId()
+				  << std::endl;
+
+		std::cout << "#colorbuffers: " << colorAttachments << std::endl;
+		
+
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+								  _glColorBufferEnums[colorAttachments],
+								  GL_TEXTURE_2D,
+								  buffer->getId(),
+								  0);
+		OpenGl::printGlError();
+		
+		_colorBuffers.push_back(buffer);
 	}
+
+	const Texture* Fbo::getColorAttachmentId(unsigned int colorAttachment)
+	{
+		return _colorBuffers[colorAttachment];
+	}
+	
 
 	//// GET MAX COLOR ATTACHMENTS /////////////////////////////////////////
 	//
