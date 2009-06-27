@@ -11,6 +11,8 @@
 #include "Texture.h"
 #include <stdio.h>
 
+using namespace std;
+
 namespace Ezr
 {
 
@@ -59,12 +61,14 @@ namespace Ezr
 	{
 		try{
 			release();
-		}catch(std::string e){
+		}catch(string e){
 			std::cerr << e << std::endl;
 		}
 
-		for (std::vector<Texture*>::iterator it = _colorBuffers.begin(); it != _colorBuffers.end(); ++it) {
-			delete *it;
+		for (map<string, Texture*>::iterator it = _colorBuffers.begin();
+			 it != _colorBuffers.end();
+			 ++it) {
+			delete (*it).second;
 		}
 	}
 	
@@ -155,7 +159,7 @@ namespace Ezr
 		}
 	}
 
-	void Fbo::attachColorbuffer()
+	void Fbo::attachColorbuffer(const std::string& name)
 	{
 		bind();
 		Texture* buffer = new Texture(_textureResX, _textureResY, GL_RGBA32F, GL_RGBA, GL_FLOAT);
@@ -179,12 +183,12 @@ namespace Ezr
 								  0);
 		OpenGl::printGlError();
 		
-		_colorBuffers.push_back(buffer);
+		_colorBuffers.insert(std::make_pair(name, buffer));
 	}
 
-	const Texture* Fbo::getColorAttachmentId(unsigned int colorAttachment)
+	const Texture* Fbo::getColorAttachment(std::string& name)
 	{
-		return _colorBuffers[colorAttachment];
+		return _colorBuffers[name];
 	}
 	
 

@@ -11,6 +11,8 @@
 
 #include "OpenGL.h"
 #include <vector>
+#include <map>
+#include <string>
 
 namespace Ezr{
 
@@ -39,9 +41,9 @@ namespace Ezr{
 		/**
 		 * attach a new texture to our fbo, target
 		 */
-		void attachColorbuffer();
+		void attachColorbuffer(const std::string& name);
 
-		const Texture* getColorAttachmentId(unsigned int colorAttachment);
+		const Texture* getColorAttachment(std::string& name);
 		
 		GLuint getFboID() const {return _fboID;}
 		GLuint getRBOID() const {return _rboID;}
@@ -69,7 +71,8 @@ namespace Ezr{
 		int _textureResY;
 		bool _useDepth, _useStencil;
 
-		std::vector<Texture*> _colorBuffers;
+		std::map<std::string, Texture*> _colorBuffers;
+		
 		static std::vector<unsigned int> _glColorBufferEnums;
 	};
 }

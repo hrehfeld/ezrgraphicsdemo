@@ -156,7 +156,8 @@ void display(void){
 
 		glDisable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
-		fbo->getColorAttachmentId(0)->bind();
+		std::string bla("framebuffer");
+		fbo->getColorAttachment(bla)->bind();
 
 		glBegin (GL_QUADS); 
 		//glNormal3f( 0.0f, 0.0f, 1.0);
@@ -340,13 +341,11 @@ void init(void)
 
 	{
 		fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth);
-		fbo->attachColorbuffer();
+		fbo->attachColorbuffer("framebuffer");
 		//glDrawBuffer(GL_NONE);
 		
 		fbo->checkFbo();
 		fbo->unbindFbo();
-
-
 	}
 
 	glEnable(GL_COLOR_MATERIAL);
