@@ -33,7 +33,7 @@ void main (void)
 
 	vec3 normEye = normalize(eye);
 	float specular = clamp(dot(reflect(-normEye, normal), normLight), 0.0, 1.0);
-	specular = pow(specular, gl_FrontMaterial.shininess) * lightAmount;
+	specular = pow(specular, gl_FrontMaterial.shininess);
 	vec4 specularColor = gl_LightSource[0].specular * gl_FrontMaterial.specular * specular;
 	
 	
