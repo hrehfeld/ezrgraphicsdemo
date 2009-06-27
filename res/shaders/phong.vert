@@ -17,7 +17,7 @@ void main ()
     //calculate tangent
 	tangent = cross(normal, vec3(1.0, 0.0, 0.0));
 	//check for linear dependency
-	float epsilon = 0.03;
+	float epsilon = 0.003;
 	if (dot(tangent, tangent) < epsilon)
 	{
 		tangent = cross(normal, vec3(0.0, 1.0, 0.0));

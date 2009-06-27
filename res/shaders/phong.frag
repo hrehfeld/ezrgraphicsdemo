@@ -16,7 +16,8 @@ void main (void)
 	vec3 normLight = light * inversesqrt(lightDistSqr);
 
 	//read normal and convert from [0,1] to [-1,1]
-	vec3 normal = normalize(texture2D(normalMap, texCoords).xyz * 2.0 - 1.0);
+	vec3 sample = texture2D(normalMap, texCoords).xyz;
+	vec3 normal = normalize(sample * 2.0 - 1.0);
 	//debug
 //	vec3 normal = vec3(0.0, 0.0, 1.0);
 
@@ -32,9 +33,9 @@ void main (void)
 
 	vec3 normEye = normalize(eye);
 	float specular = clamp(dot(reflect(-normEye, normal), normLight), 0.0, 1.0);
-	specular = pow(specular, gl_FrontMaterial.shininess);
-	
+	specular = pow(specular, gl_FrontMaterial.shininess) * lightAmount;
 	vec4 specularColor = gl_LightSource[0].specular * gl_FrontMaterial.specular * specular;
+	
 	
 	vec4 diffuseColor = texture2D(colorMap, texCoords);
 	gl_FragColor = (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor) * attenuation;
