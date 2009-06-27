@@ -7,8 +7,8 @@
  *  Questions?: <fronc@uni-koblenz.de>
  ******************************************************************************/
 
-#ifndef _ER_OPENGL_H
-#define _ER_OPENGL_H
+#ifndef _OPENGL_H_
+#define _OPENGL_H_
 
 //--- Include headers ----------------------------------------------------------
 
@@ -41,4 +41,27 @@
 
 #endif
 
-#endif
+#include <iostream>
+#include <string>
+
+namespace Ezr
+{
+	class OpenGl {
+	public:
+		static bool checkGlError() {
+			return (glGetError() != GL_NO_ERROR);
+		}
+
+		static void printGlError() {
+			if (!checkGlError()) {
+				return;
+			}
+			GLenum error = glGetError();
+			std::cerr <<  gluErrorString(error) << std::endl;
+		}
+	};
+}
+
+
+
+#endif /* _OPENGL_H_ */
