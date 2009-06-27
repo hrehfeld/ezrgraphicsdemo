@@ -12,6 +12,6 @@ void main(void)
 	gl_FragData[0].w = gl_FragCoord.z;
 
 	//normals
-    gl_FragData[1].xy = normal.xy;
-	gl_FragData[1].zw = vec2(1.0);
+    gl_FragData[1].xyz = normal.xyz * 0.5 + 0.5;
+	gl_FragData[1].w = 1.0;
 }

@@ -9,6 +9,10 @@
 #include "Viewport.h"
 #include "Texture.h"
 #include "Image.h"
+#include "MyMath.h"
+#include <algorithm>
+#include "Eigen/Geometry"
+#include <Eigen/LU>
 
 #include "IL/il.h"
 #include "IL/ilu.h"
@@ -51,8 +55,13 @@ GLfloat light_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 //static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
 //static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
+static Ezr::GlBindShader* deferredShader;
 static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
 static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
+
+static Ezr::GlBindShader* deferredDirectionalLightShader;
+static const std::string deferredDirectionalVertexShaderPath("res/shaders/deferred/lightDirectional.vert");
+static const std::string deferredDirectionalFragmentShaderPath("res/shaders/deferred/lightDirectional.frag");
 
 static const std::string colorMapPath("res/textures/lava.tga");
 static const std::string normalMapPath("res/textures/lava-normal.tga");
@@ -60,12 +69,13 @@ Ezr::Texture* colormap;
 Ezr::Texture* normalmap;
 
 
-static Ezr::GlBindShader* deferredShader;
 
 void init();
 void load();
 void loadImages();
 void reloadShaders();
+
+void drawPass();
 
 
 void display(void){    
@@ -91,11 +101,6 @@ void display(void){
 		
 		glClear(GL_DEPTH_BUFFER_BIT);
 		OpenGl::printGlError("after FBO depth buffer clear");
-
-		// GLenum target[] = {GL_NONE};
-		// glDrawBuffers(1, target);
-
-		// OpenGl::printGlError("after switching back to front buffer");
 	}
 	else
 	{
@@ -103,17 +108,12 @@ void display(void){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
-	
-
-
 	glMatrixMode(GL_MODELVIEW);	
 	glLoadIdentity();
 
 	cam->CamLookAt();
 	
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	
-
 	
 	glActiveTexture(GL_TEXTURE0);
 	colormap->bind();
@@ -123,23 +123,31 @@ void display(void){
 	{
 		deferredShader->bind();
 
-		//multitexturing
-		glActiveTexture(GL_TEXTURE1);
-		normalmap->bind();
-		glEnable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
+		// //multitexturing
+		// glActiveTexture(GL_TEXTURE1);
+		// normalmap->bind();
+		// glEnable(GL_TEXTURE_2D);
+		// glActiveTexture(GL_TEXTURE0);
 
 		//tell the shader about uniforms
 		GLint program = deferredShader->getProgram();
         GLint colorMapL = glGetUniformLocation(program, "colorMap");
 		glUniform1i(colorMapL, 0);
-        GLint normalMapL = glGetUniformLocationARB(program, "normalMap");
-		glUniform1i(normalMapL, 1);
-        GLint invRadiusL = glGetUniformLocationARB(program, "invRadius");
-		glUniform1f(invRadiusL, light0QuadraticAttenuation);
+        // GLint normalMapL = glGetUniformLocationARB(program, "normalMap");
+		// glUniform1i(normalMapL, 1);
+        // GLint invRadiusL = glGetUniformLocationARB(program, "invRadius");
+		// glUniform1f(invRadiusL, light0QuadraticAttenuation);
 
 		OpenGl::printGlError("after shader binding");
 	}
+
+	
+	GLfloat m[16];
+	glGetFloatv (GL_MODELVIEW_MATRIX, m);
+	Matrix4f modelViewMatrix(m);
+
+	
+
 	//draw geometry
 	glutSolidTeapot(1);
 	//scene->drawScene();
@@ -147,10 +155,10 @@ void display(void){
 
 	if (useShader)
 	{
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
+		// glActiveTexture(GL_TEXTURE1);
+		// glBindTexture(GL_TEXTURE_2D, 0);
+		// glDisable(GL_TEXTURE_2D);
+		// glActiveTexture(GL_TEXTURE0);
 
 		deferredShader->unbind();
 		OpenGl::printGlError("after shader unbinding");
@@ -167,10 +175,86 @@ void display(void){
 		
 		glPopAttrib();
 		//glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
+		glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 
+		if (useShader) {
+			std::string att0("color3_depth1");
+			std::string att1("normal2");
+
+			glActiveTexture(GL_TEXTURE0);
+			glEnable(GL_TEXTURE_2D);
+			fbo->getColorAttachment(att0)->bind();
+			OpenGl::printGlError("fbo/shader texture0 bind");
+
+			glActiveTexture(GL_TEXTURE1);
+			glEnable(GL_TEXTURE_2D);
+			fbo->getColorAttachment(att1)->bind();
+			glActiveTexture(GL_TEXTURE0);
+			OpenGl::printGlError("fbo/shader texture1 bind");
+			
+			
+			//tell the shader about uniforms
+			deferredDirectionalLightShader->bind();
+			GLhandleARB program = deferredDirectionalLightShader->getProgram();
+
+			GLint att0L = glGetUniformLocation(program, att0.c_str());
+			OpenGl::printGlError("fbo/shader texture0 get");
+			glUniform1i(att0L, 0);
+			OpenGl::printGlError("fbo/shader texture0 set");
+			
+			GLint att1L = glGetUniformLocation(program, att1.c_str());
+			OpenGl::printGlError("fbo/shader texture1 get");
+			glUniform1i(att1L, 1);
+			OpenGl::printGlError("fbo/shader texture1 set");
+
+			GLint eyeL = glGetUniformLocation(program, "eye");
+			OpenGl::printGlError("fbo/shader eye get");
+			Vector3f eye = cam->GetCamPos();
+			glUniform3f(eyeL, eye.x(), eye.y(), eye.z());
+			OpenGl::printGlError("fbo/shader eye set");
+
+			Vector3f lightDirection(1, 1, 0);
+			lightDirection.normalize();
+			GLint lightL = glGetUniformLocation(program, "lightdir");
+			OpenGl::printGlError("fbo/shader lightdir get");
+			glUniform3f(lightL, lightDirection.x(), lightDirection.y(), lightDirection.z());
+			OpenGl::printGlError("fbo/shader lightdir set");
+			
+		}
+		else
+		{
+			std::string bla("color3_depth1");
+			//std::string bla("normal2");
+			fbo->getColorAttachment(bla)->bind();
+		}
+
+		glEnable(GL_TEXTURE_2D);
+
+		drawPass();
+
+		glDisable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		if (useShader)
+		{
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glDisable(GL_TEXTURE_2D);
+			glActiveTexture(GL_TEXTURE0);
+			
+			deferredDirectionalLightShader->unbind();
+		}
+		
+		
+	}
+//	std::cout << timer->GetFramesPerSecond() << std::endl;
+	glutSwapBuffers();
+}
+
+void drawPass()
+{
 		//draw a screensize rectangle with the fbo rendered scene as texture on it
 		glMatrixMode(GL_MODELVIEW);	
 		glPushMatrix();
@@ -182,15 +266,15 @@ void display(void){
 		float orthoSize = 1.0 / fullscreenQuadSize;
 		glOrtho(-orthoSize, orthoSize, -orthoSize, orthoSize, -1.0, 1.0);
 
-		glDisable(GL_LIGHTING);
-		glEnable(GL_TEXTURE_2D);
-//		std::string bla("color3_depth1");
-		std::string bla("normal2");
-		fbo->getColorAttachment(bla)->bind();
+		// glTranslatef(0, 0, -0.1f);
+		// float scale = 0.1f * tan(30.0f / 360.0f * 2.0f * MyMath::PI);
+		// glScalef(scale, scale, scale);
+
+		//glMatrixMode(GL_PROJECTION);
 
 		glBegin (GL_QUADS); 
 		//glNormal3f( 0.0f, 0.0f, 1.0);
-   glTexCoord2f(0.0, 0.0);
+		glTexCoord2f(0.0, 0.0);
         glVertex2f(-1.0, -1.0);
         glTexCoord2f(1.0, 0.0);
         glVertex2f( 1.0, -1.0);
@@ -200,17 +284,10 @@ void display(void){
         glVertex2f(-1.0,  1.0);
 		glEnd ();
 
-		glDisable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glEnable(GL_LIGHTING);
-		
-		glMatrixMode (GL_PROJECTION); 
 		glPopMatrix();
+
 		glMatrixMode (GL_MODELVIEW); 
 		glPopMatrix();
-	}
-//	std::cout << timer->GetFramesPerSecond() << std::endl;
-	glutSwapBuffers();
 }
 
 void reshape (int w, int h){
@@ -396,7 +473,7 @@ void init(void)
     glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
     glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, light0QuadraticAttenuation);
 		
-	glEnable(GL_LIGHTING);
+//	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
 	timer = new Ezr::Timer();
@@ -419,17 +496,24 @@ void init(void)
 	//scene = new Ezr::Scene();
 }
 
-void reloadShaders() {
-	delete deferredShader;
+void loadShaders() {
 	deferredShader = new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredVertexShaderPath),
 	 									   Ezr::Utilities::loadFile(deferredFragmentShaderPath));
+
+	deferredDirectionalLightShader
+		= new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredDirectionalVertexShaderPath),
+								Ezr::Utilities::loadFile(deferredDirectionalFragmentShaderPath));
+}
+
+void reloadShaders() {
+	delete deferredShader;
+	delete deferredDirectionalLightShader;
+	loadShaders();
 }
 
 void load()
 {
-	deferredShader = new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredVertexShaderPath),
-	 									   Ezr::Utilities::loadFile(deferredFragmentShaderPath));
-
+	loadShaders();
 	loadImages();
 }
 

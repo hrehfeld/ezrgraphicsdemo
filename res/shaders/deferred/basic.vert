@@ -4,6 +4,7 @@ varying vec2 texCoords;
 void main(void)
 {
 	texCoords = gl_MultiTexCoord0.xy;
-    normal          = gl_NormalMatrix * gl_Normal;
+//    normal          = gl_NormalMatrix * gl_Normal;
+    normal          = gl_Normal;
     gl_Position     = ftransform();
 }

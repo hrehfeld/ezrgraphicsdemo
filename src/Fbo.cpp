@@ -162,7 +162,8 @@ namespace Ezr
 	void Fbo::attachColorbuffer(const std::string& name)
 	{
 		bind();
-		Texture* buffer = new Texture(_textureResX, _textureResY, GL_RGBA32F, GL_RGBA, GL_FLOAT);
+//		Texture* buffer = new Texture(_textureResX, _textureResY, GL_RGBA32F, GL_RGBA, GL_FLOAT);
+		Texture* buffer = new Texture(_textureResX, _textureResY, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
 		
 		unsigned int attachment = _colorBuffers.size();
 

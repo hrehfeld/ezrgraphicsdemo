@@ -21,7 +21,7 @@ namespace Ezr
 		void unbind();
 
 
-		GLuint getProgram() { return _program; }
+		GLhandleARB getProgram() { return _program; }
 
 	private:
 		GLhandleARB _program;
