@@ -17,11 +17,19 @@ namespace Ezr{
 	//
 	// Fbo constructor: create our Fbo
 	////////////////////////////////////////////////////////////////////////
-	Fbo::Fbo(int textureResX, int textureResY)
-		:_fboID(0), _rboID(0), _useDepth(false),_textureResX(textureResX),
-		_textureResY(textureResY), _useNormal(false)
+	Fbo::Fbo(int textureResX, int textureResY, short renderTargets)
+		:_fboID(0),
+		 _rboID(0),
+		 _useDepth(false),
+		 _useStencil(false),
+		 _textureResX(textureResX),
+		 _textureResY(textureResY)
 	{
 		generateFbo();
+		if (renderTargets != None)
+		{
+			generateRbo(renderTargets);
+		}
 	}
 
 	//// ~Fbo //////////////////////////////////////////////////////////////
@@ -67,10 +75,6 @@ namespace Ezr{
 		if(glGetError() != GL_NO_ERROR)
 			throw std::string("Error: Could not generate renderbuffer in Fbo::generateFbo()");
 
-		if((att & 0x2) == 0x2)
-		{
-			generateRbo(att);
-		}
 	}
 
     //// CREATE RBO ////////////////////////////////////////////////////////
@@ -78,12 +82,32 @@ namespace Ezr{
 	// This creates our renderbuffer. We need this for later 
 	// attaching a depth buffer
 	////////////////////////////////////////////////////////////////////////
-	void Fbo::generateRbo(unsigned short att)
-    {  
-        glGenRenderbuffersEXT(1, &_rboID);
+	void Fbo::generateRbo(short renderTargets)
+    {
+		bind();
+        glGenRenderbuffers(1, &_rboID);
+		
 	    if(glGetError() != GL_NO_ERROR)
-	    	throw std::string("Error: Could not generate renderbuffer in Fbo::generateRBO()"); 
-        _useDepth = true;
+		{
+	    	throw std::string("Error: Could not generate renderbuffer in Fbo::generateRBO()");
+		}
+
+		if((renderTargets & Depth) != None)
+		{
+			glFramebufferRenderbufferEXT(GL_FRAMEBUFFER,
+										 GL_DEPTH_ATTACHMENT,
+										 GL_RENDERBUFFER,
+										 _rboID);
+			_useDepth = true;
+		}
+		if((renderTargets & Stencil) != None)
+		{
+			glFramebufferRenderbufferEXT(GL_FRAMEBUFFER,
+										 GL_STENCIL_ATTACHMENT,
+										 GL_RENDERBUFFER,
+										 _rboID);
+			_useStencil = true;
+		}
 	}
 
 	//// BIND //////////////////////////////////////////////////////////////
@@ -100,7 +124,7 @@ namespace Ezr{
 
 		if(_useDepth)
 		{
-			std::cout << "binding depth buffer" << std::endl;
+			//std::cout << "binding depth buffer" << std::endl;
 			
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _rboID);
 			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, _textureResX, _textureResY);
@@ -120,15 +144,6 @@ namespace Ezr{
 
 		if(glGetError() != GL_NO_ERROR)
 			throw std::string("Error: Could not attach texture to framebuffer"); 
-	}
-
-	//// ATTACH RBO ////////////////////////////////////////////////////////
-	//
-	// Attach a renderbuffer, e.g. a depth buffer
-	////////////////////////////////////////////////////////////////////////
-	void Fbo::attachRBO(GLenum attachment)
-	{
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, _rboID);
 	}
 
 	//// GET MAX COLOR ATTACHMENTS /////////////////////////////////////////

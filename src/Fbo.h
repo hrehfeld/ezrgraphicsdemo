@@ -19,12 +19,12 @@ namespace Ezr{
 
         enum Attachment
         {
-            None = 0x1,
-            Depth = None << 1,
-            Normal = Depth << 1,
+            None = 0,
+            Depth = 0x1,
+            Stencil = Depth << 1,
         };
 
-		Fbo(int textureResX, int textureResY);
+		Fbo(int textureResX, int textureResY, short type);
 		~Fbo();
 		
 		//This creates our FrameBufferObject
@@ -38,10 +38,8 @@ namespace Ezr{
 		//target:      e.g. GL_TEXTURE_2D, 
 		//texID:       the texture ID 
 		void attachFboTexture(GLenum attachment, GLuint target, GLuint texID);
-		
-		//This attaches our RenderBufferObject
-		void attachRBO(GLenum attachment);
 
+		
 		GLuint getFboID() const {return _fboID;}
 		GLuint getRBOID() const {return _rboID;}
 
@@ -55,14 +53,16 @@ namespace Ezr{
 		void release();
 
 	private:
-        //This creates a RenderBufferObject, e.g. a depthbuffer
-		void generateRbo(unsigned short att);
+        /**
+		 * creates a RenderBufferObject, e.g. a depthbuffer
+		 */
+		void generateRbo(short type);
 
 		GLuint _fboID;
 		GLuint _rboID;
 		int _textureResX;
 		int _textureResY;
-		bool _useDepth, _useNormal;
+		bool _useDepth, _useStencil;
 	};
 }
 #endif
