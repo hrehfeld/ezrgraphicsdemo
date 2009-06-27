@@ -18,7 +18,7 @@ namespace Ezr
 
 		ILenum Error;
 		while ((Error = ilGetError()) != IL_NO_ERROR) {
-			std::cerr << sprintf("%s/n", iluErrorString(Error)) << std::endl;
+			std::cerr << iluErrorString(Error) << std::endl;
 		}
 	}
 
