@@ -48,16 +48,12 @@ namespace Ezr
 {
 	class OpenGl {
 	public:
-		static bool checkGlError() {
-			return (glGetError() != GL_NO_ERROR);
-		}
-
-		static void printGlError() {
-			if (!checkGlError()) {
+		static void printGlError(const char* reason) {
+			GLenum error = glGetError();
+			if (error == GL_NO_ERROR) {
 				return;
 			}
-			GLenum error = glGetError();
-			std::cerr <<  gluErrorString(error) << std::endl;
+			std::cerr <<  reason << ": '" << gluErrorString(error) << "'" << std::endl;
 		}
 	};
 }

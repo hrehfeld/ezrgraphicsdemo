@@ -10,6 +10,7 @@
 #include "Fbo.h"
 #include "Texture.h"
 #include <stdio.h>
+#include <sstream>
 
 using namespace std;
 
@@ -65,10 +66,10 @@ namespace Ezr
 			std::cerr << e << std::endl;
 		}
 
-		for (map<string, Texture*>::iterator it = _colorBuffers.begin();
+		for (vector<Texture*>::iterator it = _colorBuffers.begin();
 			 it != _colorBuffers.end();
 			 ++it) {
-			delete (*it).second;
+			delete (*it);
 		}
 	}
 	
@@ -80,14 +81,12 @@ namespace Ezr
 	void Fbo::release()
 	{
 		glDeleteFramebuffersEXT(1, &_fboID);
-		if(glGetError() != GL_NO_ERROR)
-			throw std::string("Error: Could not delete framebuffer in Fbo::release()"); 
+		OpenGl::printGlError("Couldn't delete FBO");
 		
 		if(_useDepth)
 		{
-			glDeleteRenderbuffersEXT(1, &_rboID);		
-			if(glGetError() != GL_NO_ERROR)
-				throw std::string("Error: Could not delete renderbuffer in Fbo::release()"); 
+			glDeleteRenderbuffersEXT(1, &_rboID);
+			OpenGl::printGlError("Couldn't delete FBO renderbuffer");
 		}
 	}	
 
@@ -99,8 +98,7 @@ namespace Ezr
 	void Fbo::generateFbo(unsigned short att)
 	{
 		glGenFramebuffersEXT(1, &_fboID);
-		if(glGetError() != GL_NO_ERROR)
-			throw std::string("Error: Could not generate renderbuffer in Fbo::generateFbo()");
+		OpenGl::printGlError("Couldn't generate Fbo");
 
 	}
 
@@ -114,10 +112,7 @@ namespace Ezr
 		bind();
         glGenRenderbuffers(1, &_rboID);
 		
-	    if(glGetError() != GL_NO_ERROR)
-		{
-	    	throw std::string("Error: Could not generate renderbuffer in Fbo::generateRBO()");
-		}
+		OpenGl::printGlError("Couldn't generate fbo renderbuffer");
 
 		if((renderTargets & Depth) != None)
 		{
@@ -137,26 +132,31 @@ namespace Ezr
 		}
 	}
 
-	//// BIND //////////////////////////////////////////////////////////////
-	//
-	// This function binds the Fbo as current renderbuffer
-	////////////////////////////////////////////////////////////////////////
-	void Fbo::bind(){
+	void Fbo::bind()
+	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fboID);
-		if(glGetError() != GL_NO_ERROR)
-		{
-			std::cout << "fbo binding errored out... ";
-			throw std::string("Error: Could not bind framebuffer");
-		}
+		OpenGl::printGlError("Couldn't bind FBO");
 
+		setDrawBuffers();
+		
 		if(_useDepth || _useStencil)
 		{
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _rboID);
 			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, _textureResX, _textureResY);
 			
-			if(glGetError() != GL_NO_ERROR)
-				throw std::string("Error: Could not bind renderbuffer"); 
+			OpenGl::printGlError("Couldn't bind FBO renderbuffer");
 		}
+	}
+
+	void Fbo::setDrawBuffers()
+	{
+		int attachments = _colorBuffers.size();
+		GLenum targets[attachments];
+		for (int i = 0; i < attachments; ++i) {
+			targets[i] = _glColorBufferEnums[i];
+		}
+		glDrawBuffers(attachments, targets);
+		OpenGl::printGlError("Couldn't set FBO draw buffers");
 	}
 
 	void Fbo::attachColorbuffer(const std::string& name)
@@ -164,33 +164,46 @@ namespace Ezr
 		bind();
 		Texture* buffer = new Texture(_textureResX, _textureResY, GL_RGBA32F, GL_RGBA, GL_FLOAT);
 		
-		unsigned int colorAttachments = _colorBuffers.size();
+		unsigned int attachment = _colorBuffers.size();
 
-		std::cout << "#colorbuffers: "
-				  << Fbo::_glColorBufferEnums[colorAttachments] << ", "
-				  << GL_COLOR_ATTACHMENT0_EXT << ", "
-				  << (_glColorBufferEnums[colorAttachments] == GL_COLOR_ATTACHMENT0_EXT)
-				  << ", bufferid: " << buffer->getId()
-				  << std::endl;
+		// std::cout << "#colorbuffers: "
+		// 		  << Fbo::_glColorBufferEnums[attachment] << ", "
+		// 		  << GL_COLOR_ATTACHMENT0_EXT << ", "
+		// 		  << (_glColorBufferEnums[attachment] == GL_COLOR_ATTACHMENT0_EXT)
+		// 		  << ", bufferid: " << buffer->getId()
+		// 		  << std::endl;
 
-		std::cout << "#colorbuffers: " << colorAttachments << std::endl;
+		// std::cout << "#colorbuffers: " << attachment << std::endl;
 		
-
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-								  _glColorBufferEnums[colorAttachments],
+								  _glColorBufferEnums[attachment],
 								  GL_TEXTURE_2D,
 								  buffer->getId(),
 								  0);
-		OpenGl::printGlError();
-		
-		_colorBuffers.insert(std::make_pair(name, buffer));
+		OpenGl::printGlError("Couldn't attach colorbuffer to FBO");
+
+		_colorBufferNames.insert(std::make_pair(name, attachment));
+		_colorBuffers.push_back(buffer);
 	}
 
 	const Texture* Fbo::getColorAttachment(std::string& name)
 	{
-		return _colorBuffers[name];
+		return _colorBuffers[_colorBufferNames[name]];
 	}
-	
+
+	void Fbo::clearColorAttachment(std::string& name, float r, float g, float b, float a)
+	{
+		bind();
+		int num = _colorBufferNames[name];
+		glDrawBuffer(_glColorBufferEnums[num]);
+		glClearColor(r, g, b, a);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		std::stringstream msg;
+		msg << "after FBO colorbuffer " << num << " clear";
+		OpenGl::printGlError(msg.str().c_str());
+		setDrawBuffers();
+	}
 
 	//// GET MAX COLOR ATTACHMENTS /////////////////////////////////////////
 	//
@@ -210,14 +223,17 @@ namespace Ezr
 
 	void Fbo::unbindFbo() 
 	{
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		if(glGetError() != GL_NO_ERROR)
-			throw std::string("Error: Could not bind default fixed function framebuffer"); 
-		if(_useDepth){
+		if (_useDepth || _useStencil)
+		{
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
-			if(glGetError() != GL_NO_ERROR)
-				throw std::string("Error: Could not unbind renderbuffer"); 
+			OpenGl::printGlError("Couldn't unbind FBO renderbuffer");
 		}
+
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		OpenGl::printGlError("Couldn't unbind FBO");
+
+		
+		glDrawBuffer(GL_FRONT);
 	}
 
 	//// CHECK Fbo ////////////////////////////////////////////////////////
@@ -258,5 +274,7 @@ namespace Ezr
 		if(error==GL_FRAMEBUFFER_COMPLETE_EXT){
 			printf("Fbo complete!\n");
 		}
+		OpenGl::printGlError("FBO error checking");
+		
 	}
 }

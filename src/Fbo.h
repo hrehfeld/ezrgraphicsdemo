@@ -44,6 +44,14 @@ namespace Ezr{
 		void attachColorbuffer(const std::string& name);
 
 		const Texture* getColorAttachment(std::string& name);
+		/**
+		 * Clear a certain color attachment
+		 *
+		 * Careful: this messes with gldrawbuffers, so you need to
+		 * rebind other fbos (that you currently want to use) after
+		 * using this.
+		 */
+		void clearColorAttachment(std::string& name, float r, float g, float b, float a);
 		
 		GLuint getFboID() const {return _fboID;}
 		GLuint getRBOID() const {return _rboID;}
@@ -59,6 +67,12 @@ namespace Ezr{
 
 		static bool staticInit();
 
+		/**
+		 * Set the Drawbuffers as needed for the fbo
+		 */
+		void setDrawBuffers();
+
+
 	private:
         /**
 		 * creates a RenderBufferObject, e.g. a depthbuffer
@@ -71,7 +85,8 @@ namespace Ezr{
 		int _textureResY;
 		bool _useDepth, _useStencil;
 
-		std::map<std::string, Texture*> _colorBuffers;
+		std::map<std::string, int> _colorBufferNames;
+		std::vector<Texture*> _colorBuffers;
 		
 		static std::vector<unsigned int> _glColorBufferEnums;
 	};

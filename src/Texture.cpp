@@ -40,13 +40,7 @@ namespace Ezr
 					 0,
 					 format, type,
 					 data);
-		{
-			GLenum error = glGetError();
-			if(error != GL_NO_ERROR)
-			{
-				std::cout << gluErrorString(error) << std::endl;
-			}
-		}
+		OpenGl::printGlError("Couldn't generate Texture");
 		
 		
 		//with FBO_EXT support, or glGenerateMipmap(GL_TEXTURE_2D)

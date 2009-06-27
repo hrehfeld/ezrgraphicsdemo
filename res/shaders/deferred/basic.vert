@@ -1,10 +1,9 @@
 varying vec3 normal;
-varying vec3 v;
-varying vec3 lightvec;
+varying vec2 texCoords;
+
 void main(void)
 {
-    normal          = normalize(gl_NormalMatrix * gl_Normal);
-    v               = vec3(gl_ModelViewMatrix * gl_Vertex);
-    lightvec        = normalize(gl_LightSource[0].position.xyz - v);
+	texCoords = gl_MultiTexCoord0.xy;
+    normal          = gl_NormalMatrix * gl_Normal;
     gl_Position     = ftransform();
 }

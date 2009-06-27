@@ -15,6 +15,7 @@
 #include "IL/ilut.h"
 
 using namespace Eigen;
+using namespace Ezr;
 
 
 //non 2^n sizes make FBOs VERY slow
@@ -50,8 +51,8 @@ GLfloat light_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 //static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
 //static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
-static const std::string deferredVertexShaderPath("res/shaders/phong.vert");
-static const std::string deferredFragmentShaderPath("res/shaders/phong.frag");
+static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
+static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
 
 static const std::string colorMapPath("res/textures/lava.tga");
 static const std::string normalMapPath("res/textures/lava-normal.tga");
@@ -78,12 +79,33 @@ void display(void){
 	{
 		glPushAttrib(GL_VIEWPORT_BIT);
 		glViewport(0, 0, wndWidth, wndHeight);
+		OpenGl::printGlError("after FBO binding");
+
+
 		fbo->bind();
+		std::string b1("color3_depth1");
+		fbo->clearColorAttachment(b1, 0, 0, 0, 1);
+
+		std::string b2("normal2");
+		fbo->clearColorAttachment(b2, 0, 0, 1, 1);
+		
+		glClear(GL_DEPTH_BUFFER_BIT);
+		OpenGl::printGlError("after FBO depth buffer clear");
+
+		// GLenum target[] = {GL_NONE};
+		// glDrawBuffers(1, target);
+
+		// OpenGl::printGlError("after switching back to front buffer");
 	}
+	else
+	{
+		glClearColor(1.0, 1.0, 1.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+	
+	
 
 
-	glClearColor(1.0,0.0,0.0,1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	glMatrixMode(GL_MODELVIEW);	
 	glLoadIdentity();
 
@@ -109,12 +131,14 @@ void display(void){
 
 		//tell the shader about uniforms
 		GLint program = deferredShader->getProgram();
-        GLint colorMapL = glGetUniformLocation(program,"colorMap");
+        GLint colorMapL = glGetUniformLocation(program, "colorMap");
 		glUniform1i(colorMapL, 0);
-        GLint normalMapL = glGetUniformLocationARB(program,"normalMap");
+        GLint normalMapL = glGetUniformLocationARB(program, "normalMap");
 		glUniform1i(normalMapL, 1);
         GLint invRadiusL = glGetUniformLocationARB(program, "invRadius");
 		glUniform1f(invRadiusL, light0QuadraticAttenuation);
+
+		OpenGl::printGlError("after shader binding");
 	}
 	//draw geometry
 	glutSolidTeapot(1);
@@ -129,9 +153,13 @@ void display(void){
 		glActiveTexture(GL_TEXTURE0);
 
 		deferredShader->unbind();
+		OpenGl::printGlError("after shader unbinding");
+		
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_TEXTURE_2D);
+
+	Ezr::OpenGl::printGlError("before fbo unbinding");
 	
 	if(useFbo)
 	{
@@ -156,7 +184,8 @@ void display(void){
 
 		glDisable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
-		std::string bla("framebuffer");
+//		std::string bla("color3_depth1");
+		std::string bla("normal2");
 		fbo->getColorAttachment(bla)->bind();
 
 		glBegin (GL_QUADS); 
@@ -341,7 +370,8 @@ void init(void)
 
 	{
 		fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth);
-		fbo->attachColorbuffer("framebuffer");
+		fbo->attachColorbuffer("color3_depth1");
+		fbo->attachColorbuffer("normal2");
 		//glDrawBuffer(GL_NONE);
 		
 		fbo->checkFbo();
