@@ -1,13 +1,30 @@
 #include "Texture.h"
 
+#include <iostream>
+
 #include "OpenGl.h"
 #include "Image.h"
 
 namespace Ezr
 {
+	
+	Texture::Texture(int width, int height, unsigned int internalFormat, unsigned int format, unsigned int type)
+	{
+		init(width, height, internalFormat, format, type, NULL);
+	}
+	
 	Texture::Texture(const Image& img)
 	{
+		init(img.getWidth(), img.getHeight(), GL_RGB, img.getFormat(), img.getType(), img.getData());
+	}
 
+	void Texture::init(int width,
+					   int height,
+					   unsigned int internalFormat,
+					   unsigned int format,
+					   unsigned int type,
+					   unsigned char* data)
+	{
 		glGenTextures(1, &_id);
 		bind();
 
@@ -18,11 +35,19 @@ namespace Ezr
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
 		glTexImage2D(GL_TEXTURE_2D, 0,
-					 GL_RGB,
-					 img.getWidth(), img.getHeight(),
+					 internalFormat,
+					 width, height,
 					 0,
-					 img.getFormat(), img.getType(),
-					 img.getData());
+					 format, type,
+					 data);
+		{
+			GLenum error = glGetError();
+			if(error != GL_NO_ERROR)
+			{
+				std::cout << gluErrorString(error) << std::endl;
+			}
+		}
+		
 		
 		//with FBO_EXT support, or glGenerateMipmap(GL_TEXTURE_2D)
 		//make sure all drivers gen mipmaps
@@ -38,7 +63,7 @@ namespace Ezr
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropic);
 	}
 
-	void Texture::bind()
+	void Texture::bind() const
 	{
 		glBindTexture(GL_TEXTURE_2D, _id);
 	}
