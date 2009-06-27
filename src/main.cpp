@@ -28,6 +28,8 @@ int anisotropicFiltering = 8;
 
 float fullscreenQuadSize = 1.0;
 
+float light0QuadraticAttenuation = 0.01f;
+
 Ezr::Camera* cam;
 Ezr::Fbo* fbo;
 Ezr::Scene* scene;
@@ -42,6 +44,11 @@ int _x, _y;
 bool leftButtonDown, leftButtonJustDown, useFbo, useShader, w, s, a, d = false;
 GLuint textureID;
 GLuint depthbuffer;
+
+GLfloat light_position[] = {3.0, 3.0, 2.0, 1.0};
+GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
+GLfloat light_specular[] = {1, 1, 1.0, 1.0};
+GLfloat light_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 //static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
 //static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
@@ -59,12 +66,15 @@ static Ezr::GlBindShader* deferredShader;
 void init();
 void load();
 void loadImages();
+void reloadShaders();
 
 
 void display(void){    
  
 	cam->UpdateCamPos(timer->GetFrameInterval(), w, s, a, d);
 	timer->CalculateFrameRate();
+	
+
 	
 	if(useFbo)
 	{
@@ -76,9 +86,15 @@ void display(void){
 
 	glClearColor(1.0,0.0,0.0,1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
+	glMatrixMode(GL_MODELVIEW);	
 	glLoadIdentity();
-	cam->CamLookAt();
 
+	cam->CamLookAt();
+	
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	
+
+	
 	glActiveTexture(GL_TEXTURE0);
 	colormap->bind();
 	glEnable(GL_TEXTURE_2D);
@@ -100,12 +116,13 @@ void display(void){
         GLint normalMapL = glGetUniformLocationARB(program,"normalMap");
 		glUniform1i(normalMapL, 1);
         GLint invRadiusL = glGetUniformLocationARB(program, "invRadius");
-		glUniform1f(invRadiusL, 0.01);
+		glUniform1f(invRadiusL, light0QuadraticAttenuation);
 	}
 	//draw geometry
 	glutSolidTeapot(1);
 	//scene->drawScene();
 	
+
 	if (useShader)
 	{
 		glActiveTexture(GL_TEXTURE1);
@@ -221,6 +238,11 @@ void keyboard(unsigned char key, int x, int y)
 		colormap->setAnisotropicFiltering(anisotropicFiltering);
 		std::cout << "Anisotropic Filtering: " << anisotropicFiltering << std::endl;
 		break;
+	case 'o':
+		reloadShaders();
+		std::cout << "reloading shaders: " << std::endl;
+		break;
+		
 	}
 }
 
@@ -342,12 +364,24 @@ void init(void)
 
 	}
 
-	
+	glEnable(GL_COLOR_MATERIAL);
+    // set material properties which will be assigned by glColor
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);	
 
-	GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-	GLfloat light_position[] = {3.0, 3.0, 2.0, 0.0};
+	float spec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_SPECULAR, spec);
+	glMateriali(GL_FRONT, GL_SHININESS, 24);
+
+
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+
+	//set light like in the phong shader..
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
+    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
+    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, light0QuadraticAttenuation);
+		
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
@@ -369,6 +403,12 @@ void init(void)
 
 
 	//scene = new Ezr::Scene();
+}
+
+void reloadShaders() {
+	delete deferredShader;
+	deferredShader = new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredVertexShaderPath),
+	 									   Ezr::Utilities::loadFile(deferredFragmentShaderPath));
 }
 
 void load()
