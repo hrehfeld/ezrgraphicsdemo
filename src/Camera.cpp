@@ -32,7 +32,7 @@ namespace Ezr{
 		m_screenWidth  = screenWidth;
 		m_screenHeight = screenHeight;
 
-		m_camSpeed = 15.0f;
+		m_camSpeed = 1.0f;
 	}
 
 	//// POSITION CAMERA ///////////////////////////////////////////////////
