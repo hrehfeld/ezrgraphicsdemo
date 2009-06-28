@@ -64,7 +64,8 @@ static const std::string deferredDirectionalVertexShaderPath("res/shaders/deferr
 static const std::string deferredDirectionalFragmentShaderPath("res/shaders/deferred/lightDirectional.frag");
 
 static const std::string colorMapPath("res/textures/lava.tga");
-static const std::string normalMapPath("res/textures/lava-normal.tga");
+//static const std::string normalMapPath("res/textures/lava-normal.tga");
+static const std::string normalMapPath("res/textures/defaultnormals.tga");
 Ezr::Texture* colormap;
 Ezr::Texture* normalmap;
 
@@ -124,19 +125,19 @@ void display(void){
 		deferredShader->bind();
 
 		// //multitexturing
-		// glActiveTexture(GL_TEXTURE1);
-		// normalmap->bind();
-		// glEnable(GL_TEXTURE_2D);
-		// glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE1);
+		normalmap->bind();
+		glEnable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
 
 		//tell the shader about uniforms
 		GLint program = deferredShader->getProgram();
         GLint colorMapL = glGetUniformLocation(program, "colorMap");
 		glUniform1i(colorMapL, 0);
-        // GLint normalMapL = glGetUniformLocationARB(program, "normalMap");
-		// glUniform1i(normalMapL, 1);
-        // GLint invRadiusL = glGetUniformLocationARB(program, "invRadius");
-		// glUniform1f(invRadiusL, light0QuadraticAttenuation);
+        GLint normalMapL = glGetUniformLocationARB(program, "normalMap");
+		glUniform1i(normalMapL, 1);
+        GLint invRadiusL = glGetUniformLocationARB(program, "invRadius");
+		glUniform1f(invRadiusL, light0QuadraticAttenuation);
 
 		OpenGl::printGlError("after shader binding");
 	}
@@ -155,10 +156,10 @@ void display(void){
 
 	if (useShader)
 	{
-		// glActiveTexture(GL_TEXTURE1);
-		// glBindTexture(GL_TEXTURE_2D, 0);
-		// glDisable(GL_TEXTURE_2D);
-		// glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
 
 		deferredShader->unbind();
 		OpenGl::printGlError("after shader unbinding");
@@ -215,6 +216,7 @@ void display(void){
 			glUniform3f(eyeL, eye.x(), eye.y(), eye.z());
 			OpenGl::printGlError("fbo/shader eye set");
 
+			//Vector3f lightDirection(-1, 1, 0);
 			Vector3f lightDirection(1, 1, 0);
 			lightDirection.normalize();
 			GLint lightL = glGetUniformLocation(program, "lightdir");
