@@ -84,14 +84,11 @@ void display(void){
 	cam->UpdateCamPos(timer->GetFrameInterval(), w, s, a, d);
 	timer->CalculateFrameRate();
 	
-
-	
 	if(useFbo)
 	{
 		glPushAttrib(GL_VIEWPORT_BIT);
 		glViewport(0, 0, wndWidth, wndHeight);
 		OpenGl::printGlError("after FBO binding");
-
 
 		fbo->bind();
 		std::string b1("color3_depth1");
@@ -105,7 +102,7 @@ void display(void){
 	}
 	else
 	{
-		glClearColor(1.0, 1.0, 1.0, 1.0);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
@@ -116,7 +113,7 @@ void display(void){
 	
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	
-	glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
 	colormap->bind();
 	glEnable(GL_TEXTURE_2D);
 	
@@ -143,9 +140,9 @@ void display(void){
 	}
 
 	
-	GLfloat m[16];
+	/*GLfloat m[16];
 	glGetFloatv (GL_MODELVIEW_MATRIX, m);
-	Matrix4f modelViewMatrix(m);
+	Matrix4f modelViewMatrix(m);*/
 
 	
 
@@ -172,10 +169,10 @@ void display(void){
 	
 	if(useFbo)
 	{
-		fbo->unbindFbo();
+		fbo->unbindFbo(); 
 		
 		glPopAttrib();
-		//glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+		glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 		glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
@@ -249,9 +246,7 @@ void display(void){
 			glActiveTexture(GL_TEXTURE0);
 			
 			deferredDirectionalLightShader->unbind();
-		}
-		
-		
+		}		
 	}
 //	std::cout << timer->GetFramesPerSecond() << std::endl;
 	glutSwapBuffers();
@@ -433,7 +428,7 @@ void init(void)
 	glClearDepth (0.0f);
 	glClearDepth (gFar);
 	glEnable (GL_DEPTH_TEST);				
-	glDepthFunc (GL_LEQUAL);	
+    glDepthFunc (GL_LEQUAL);	
 
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
@@ -455,15 +450,15 @@ void init(void)
 	//glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	{
-		fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth);
-		fbo->attachColorbuffer("color3_depth1");
-		fbo->attachColorbuffer("normal2");
-		//glDrawBuffer(GL_NONE);
-		
-		fbo->checkFbo();
-		fbo->unbindFbo();
-	}
+	
+    fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth);
+    fbo->attachColorbuffer("color3_depth1");
+	fbo->attachColorbuffer("normal2");
+	glDrawBuffer(GL_NONE);
+	
+	fbo->checkFbo();
+	fbo->unbindFbo();
+
 
 	glEnable(GL_COLOR_MATERIAL);
     // set material properties which will be assigned by glColor
@@ -483,7 +478,7 @@ void init(void)
     glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
     glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, light0QuadraticAttenuation);
 		
-//	glEnable(GL_LIGHTING);
+	//glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
 	timer = new Ezr::Timer();
@@ -500,9 +495,6 @@ void init(void)
 	cam->PositionCamera( -7, 0, 0,   1, 0, 0,   0, 1, 0);
 
 	load();
-
-
-
 	//scene = new Ezr::Scene();
 }
 

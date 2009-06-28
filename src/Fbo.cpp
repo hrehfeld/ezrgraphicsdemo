@@ -44,6 +44,7 @@ namespace Ezr
 		 _rboID(0),
 		 _useDepth(false),
 		 _useStencil(false),
+         _useRbo(false),
 		 _textureResX(textureResX),
 		 _textureResY(textureResY)
 	{
@@ -95,7 +96,7 @@ namespace Ezr
 	// This creates our Fbo and if we need a depth buffer, 
 	// create a renderbuffer 
 	////////////////////////////////////////////////////////////////////////
-	void Fbo::generateFbo(unsigned short att)
+	void Fbo::generateFbo()
 	{
 		glGenFramebuffersEXT(1, &_fboID);
 		OpenGl::printGlError("Couldn't generate Fbo");
@@ -108,19 +109,20 @@ namespace Ezr
 	// attaching a depth buffer
 	////////////////////////////////////////////////////////////////////////
 	void Fbo::generateRbo(short renderTargets)
-    {
-		bind();
-        glGenRenderbuffers(1, &_rboID);
+    {      
+        glGenRenderbuffersEXT(1, &_rboID);
+        _useRbo = true;	
+        bind();        
 		
 		OpenGl::printGlError("Couldn't generate fbo renderbuffer");
 
 		if((renderTargets & Depth) != None)
 		{
-			glFramebufferRenderbufferEXT(GL_FRAMEBUFFER,
-										 GL_DEPTH_ATTACHMENT,
-										 GL_RENDERBUFFER,
+			glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
+                                         GL_DEPTH_ATTACHMENT_EXT,
+                                         GL_RENDERBUFFER_EXT,
 										 _rboID);
-			_useDepth = true;
+            OpenGl::printGlError("Couldn't attach renderbuffer");
 		}
 		if((renderTargets & Stencil) != None)
 		{
@@ -128,7 +130,6 @@ namespace Ezr
 										 GL_STENCIL_ATTACHMENT,
 										 GL_RENDERBUFFER,
 										 _rboID);
-			_useStencil = true;
 		}
 	}
 
@@ -136,27 +137,29 @@ namespace Ezr
 	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fboID);
 		OpenGl::printGlError("Couldn't bind FBO");
-
-		setDrawBuffers();
 		
-		if(_useDepth || _useStencil)
+		if(_useRbo)
 		{
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _rboID);
 			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, _textureResX, _textureResY);
 			
 			OpenGl::printGlError("Couldn't bind FBO renderbuffer");
 		}
+
+        setDrawBuffers();
 	}
 
 	void Fbo::setDrawBuffers()
 	{
 		int attachments = _colorBuffers.size();
-		GLenum targets[attachments];
+		GLenum* targets = new GLenum[attachments];
 		for (int i = 0; i < attachments; ++i) {
 			targets[i] = _glColorBufferEnums[i];
 		}
 		glDrawBuffers(attachments, targets);
 		OpenGl::printGlError("Couldn't set FBO draw buffers");
+
+        delete[] targets;
 	}
 
 	void Fbo::attachColorbuffer(const std::string& name)
@@ -165,7 +168,7 @@ namespace Ezr
 //		Texture* buffer = new Texture(_textureResX, _textureResY, GL_RGBA32F, GL_RGBA, GL_FLOAT);
 		Texture* buffer = new Texture(_textureResX, _textureResY, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
 		
-		unsigned int attachment = _colorBuffers.size();
+		int attachment = _colorBuffers.size();
 
 		// std::cout << "#colorbuffers: "
 		// 		  << Fbo::_glColorBufferEnums[attachment] << ", "
@@ -224,7 +227,7 @@ namespace Ezr
 
 	void Fbo::unbindFbo() 
 	{
-		if (_useDepth || _useStencil)
+		if (_useRbo)
 		{
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 			OpenGl::printGlError("Couldn't unbind FBO renderbuffer");
@@ -232,7 +235,6 @@ namespace Ezr
 
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		OpenGl::printGlError("Couldn't unbind FBO");
-
 		
 		glDrawBuffer(GL_FRONT);
 	}

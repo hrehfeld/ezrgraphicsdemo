@@ -14,7 +14,7 @@ namespace Ezr
 	public:
 	    Image(string filename);
 	    virtual ~Image();
-
+		
 		int getWidth() const { return getInfo().Width; }
 		int getHeight() const { return getInfo().Height; }
 		int getFormat() const { return getInfo().Format; } 

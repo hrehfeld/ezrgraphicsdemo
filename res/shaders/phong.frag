@@ -38,9 +38,9 @@ void main (void)
 	
 	
 	vec4 diffuseColor = texture2D(colorMap, texCoords);
-	gl_FragColor = (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor) * attenuation;
+	//gl_FragColor = (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor) * attenuation;
 	//debug
 	//gl_FragColor = vec4(specular, specular, specular, 1.0);
-//	gl_FragColor = vec4(normLight, 1.0);
+	gl_FragColor = vec4(normLight, 1.0);
 //	gl_FragColor = vec4(specularColor);
 }

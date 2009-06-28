@@ -33,7 +33,7 @@ namespace Ezr{
 		~Fbo();
 		
 		//This creates our FrameBufferObject
-        void generateFbo(unsigned short att = None);
+        void generateFbo();
 
 		//This enables our Fbo as current buffer to render in
 		void bind();
@@ -83,7 +83,7 @@ namespace Ezr{
 		GLuint _rboID;
 		int _textureResX;
 		int _textureResY;
-		bool _useDepth, _useStencil;
+		bool _useDepth, _useStencil, _useRbo;
 
 		std::map<std::string, int> _colorBufferNames;
 		std::vector<Texture*> _colorBuffers;

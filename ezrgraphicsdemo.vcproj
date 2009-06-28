@@ -21,7 +21,7 @@
 			OutputDirectory="$(SolutionDir)\bin\$(ConfigurationName)"
 			IntermediateDirectory="bin\$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="1"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -40,8 +40,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				UseUnicodeResponseFiles="true"
 				Optimization="0"
-				AdditionalIncludeDirectories="src;&quot;$(BOOST_DIR)&quot;;lib/glm;lib/Eigen;lib/devil/include;lib/glut/include;lib/glew/include"
+				AdditionalIncludeDirectories="lib/FreeImage;src;&quot;$(BOOST_DIR)&quot;;lib/glm;lib/Eigen;lib/devil/include;lib/glut/include;lib/glew/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NOMINMAX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,9 +63,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glut32.lib glew32.lib ILUT.lib ILU.lib DevIL.lib"
+				AdditionalDependencies="FreeImage.lib opengl32.lib glut32.lib glew32.lib ILUT.lib ILU.lib DevIL.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="lib/devil/lib;lib/glut/lib;lib/glew/lib;$(BOOST_DIR)/lib"
+				AdditionalLibraryDirectories="lib/FreeImage;lib/devil/lib;lib/glut/lib;lib/glew/lib;&quot;$(BOOST_DIR)/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -98,7 +99,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="1"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -118,7 +119,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="lib/FreeImage;src;&quot;$(BOOST_DIR)&quot;;lib/glm;lib/Eigen;lib/devil/include;lib/glut/include;lib/glew/include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NOMINMAX"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -136,7 +138,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="FreeImage.lib opengl32.lib glut32.lib glew32.lib ILUT.lib ILU.lib DevIL.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="lib/FreeImage;lib/devil/lib;lib/glut/lib;lib/glew/lib;&quot;$(BOOST_DIR)/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -193,11 +197,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Image.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\main.cpp"
 				>
 			</File>
 			<File
+				RelativePath=".\src\MyMath.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Scene.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Texture.cpp"
 				>
 			</File>
 			<File
@@ -235,6 +251,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Image.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\MyMath.h"
 				>
 			</File>
@@ -244,6 +264,10 @@
 			</File>
 			<File
 				RelativePath=".\src\Scene.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Texture.h"
 				>
 			</File>
 			<File
