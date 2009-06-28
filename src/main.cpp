@@ -64,8 +64,8 @@ static const std::string deferredDirectionalVertexShaderPath("res/shaders/deferr
 static const std::string deferredDirectionalFragmentShaderPath("res/shaders/deferred/lightDirectional.frag");
 
 static const std::string colorMapPath("res/textures/lava.tga");
-//static const std::string normalMapPath("res/textures/lava-normal.tga");
-static const std::string normalMapPath("res/textures/defaultnormals.tga");
+static const std::string normalMapPath("res/textures/lava-normal.tga");
+//static const std::string normalMapPath("res/textures/defaultnormals.tga");
 Ezr::Texture* colormap;
 Ezr::Texture* normalmap;
 
@@ -349,6 +349,12 @@ void keyboard(unsigned char key, int x, int y)
 		reloadShaders();
 		std::cout << "reloading shaders: " << std::endl;
 		break;
+	case 'i':
+		std::cout << "reloading images... ";
+		loadImages();
+		std::cout << "finished." << std::endl;
+
+		break;
 		
 	}
 }
@@ -521,8 +527,17 @@ void load()
 
 void loadImages()
 {
+	if (colormap != NULL)
+	{
+		delete colormap;
+	}
 	Ezr::Image colorImage(colorMapPath);
 	colormap = new Ezr::Texture(colorImage);
+
+	if (normalmap != NULL)
+	{
+		delete normalmap;
+	}
 	Ezr::Image normalImage(normalMapPath);
 	normalmap = new Ezr::Texture(normalImage);
 }
