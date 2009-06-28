@@ -224,6 +224,8 @@ void display(void){
 			glUniform3f(lightL, lightDirection.x(), lightDirection.y(), lightDirection.z());
 			OpenGl::printGlError("fbo/shader lightdir set");
 			
+			GLint modelViewMatrixL = glGetUniformLocation(program, "modelViewMatrix");
+			glUniform1fv(modelViewMatrixL, 16, m);
 		}
 		else
 		{
