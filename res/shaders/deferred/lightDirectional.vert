@@ -33,7 +33,7 @@ void main(void)
 	screenPos = gl_MultiTexCoord0.xy;
 
 	fragmentScreen = (screenPos - 0.5) * 2.0;
-	fragmentView = vec3(fragmentScreen * planes.nearSize, planes.nearDistance);
+	fragmentView = vec3(fragmentScreen * planes.nearSize, -(planes.nearDistance));
 
     gl_Position = ftransform();
 }

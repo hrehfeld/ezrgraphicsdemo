@@ -57,17 +57,17 @@ void main (void)
 
 	vec4 ambientColor = gl_LightSource[0].ambient;
 
-	float lightAmount = max(dot(normalize(-light), normalView), 0.0 );
+	float lightAmount = max(dot(-light, normalView), 0.0 );
 	vec4 lightColor = gl_LightSource[0].diffuse * lightAmount;
 
-	vec3 eyeDirView = normalize(fragmentView);
-	vec3 hitView = depth * eyeDirView;
+	vec3 eyeRayView = normalize(fragmentView);
+	vec3 hitView = depth * eyeRayView;
 
-	float specular = clamp(dot(reflect(eyeDirView, normalView), light), 0.0, 1.0);
+	float specular = clamp(dot(reflect(eyeRayView, normalView), -light), 0.0, 1.0);
 	specular = pow(specular, gl_FrontMaterial.shininess);
 	vec4 specularColor = gl_LightSource[0].specular * gl_FrontMaterial.specular * specular;
 
-	specularColor = vec4(0);
+//	specularColor = vec4(0);
 
 	
 	
@@ -83,14 +83,14 @@ void main (void)
 //	gl_FragColor = vec4(gl_FragCoord.xy, 0, 1);
 //	gl_FragColor = vec4(normalView.xyz, 1);
 //	gl_FragColor = vec4(light - normalView, 1);
-//	gl_FragColor = vec4(reflect(normalize(eyeDir), normalView), 1);
+//	gl_FragColor = vec4(reflect(eyeRayView, normalView), 1);
 //	gl_FragColor = colorDepthSample;
 //	gl_FragColor = vec4(fragmentScreen, 0.0, 1.0);
 //	gl_FragColor = vec4(fragmentView.x, fragmentView.y, fragmentView.z, 1.0);
-//	gl_FragColor = vec4(eyeDir, 1);
+//	gl_FragColor = vec4(-eyeRayView, 1);
 //	gl_FragColor = vec4(hitView, 1);
 //	gl_FragColor = vec4(specular, specular, specular, 1.0);
-//	gl_FragColor = vec4(depth, depth, depth, 1.0);	
+//	gl_FragColor = vec4(vec3(depth) * 0.1, 1.0);	
 //	gl_FragColor = vec4(z, z, z, 1.0);	
 }
 
