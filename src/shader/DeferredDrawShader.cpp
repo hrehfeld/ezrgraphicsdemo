@@ -56,7 +56,5 @@ namespace Ezr
 
 	DeferredDrawShader::~DeferredDrawShader()
 	{
-		delete _colorMap;
-		delete _normalMap;
 	}
 }
