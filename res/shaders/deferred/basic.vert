@@ -1,10 +1,9 @@
-varying vec3 normal;
+varying vec3 normalVertexP;
 varying vec2 texCoords;
 
 void main(void)
 {
 	texCoords = gl_MultiTexCoord0.xy;
-//    normal          = gl_NormalMatrix * gl_Normal;
-    normal          = gl_Normal;
-    gl_Position     = ftransform();
+    normalVertexP = gl_NormalMatrix * normalize(gl_Normal);
+    gl_Position = ftransform();
 }

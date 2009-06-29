@@ -26,12 +26,12 @@ using namespace Ezr;
 int wndWidth = 512;
 int wndHeight = 512;
 
-GLdouble gNear = 0.1;
-GLdouble gFar = 100.0;
+float fov = 90.0f;
+float nearPlane = 0.01f;
+float farPlane = 10.0;
+
 
 int anisotropicFiltering = 8;
-
-float fullscreenQuadSize = 1.0;
 
 float light0QuadraticAttenuation = 0.01f;
 
@@ -76,8 +76,8 @@ void load();
 void loadImages();
 void reloadShaders();
 
-void drawPass();
-
+void drawPass(const Matrix4f& modelView, const float nearPlane, const float fov);
+float nearPlaneSize(const float nearPlaneDist, const float fov);
 
 void display(void){    
  
@@ -139,12 +139,13 @@ void display(void){
 		OpenGl::printGlError("after shader binding");
 	}
 
-	
-	/*GLfloat m[16];
-	glGetFloatv (GL_MODELVIEW_MATRIX, m);
-	Matrix4f modelViewMatrix(m);*/
 
-	
+	GLfloat mvm[16];
+	glGetFloatv (GL_MODELVIEW_MATRIX, mvm);
+	GLfloat pm[16];
+	glGetFloatv (GL_PROJECTION_MATRIX, pm);
+	Matrix4f modelViewMatrix(mvm);
+	Matrix4f projectionMatrix(pm);
 
 	//draw geometry
 	glutSolidTeapot(1);
@@ -197,32 +198,42 @@ void display(void){
 			deferredDirectionalLightShader->bind();
 			GLhandleARB program = deferredDirectionalLightShader->getProgram();
 
-			GLint att0L = glGetUniformLocation(program, att0.c_str());
-			OpenGl::printGlError("fbo/shader texture0 get");
-			glUniform1i(att0L, 0);
-			OpenGl::printGlError("fbo/shader texture0 set");
+			glUniform1f(glGetUniformLocation(program, "planes.nearDistance"),
+						nearPlane);
+			glUniform1f(glGetUniformLocation(program, "planes.nearSize"),
+						nearPlaneSize(nearPlane, fov));
 			
-			GLint att1L = glGetUniformLocation(program, att1.c_str());
-			OpenGl::printGlError("fbo/shader texture1 get");
-			glUniform1i(att1L, 1);
-			OpenGl::printGlError("fbo/shader texture1 set");
 
-			GLint eyeL = glGetUniformLocation(program, "eye");
-			OpenGl::printGlError("fbo/shader eye get");
+			glUniform1i(glGetUniformLocation(program, att0.c_str()), 0);
+			glUniform1i(glGetUniformLocation(program, att1.c_str()), 1);
+
 			Vector3f eye = cam->GetCamPos();
-			glUniform3f(eyeL, eye.x(), eye.y(), eye.z());
-			OpenGl::printGlError("fbo/shader eye set");
+			glUniform3f(glGetUniformLocation(program, "eye"), eye.x(), eye.y(), eye.z());
 
-			//Vector3f lightDirection(-1, 1, 0);
-			Vector3f lightDirection(1, 1, 0);
-			lightDirection.normalize();
-			GLint lightL = glGetUniformLocation(program, "lightdir");
-			OpenGl::printGlError("fbo/shader lightdir get");
-			glUniform3f(lightL, lightDirection.x(), lightDirection.y(), lightDirection.z());
-			OpenGl::printGlError("fbo/shader lightdir set");
+			//light in view space
+			Vector4f lightDirection(0, 0, 1, 0);
+			Vector4f lightDirectionView = modelView * lightDirection;
+			lightDirectionView.normalize();
+			//std::cout << lightDirectionView << std::endl;
+			glUniform3f(glGetUniformLocation(program, "lightdir"),
+						lightDirectionView.x(),
+						lightDirectionView.y(),
+						lightDirectionView.z());
 			
-			GLint modelViewMatrixL = glGetUniformLocation(program, "modelViewMatrix");
-			glUniform1fv(modelViewMatrixL, 16, m);
+			glUniformMatrix4fv(glGetUniformLocation(program, "modelViewMatrix"),
+							   16, false, modelViewMatrix.data());
+			glUniformMatrix4fv(glGetUniformLocation(program, "modelViewMatrixInverse"),
+							   16, true, modelViewMatrix);
+			glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"),
+							   16, false, projectionMatrix);
+			glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrixInverse"),
+							   16, true, projectionMatrix);
+
+			
+			glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrix"),
+							   9, false, normalMatrix);
+			glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrixInverse"),
+							   9, true, normalMatrix);
 		}
 		else
 		{
@@ -233,7 +244,7 @@ void display(void){
 
 		glEnable(GL_TEXTURE_2D);
 
-		drawPass();
+		drawPass(modelView, nearPlane, fov);
 
 		glDisable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -252,41 +263,59 @@ void display(void){
 	glutSwapBuffers();
 }
 
-void drawPass()
+/**
+ * calculate smallest distance from center of the nearplane to the side
+ */
+float nearPlaneSize(const float nearPlaneDist, const float fov)
 {
-		//draw a screensize rectangle with the fbo rendered scene as texture on it
-		glMatrixMode(GL_MODELVIEW);	
-		glPushMatrix();
-		glLoadIdentity();
+	float halfFov = fov / 2.0f;
+	return nearPlaneDist * tan(halfFov / 360.0f * 2.0f * MyMath::PI);
+}
 
-		glMatrixMode (GL_PROJECTION); 
-		glPushMatrix (); 
-		glLoadIdentity ();
-		float orthoSize = 1.0 / fullscreenQuadSize;
-		glOrtho(-orthoSize, orthoSize, -orthoSize, orthoSize, -1.0, 1.0);
+/**
+ * draw a screensize rectangle with the fbo rendered scene as texture on it
+ *
+ * @param modelView Camera modelview matrix so we can position the quad before the camera
+ */
+void drawPass(const Matrix4f& modelView, const float nearPlane, const float fov)
+{
+	//nearplane, but with a small offset to ensure we don't get clipped
+	float nearP = nearPlane + 0.01f;
 
-		// glTranslatef(0, 0, -0.1f);
-		// float scale = 0.1f * tan(30.0f / 360.0f * 2.0f * MyMath::PI);
-		// glScalef(scale, scale, scale);
+	float size = nearPlaneSize(nearPlane + 0.01f, fov);
 
-		//glMatrixMode(GL_PROJECTION);
+	Vector4f quad[] = {
+		Vector4f(-size, -size, -nearP, 1),
+		Vector4f( size, -size, -nearP, 1),
+		Vector4f( size,  size, -nearP, 1),
+		Vector4f(-size,  size, -nearP, 1)
+	};
 
-		glBegin (GL_QUADS); 
-		//glNormal3f( 0.0f, 0.0f, 1.0);
+	Matrix4f modelViewInverse = modelView.inverse();
+
+	//we don't mess with any state, but draw the rectangle perfectly in front of the camera
+	for (int i = 0; i < 4; ++i) {
+		quad[i] = (modelViewInverse * quad[i]);
+	}
+
+	Vector4f p;
+	glBegin (GL_QUADS); 
 		glTexCoord2f(0.0, 0.0);
-        glVertex2f(-1.0, -1.0);
+		p = quad[0];
+        glVertex3f(p.x(), p.y(), p.z());
+
         glTexCoord2f(1.0, 0.0);
-        glVertex2f( 1.0, -1.0);
+		p = quad[1];
+        glVertex3f(p.x(), p.y(), p.z());
+
         glTexCoord2f(1.0, 1.0);
-        glVertex2f( 1.0,  1.0);
+		p = quad[2];
+        glVertex3f(p.x(), p.y(), p.z());
+
         glTexCoord2f(0.0, 1.0);
-        glVertex2f(-1.0,  1.0);
-		glEnd ();
-
-		glPopMatrix();
-
-		glMatrixMode (GL_MODELVIEW); 
-		glPopMatrix();
+		p = quad[3];
+        glVertex3f(p.x(), p.y(), p.z());
+	glEnd ();
 }
 
 void reshape (int w, int h){
@@ -297,7 +326,7 @@ void reshape (int w, int h){
 
 	glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60.0f, (float)(w)/h , 0.1f, 100.0f); // FOV, AspectRatio, NearClip, FarClip
+    gluPerspective(fov, (float)(w)/h , nearPlane, farPlane);
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -331,12 +360,6 @@ void keyboard(unsigned char key, int x, int y)
 		case 'd' :
 			d=true;
 			break;
-	case '[':
-		fullscreenQuadSize += 0.1;
-		break;
-	case ']':
-		fullscreenQuadSize -= 0.1;
-		break;
 	case '\'':
 		anisotropicFiltering = (anisotropicFiltering == 0) ? 8 : 0;
 		colormap->setAnisotropicFiltering(anisotropicFiltering);
@@ -384,7 +407,6 @@ void mouse(int button, int state, int x, int y)
 		}
 		else
 		{
-			//std::cout << "up!" << std::endl;
 			leftButtonDown = false;
 			leftButtonJustDown = false;
 		}
@@ -397,8 +419,6 @@ void mouse(int button, int state, int x, int y)
 void mouseMotion(int x, int y)
 {
 	if (leftButtonDown) {
-		//std::cout << x << "," << y << std::endl;
-
 		Vector2i half = window->getWindowSize() / 2;
 		/** @todo 2009-06-20 23:19 hrehfeld    move somewhere central */
 		glutWarpPointer(half.x(), half.y());
@@ -407,7 +427,6 @@ void mouseMotion(int x, int y)
 		if (leftButtonJustDown)
 		{
 			leftButtonJustDown = false;
-			//std::cout << "first  press!" << std::endl;
 			return;
 		}
 			
@@ -425,8 +444,7 @@ void init(void)
 {
 	glShadeModel (GL_SMOOTH);				
 	glClearColor (0.0f, 0.0f, 0.0f, 1.0f);	
-	glClearDepth (0.0f);
-	glClearDepth (gFar);
+	glClearDepth (farPlane);
 	glEnable (GL_DEPTH_TEST);				
     glDepthFunc (GL_LEQUAL);	
 
@@ -487,12 +505,12 @@ void init(void)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0f,(GLfloat)wndWidth/(GLfloat)wndHeight, 0.1 ,100.0f);
+	gluPerspective(fov, (GLfloat)wndWidth/(GLfloat)wndHeight, nearPlane, farPlane);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();	
 
 	cam = new Ezr::Camera(wndWidth, wndHeight);
-	cam->PositionCamera( -7, 0, 0,   1, 0, 0,   0, 1, 0);
+	cam->PositionCamera( 1, 0, 0,   0, 0, -1,   0, 1, 0);
 
 	load();
 	//scene = new Ezr::Scene();

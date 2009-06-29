@@ -1,4 +1,4 @@
-varying vec3 normal;
+varying vec3 normalVertexP;
 varying vec2 texCoords;
 
 uniform sampler2D colorMap;
@@ -6,6 +6,7 @@ uniform sampler2D normalMap;
 
 void main(void)
 {
+	vec3 normal = normalize(normalVertexP);
     //calculate tangent
 	vec3 tangent = cross(normal, vec3(1.0, 0.0, 0.0));
 	//check for linear dependency
@@ -19,21 +20,25 @@ void main(void)
 
 	vec3 binormal = cross(tangent, normal);
 
-	vec3 normalM = (texture2D(normalMap, texCoords).xyz - 0.5) * 2;
-	//rotate normal from image (in tangent space) to world space
+	//hope normal in the image is normalized
+	vec3 normalM = (texture2D(normalMap, texCoords).xyz - 0.5) * 2.0;
+	
+	//rotate normal from image (in tangent space) to view space
 	//(binormal tangent normal) * normalM 
 	vec3 col0 = vec3(tangent.x, binormal.x, normal.x);
 	vec3 col1 = vec3(tangent.y, binormal.y, normal.y);
 	vec3 col2 = vec3(tangent.z, binormal.z, normal.z);
 
-	//rotates in the other direction
-	/* worldNormal.y = dot(normalM, tangent); */
-	/* worldNormal.x = dot(normalM, binormal); */
-	/* worldNormal.z = dot(normalM, normal); */
 	vec3 worldNormal = vec3(dot(normalM, col0),
 							dot(normalM, col1),
 							dot(normalM, col2));
-	//should be normalized
+
+	//rotates in the other direction
+	//vec3 worldNormal = vec3(dot(normalM, tangent),
+	//						dot(normalM, binormal),
+	//						dot(normalM, normal));
+	
+	//shouldn't be necessary to normalize
     //worldNormal = normalize(worldNormal);
 
 
@@ -43,8 +48,8 @@ void main(void)
 	gl_FragData[0].w = gl_FragCoord.z;
 
 	//normals
-    gl_FragData[1].xyz = worldNormal * 0.5 + 0.5;
-//	gl_FragData[1].xyz = normalM * 0.5 + 0.5;
-//	gl_FragData[1].xyz = normal * 0.5 + 0.5;
+    gl_FragData[1].xyz = worldNormal;
+//	gl_FragData[1].xyz = normalM;
+	gl_FragData[1].xyz = normal;
 	gl_FragData[1].w = 1.0;
 }
