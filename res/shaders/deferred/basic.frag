@@ -48,8 +48,10 @@ void main(void)
 	gl_FragData[0].w = gl_FragCoord.z;
 
 	//normals
-    gl_FragData[1].xyz = worldNormal;
+    gl_FragData[1].xyz = worldNormal * 0.5 + 0.5;
 //	gl_FragData[1].xyz = normalM;
-	gl_FragData[1].xyz = normal;
+	gl_FragData[1].xyz = normal * 0.5 + 0.5;
+	//@todo check clamping - workaround necessary?
+//	gl_FragData[1].xyz = normal;
 	gl_FragData[1].w = 1.0;
 }

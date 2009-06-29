@@ -52,6 +52,8 @@ void main (void)
     //vec3 normal = vec3(sample, normalZ);
 	//read normal without clamping
 	vec3 normalView = normalize(((texture2D(normal2, current).xyz) - 0.5) * 2.0);
+	//@todo check clamping - workaround necessary?
+	//vec3 normalView = normalize(texture2D(normal2, current).xyz);
 
 	vec4 ambientColor = gl_LightSource[0].ambient;
 
