@@ -11,8 +11,10 @@
 #include "Image.h"
 #include "MyMath.h"
 #include <algorithm>
-#include "Eigen/Geometry"
+#include <Eigen/Geometry>
 #include <Eigen/LU>
+#include "shader/Shader.h"
+#include "shader/DeferredDrawShader.h"
 
 #include "IL/il.h"
 #include "IL/ilu.h"
@@ -55,9 +57,7 @@ GLfloat light_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 //static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
 //static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
-static Ezr::GlBindShader* deferredShader;
-static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
-static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
+static Ezr::Shader* deferredShader;
 
 static Ezr::GlBindShader* deferredDirectionalLightShader;
 static const std::string deferredDirectionalVertexShaderPath("res/shaders/deferred/lightDirectional.vert");
@@ -113,29 +113,9 @@ void display(void){
 	
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	
-    glActiveTexture(GL_TEXTURE0);
-	colormap->bind();
-	glEnable(GL_TEXTURE_2D);
-	
 	if (useShader)
 	{
 		deferredShader->bind();
-
-		// //multitexturing
-		glActiveTexture(GL_TEXTURE1);
-		normalmap->bind();
-		glEnable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
-
-		//tell the shader about uniforms
-		GLint program = deferredShader->getProgram();
-        GLint colorMapL = glGetUniformLocation(program, "colorMap");
-		glUniform1i(colorMapL, 0);
-        GLint normalMapL = glGetUniformLocationARB(program, "normalMap");
-		glUniform1i(normalMapL, 1);
-        GLint invRadiusL = glGetUniformLocationARB(program, "invRadius");
-		glUniform1f(invRadiusL, light0QuadraticAttenuation);
-
 		OpenGl::printGlError("after shader binding");
 	}
 
@@ -154,17 +134,9 @@ void display(void){
 
 	if (useShader)
 	{
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
-
 		deferredShader->unbind();
 		OpenGl::printGlError("after shader unbinding");
-		
 	}
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_TEXTURE_2D);
 
 	Ezr::OpenGl::printGlError("before fbo unbinding");
 	
@@ -520,8 +492,7 @@ void init(void)
 }
 
 void loadShaders() {
-	deferredShader = new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredVertexShaderPath),
-	 									   Ezr::Utilities::loadFile(deferredFragmentShaderPath));
+	deferredShader = new Ezr::DeferredDrawShader(colormap, normalmap);
 
 	deferredDirectionalLightShader
 		= new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredDirectionalVertexShaderPath),
@@ -536,8 +507,8 @@ void reloadShaders() {
 
 void load()
 {
-	loadShaders();
 	loadImages();
+	loadShaders();
 }
 
 void loadImages()
