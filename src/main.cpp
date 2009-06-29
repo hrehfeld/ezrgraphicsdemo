@@ -212,7 +212,7 @@ void display(void){
 
 			//light in view space
 			Vector4f lightDirection(0, 0, 1, 0);
-			Vector4f lightDirectionView = modelView * lightDirection;
+			Vector4f lightDirectionView = modelViewMatrix * lightDirection;
 			lightDirectionView.normalize();
 			//std::cout << lightDirectionView << std::endl;
 			glUniform3f(glGetUniformLocation(program, "lightdir"),
@@ -223,17 +223,20 @@ void display(void){
 			glUniformMatrix4fv(glGetUniformLocation(program, "modelViewMatrix"),
 							   16, false, modelViewMatrix.data());
 			glUniformMatrix4fv(glGetUniformLocation(program, "modelViewMatrixInverse"),
-							   16, true, modelViewMatrix);
+							   16, false, modelViewMatrix.inverse().data());
 			glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"),
-							   16, false, projectionMatrix);
+							   16, false, projectionMatrix.data());
 			glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrixInverse"),
-							   16, true, projectionMatrix);
+							   16, false, projectionMatrix.inverse().data());
 
+			Matrix3f normalMatrix(modelViewMatrix.block(0,0,3,3));
+			normalMatrix = normalMatrix.inverse();
+			normalMatrix.transposeInPlace();
 			
 			glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrix"),
-							   9, false, normalMatrix);
+							   9, false, normalMatrix.data());
 			glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrixInverse"),
-							   9, true, normalMatrix);
+							   9, false, normalMatrix.inverse().data());
 		}
 		else
 		{
@@ -244,7 +247,7 @@ void display(void){
 
 		glEnable(GL_TEXTURE_2D);
 
-		drawPass(modelView, nearPlane, fov);
+		drawPass(modelViewMatrix, nearPlane, fov);
 
 		glDisable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
