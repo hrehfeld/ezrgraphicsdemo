@@ -26,13 +26,6 @@ uniform mat3 normalMatrixInverse;
 uniform mat4 projectionMatrix;
 uniform mat4 projectionMatrixInverse;
 
-//currently not used, check if it's right and what it's doing
-float DepthToZPosition(in float depth) {
-	return gl_DepthRange.near
-		/ (gl_DepthRange.far - depth * (gl_DepthRange.far - gl_DepthRange.near))
-		* gl_DepthRange.far;
-}
-
 void main (void)
 {
 	vec2 current = screenPos;
