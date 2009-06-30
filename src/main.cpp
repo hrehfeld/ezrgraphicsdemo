@@ -15,6 +15,7 @@
 #include <Eigen/LU>
 #include "shader/Shader.h"
 #include "shader/DeferredDrawShader.h"
+#include "shader/DeferredDirectionalLighting.h"
 
 #include "IL/il.h"
 #include "IL/ilu.h"
@@ -50,18 +51,15 @@ int _x, _y;
 
 bool leftButtonDown, leftButtonJustDown, useFbo, useShader, w, s, a, d = false;
 
+Vector3f* lightDirection = new Vector3f(-0.5f, -1, 0);
+
 GLfloat light_position[] = {3.0, 3.0, 2.0, 1.0};
 GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat light_specular[] = {1, 1, 1.0, 1.0};
 GLfloat light_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-//static const std::string deferredVertexShaderPath("res/shaders/deferred/basic.vert");
-//static const std::string deferredFragmentShaderPath("res/shaders/deferred/basic.frag");
 static Ezr::Shader* deferredShader;
-
-static Ezr::GlBindShader* deferredDirectionalLightShader;
-static const std::string deferredDirectionalVertexShaderPath("res/shaders/deferred/lightDirectional.vert");
-static const std::string deferredDirectionalFragmentShaderPath("res/shaders/deferred/lightDirectional.frag");
+static Ezr::DeferredDirectionalLighting* deferredDirectionalLightShader;
 
 static const std::string colorMapPath("res/textures/lava.tga");
 static const std::string normalMapPath("res/textures/lava-normal.tga");
@@ -69,7 +67,8 @@ static const std::string normalMapPath("res/textures/lava-normal.tga");
 Ezr::Texture* colormap;
 Ezr::Texture* normalmap;
 
-
+std::string color3_depth1Name("color3_depth1");
+std::string normal2Name("normal2");
 
 void init();
 void load();
@@ -125,7 +124,15 @@ void display(void){
 	GLfloat pm[16];
 	glGetFloatv (GL_PROJECTION_MATRIX, pm);
 	Matrix4f modelViewMatrix(mvm);
+	Matrix4f modelViewMatrixInverse = modelViewMatrix.inverse();
+	
 	Matrix4f projectionMatrix(pm);
+	Matrix4f projectionMatrixInverse = projectionMatrix.inverse();
+	
+	Matrix3f normalMatrix(modelViewMatrix.block(0,0,3,3));
+	normalMatrix = normalMatrix.inverse();
+	normalMatrix.transposeInPlace();
+	Matrix3f normalMatrixInverse = normalMatrix.inverse();
 
 	//draw geometry
 	glutSolidTeapot(1);
@@ -150,65 +157,15 @@ void display(void){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 
-		if (useShader) {
-			std::string att0("color3_depth1");
-			std::string att1("normal2");
-
-			glActiveTexture(GL_TEXTURE0);
-			glEnable(GL_TEXTURE_2D);
-			fbo->getColorAttachment(att0)->bind();
-			OpenGl::printGlError("fbo/shader texture0 bind");
-
-			glActiveTexture(GL_TEXTURE1);
-			glEnable(GL_TEXTURE_2D);
-			fbo->getColorAttachment(att1)->bind();
-			glActiveTexture(GL_TEXTURE0);
-			OpenGl::printGlError("fbo/shader texture1 bind");
-			
-			
-			//tell the shader about uniforms
+		if (useShader)
+		{
+			deferredDirectionalLightShader->setMatrices(&modelViewMatrix,
+														&modelViewMatrixInverse,
+														&normalMatrix,
+														&normalMatrixInverse,
+														&projectionMatrix,
+														&projectionMatrixInverse);
 			deferredDirectionalLightShader->bind();
-			GLhandleARB program = deferredDirectionalLightShader->getProgram();
-
-			glUniform1f(glGetUniformLocation(program, "planes.nearDistance"),
-						nearPlane);
-			glUniform1f(glGetUniformLocation(program, "planes.nearSize"),
-						nearPlaneSize(nearPlane, fov));
-			
-
-			glUniform1i(glGetUniformLocation(program, att0.c_str()), 0);
-			glUniform1i(glGetUniformLocation(program, att1.c_str()), 1);
-
-			Vector3f eye = cam->GetCamPos();
-			glUniform3f(glGetUniformLocation(program, "eye"), eye.x(), eye.y(), eye.z());
-
-			//light in view space
-			Vector4f lightDirection(0, 0, 1, 0);
-			Vector4f lightDirectionView = modelViewMatrix * lightDirection;
-			lightDirectionView.normalize();
-			//std::cout << lightDirectionView << std::endl;
-			glUniform3f(glGetUniformLocation(program, "lightdir"),
-						lightDirectionView.x(),
-						lightDirectionView.y(),
-						lightDirectionView.z());
-			
-			glUniformMatrix4fv(glGetUniformLocation(program, "modelViewMatrix"),
-							   16, false, modelViewMatrix.data());
-			glUniformMatrix4fv(glGetUniformLocation(program, "modelViewMatrixInverse"),
-							   16, false, modelViewMatrix.inverse().data());
-			glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"),
-							   16, false, projectionMatrix.data());
-			glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrixInverse"),
-							   16, false, projectionMatrix.inverse().data());
-
-			Matrix3f normalMatrix(modelViewMatrix.block(0,0,3,3));
-			normalMatrix = normalMatrix.inverse();
-			normalMatrix.transposeInPlace();
-			
-			glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrix"),
-							   9, false, normalMatrix.data());
-			glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrixInverse"),
-							   9, false, normalMatrix.inverse().data());
 		}
 		else
 		{
@@ -226,11 +183,6 @@ void display(void){
 
 		if (useShader)
 		{
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glDisable(GL_TEXTURE_2D);
-			glActiveTexture(GL_TEXTURE0);
-			
 			deferredDirectionalLightShader->unbind();
 		}		
 	}
@@ -491,24 +443,38 @@ void init(void)
 	//scene = new Ezr::Scene();
 }
 
-void loadShaders() {
+void loadShaders(const Vector3f* lightDirection, const Texture* color3_depth1, const Texture* normal2) {
 	deferredShader = new Ezr::DeferredDrawShader(colormap, normalmap);
 
 	deferredDirectionalLightShader
-		= new Ezr::GlBindShader(Ezr::Utilities::loadFile(deferredDirectionalVertexShaderPath),
-								Ezr::Utilities::loadFile(deferredDirectionalFragmentShaderPath));
+		= new DeferredDirectionalLighting(lightDirection,
+										  color3_depth1,
+										  normal2,
+										  nearPlane,
+										  nearPlaneSize(nearPlane, fov),
+										  cam,
+										  NULL,
+										  NULL,
+										  NULL,
+										  NULL,
+										  NULL,
+										  NULL);
 }
 
 void reloadShaders() {
 	delete deferredShader;
 	delete deferredDirectionalLightShader;
-	loadShaders();
+	loadShaders(lightDirection,
+				fbo->getColorAttachment(color3_depth1Name),
+				fbo->getColorAttachment(normal2Name));
 }
 
 void load()
 {
 	loadImages();
-	loadShaders();
+	loadShaders(lightDirection,
+				fbo->getColorAttachment(color3_depth1Name),
+				fbo->getColorAttachment(normal2Name));
 }
 
 void loadImages()
