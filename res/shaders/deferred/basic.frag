@@ -23,7 +23,7 @@ void main(void)
 	vec3 binormal = cross(tangent, normal);
 
 	//hope normal in the image is normalized
-	vec3 normalM = (texture2D(normalMap, texCoords).xyz - 0.5) * 2.0;
+	vec3 normalM = ((texture2D(normalMap, texCoords).xyz - 0.5) * 2.0);
 	
 	//rotate normal from image (in tangent space) to view space
 	//(binormal tangent normal) * normalM 
@@ -41,7 +41,7 @@ void main(void)
 	//						dot(normalM, normal));
 	
 	//shouldn't be necessary to normalize
-    //worldNormal = normalize(worldNormal);
+    worldNormal = normalize(worldNormal);
 
 
 	//color info
@@ -50,10 +50,10 @@ void main(void)
 	gl_FragData[0].w = -zView;
 
 	//normals
-    gl_FragData[1].xyz = worldNormal * 0.5 + 0.5;
+    gl_FragData[1].xy = worldNormal.xy * 0.5 + 0.5;
 //	gl_FragData[1].xyz = normalM;
 //	gl_FragData[1].xyz = normal * 0.5 + 0.5;
 	//@todo check clamping - workaround necessary?
 //	gl_FragData[1].xyz = normal;
-	gl_FragData[1].w = 1.0;
+	gl_FragData[1].zw = vec2(1.0);
 }

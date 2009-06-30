@@ -38,13 +38,13 @@ void main (void)
 	
 
 	//read normal
-    //vec2 sample = texture2D(normal2, current).xy;
+    vec2 sample = (texture2D(normal2, current).xy - 0.5) * 2.0;
 	//reconstruct z component of normal (using the assumption that lenght(normal) == 1)
 	//killzone2: Normal.z = sqrt(1.0 - pow(Normal.x, 2) - pow(Normal.y, 2))
-    //float normalZ = sqrt(1.0 - (dot(sample, sample)));
-    //vec3 normal = vec3(sample, normalZ);
+	float normalZ = sqrt(1.0 - sample.x * sample.x - sample.y * sample.y);
+    vec3 normalView = vec3(sample, normalZ);
 	//read normal without clamping
-	vec3 normalView = normalize(((texture2D(normal2, current).xyz) - 0.5) * 2.0);
+//	vec3 normalView = normalize(((texture2D(normal2, current).xyz) - 0.5) * 2.0);
 	//@todo check clamping - workaround necessary?
 	//vec3 normalView = normalize(texture2D(normal2, current).xyz);
 
