@@ -16,8 +16,7 @@ using namespace Eigen;
 namespace Ezr{
 		
 	class Camera {
-		
-	public:
+	public: 
 			
 		//http://eigen.tuxfamily.org/dox/StructHavingEigenMembers.html
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW			

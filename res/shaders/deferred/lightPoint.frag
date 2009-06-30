@@ -1,0 +1,101 @@
+struct clippingPlanes {
+	float nearSize;
+	float nearDistance;
+};
+
+//eye pos
+uniform vec3 eye;
+uniform vec3 light;
+
+uniform sampler2D color3_depth1;
+uniform sampler2D normal2;
+
+uniform clippingPlanes planes;
+
+uniform ivec2 screenSize;
+
+uniform float attenuation;
+
+uniform mat4 modelViewMatrix;
+uniform mat4 modelViewMatrixInverse;
+uniform mat3 normalMatrix;
+uniform mat3 normalMatrixInverse;
+uniform mat4 projectionMatrix;
+uniform mat4 projectionMatrixInverse;
+
+void main (void)
+{
+    //pixel position on the screen in [0, 1] range (for texture lookups)
+	vec2 screenPos = gl_FragCoord.xy / screenSize;
+
+	vec2 fragmentScreen = (screenPos - 0.5) * 2.0;
+	vec3 fragmentView = vec3(fragmentScreen * planes.nearSize, -(planes.nearDistance));
+
+	vec2 current = screenPos;
+
+	//read color
+	vec4 colorDepthSample = texture2D(color3_depth1, current);
+	vec4 diffuseColor = vec4(colorDepthSample.xyz, 1.0);
+	//read depth
+	float depth = colorDepthSample.w;
+	
+
+	//read normal
+	vec2 sample = (texture2D(normal2, current).xy - 0.5) * 2.0;
+	//reconstruct z component of normal (using the assumption that lenght(normal) == 1)
+	//killzone2: Normal.z = sqrt(1.0 - pow(Normal.x, 2) - pow(Normal.y, 2))
+	float normalZ = sqrt(1.0 - sample.x * sample.x - sample.y * sample.y);
+    vec3 normalView = vec3(sample, normalZ);
+	//read normal without clamping
+//	vec3 normalView = normalize(((texture2D(normal2, current).xyz) - 0.5) * 2.0);
+	//@todo check clamping - workaround necessary?
+	//vec3 normalView = normalize(texture2D(normal2, current).xyz);
+
+	vec4 ambientColor = gl_LightSource[0].ambient;
+
+	vec3 eyeRayView = normalize(fragmentView);
+	vec3 hitView = depth * eyeRayView;
+
+	vec3 lightHit = light - hitView;
+
+	float att = clamp(1.0 - 0.2725 * dot(lightHit, lightHit), 0.0, 1.0);
+
+	vec3 lightDir = normalize(lightHit);
+	float lightAmount = max(dot(lightDir, normalView), 0.0 );
+	vec4 lightColor = gl_LightSource[0].diffuse * lightAmount;
+
+
+	float specular = clamp(dot(reflect(eyeRayView, normalView), light), 0.0, 1.0);
+	specular = pow(specular, gl_FrontMaterial.shininess);
+	vec4 specularColor = gl_LightSource[0].specular * gl_FrontMaterial.specular * specular;
+
+	specularColor = vec4(0);
+
+	gl_FragData[0] = (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor) * att;
+	
+//debug stuff
+//	gl_FragData[0] = vec4(0);
+//	gl_FragData[0] = diffuseColor;
+//	gl_FragData[0] = vec4(lightAmount);
+//	gl_FragData[0] = vec4(att);
+
+//	gl_FragData[0] = vec4(length(light) * 0.5);
+//	gl_FragData[0] = vec4(normalView, 1);
+//	gl_FragData[0] = modelViewMatrixInverse * vec4(normalView, 1);
+//	gl_FragData[0] = vec4(gl_FragCoord.xy, 0, 1);
+//	gl_FragData[0] = vec4(normalView.xyz, 1);
+//	gl_FragData[0] = vec4(normalView2.xyz, 1);
+//	gl_FragData[0] = vec4(light - normalView, 1);
+//	gl_FragData[0] = vec4(reflect(eyeRayView, normalView), 1);
+//	gl_FragData[0] = colorDepthSample;
+//	gl_FragData[0] = vec4(fragmentScreen, 0.0, 1.0);
+//	gl_FragData[0] = vec4(fragmentView.x, fragmentView.y, fragmentView.z, 1.0);
+//	gl_FragData[0] = vec4(-eyeRayView, 1);
+//	gl_FragData[0] = vec4(hitView, 1);
+//	gl_FragData[0] = vec4(lightHit, 1);
+//	gl_FragData[0] = vec4(specular, specular, specular, 1.0);
+//	gl_FragData[0] = vec4(normalView.xy, normalView.z - normalView2.z, 1);
+//	gl_FragData[0] = vec4(vec3(depth) * 0.1, 1.0);	
+//	gl_FragData[0] = vec4(z, z, z, 1.0);	
+}
+

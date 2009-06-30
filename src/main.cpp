@@ -16,6 +16,7 @@
 #include "shader/Shader.h"
 #include "shader/DeferredDrawShader.h"
 #include "shader/DeferredDirectionalLighting.h"
+#include "shader/DeferredPointLighting.h"
 
 #include "IL/il.h"
 #include "IL/ilu.h"
@@ -40,6 +41,7 @@ float light0QuadraticAttenuation = 0.01f;
 
 Ezr::Camera* cam;
 Ezr::Fbo* fbo;
+Fbo* lightPass;
 Ezr::Scene* scene;
 Ezr::Timer* timer;
 
@@ -51,15 +53,15 @@ int _x, _y;
 
 bool leftButtonDown, leftButtonJustDown, useFbo, useShader, w, s, a, d = false;
 
-Vector3f* lightDirection = new Vector3f(-0.5f, -1, 0);
+Vector3f* lightDirection = new Vector3f(0, 0, 1);
 
-GLfloat light_position[] = {3.0, 3.0, 2.0, 1.0};
-GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-GLfloat light_specular[] = {1, 1, 1.0, 1.0};
-GLfloat light_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+Vector3f* lightPosition = new Vector3f(1, 1, 0);
+float attenuation = 0.01f;
+float lightRadius = 2.0f;
 
 static Ezr::Shader* deferredShader;
 static Ezr::DeferredDirectionalLighting* deferredDirectionalLightShader;
+static Ezr::DeferredPointLighting* deferredPointLightShader;
 
 static const std::string colorMapPath("res/textures/lava.tga");
 static const std::string normalMapPath("res/textures/lava-normal.tga");
@@ -94,7 +96,7 @@ void display(void){
 		fbo->clearColorAttachment(b1, 0, 0, 0, 1);
 
 		std::string b2("normal2");
-		fbo->clearColorAttachment(b2, 0, 0, 1, 1);
+		fbo->clearColorAttachment(b2, 0.5f, 0.5f, 1, 1);
 		
 		glClear(GL_DEPTH_BUFFER_BIT);
 		OpenGl::printGlError("after FBO depth buffer clear");
@@ -109,8 +111,6 @@ void display(void){
 	glLoadIdentity();
 
 	cam->CamLookAt();
-	
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	
 	if (useShader)
 	{
@@ -135,7 +135,9 @@ void display(void){
 	Matrix3f normalMatrixInverse = normalMatrix.inverse();
 
 	//draw geometry
+	glColor4f(1,0,0,1);
 	glutSolidTeapot(1);
+	glColor4f(1,1,1,1);
 	//scene->drawScene();
 	
 
@@ -145,10 +147,10 @@ void display(void){
 		OpenGl::printGlError("after shader unbinding");
 	}
 
-	Ezr::OpenGl::printGlError("before fbo unbinding");
 	
 	if(useFbo)
 	{
+		Ezr::OpenGl::printGlError("before fbo unbinding");
 		fbo->unbindFbo(); 
 		
 		glPopAttrib();
@@ -159,32 +161,66 @@ void display(void){
 
 		if (useShader)
 		{
-			deferredDirectionalLightShader->setMatrices(&modelViewMatrix,
-														&modelViewMatrixInverse,
-														&normalMatrix,
-														&normalMatrixInverse,
-														&projectionMatrix,
-														&projectionMatrixInverse);
-			deferredDirectionalLightShader->bind();
+			// deferredDirectionalLightShader->setMatrices(&modelViewMatrix,
+			// 											&modelViewMatrixInverse,
+			// 											&normalMatrix,
+			// 											&normalMatrixInverse,
+			// 											&projectionMatrix,
+			// 											&projectionMatrixInverse);
+			// deferredDirectionalLightShader->bind();
+			// drawPass(modelViewMatrix, nearPlane, fov);
+			// deferredDirectionalLightShader->unbind();
+			
+			//point light pass
+			lightPass->bind();
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			deferredPointLightShader->bind();
+
+			glPushMatrix();
+			Transform3f t(modelViewMatrix);
+			Translation3f l(*lightPosition);
+			Matrix4f bla2 = (l * t).matrix();
+
+			std::cout << bla2 << std::endl;
+
+			modelViewMatrixInverse = modelViewMatrix.inverse();
+			
+			deferredPointLightShader->setMatrices(&modelViewMatrix,
+												  &modelViewMatrixInverse,
+												  &normalMatrix,
+												  &normalMatrixInverse,
+												  &projectionMatrix,
+												  &projectionMatrixInverse);
+			glutSolidSphere(lightRadius, 24, 12);
+			glPopMatrix();
+
+
+			deferredPointLightShader->unbind();
+			Ezr::OpenGl::printGlError("pointlight unbind");
+			lightPass->unbindFbo();
+
+			//draw quad
+			std::string bla("result");
+			lightPass->getColorAttachment(bla)->bind();
+			glEnable(GL_TEXTURE_2D);
+			drawPass(modelViewMatrix, nearPlane, fov);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glDisable(GL_TEXTURE_2D);
 		}
 		else
 		{
 			std::string bla("color3_depth1");
 			//std::string bla("normal2");
 			fbo->getColorAttachment(bla)->bind();
+			glEnable(GL_TEXTURE_2D);
+
+			drawPass(modelViewMatrix, nearPlane, fov);
+			
+			glDisable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
-
-		glEnable(GL_TEXTURE_2D);
-
-		drawPass(modelViewMatrix, nearPlane, fov);
-
-		glDisable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		if (useShader)
-		{
-			deferredDirectionalLightShader->unbind();
-		}		
 	}
 //	std::cout << timer->GetFramesPerSecond() << std::endl;
 	glutSwapBuffers();
@@ -404,6 +440,13 @@ void init(void)
 	fbo->checkFbo();
 	fbo->unbindFbo();
 
+    lightPass = new Ezr::Fbo(wndWidth, wndHeight, Fbo::None);
+    lightPass->attachColorbuffer("result");
+	glDrawBuffer(GL_NONE);
+	
+	lightPass->checkFbo();
+	lightPass->unbindFbo();
+	
 
 	glEnable(GL_COLOR_MATERIAL);
     // set material properties which will be assigned by glColor
@@ -414,9 +457,6 @@ void init(void)
 	glMateriali(GL_FRONT, GL_SHININESS, 24);
 
 
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
 
 	//set light like in the phong shader..
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
@@ -459,6 +499,24 @@ void loadShaders(const Vector3f* lightDirection, const Texture* color3_depth1, c
 										  NULL,
 										  NULL,
 										  NULL);
+
+	deferredPointLightShader
+		= new DeferredPointLighting(lightPosition,
+									lightRadius,
+									attenuation,
+									new Vector2i(lightPass->getWidth(),
+												 lightPass->getHeight()),
+									color3_depth1,
+									normal2,
+									nearPlane,
+									nearPlaneSize(nearPlane, fov),
+									cam,
+									NULL,
+									NULL,
+									NULL,
+									NULL,
+									NULL,
+									NULL);
 }
 
 void reloadShaders() {

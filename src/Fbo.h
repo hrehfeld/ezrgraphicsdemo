@@ -1,11 +1,3 @@
-/*******************************************************************************
- *  Fbo.h
- *
- *  Echtzeit-Rendering Framework 2009
- *
- *  Questions?: <fronc@uni-koblenz.de>
- ******************************************************************************/
-
 #ifndef _Fbo_H
 #define _Fbo_H
 
@@ -72,7 +64,9 @@ namespace Ezr{
 		 */
 		void setDrawBuffers();
 
-
+		int getWidth() { return _textureResX; }
+		int getHeight() { return _textureResY; }
+		
 	private:
         /**
 		 * creates a RenderBufferObject, e.g. a depthbuffer
