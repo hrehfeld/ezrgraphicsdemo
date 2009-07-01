@@ -70,9 +70,13 @@ dependencies := $(addprefix $(bin)/,$(addsuffix .d, $(basename $(sources))))
 
 all: $(dependencies) $(bin)/$(EXE)
 
+#build dependency file, and call sed on it to make the paths right
+#(g++ puts $(notdir file): as the target!) and to add the dependency
+#file as a target, so it gets rebuild itself if one of the deps
+#changes
 $(bin)/%.d: %.cpp
 	-mkdir -p $(dir $@)
-	$(SHELL) -ec '$(CC) -MM $(CFLAGS) $(foreach include,$(includes),-I$(include) ) $< | sed -e "s|\($(notdir $(basename $*))\).o:|$(dir $@)\1.o $(dir $@)$(notdir $(basename $*)).d:|g" > $@'
+	$(SHELL) -ec '$(CC) -MM $(CFLAGS) $(foreach include,$(includes),-I$(include) ) $< | sed -e "s|\($(notdir $(basename $*))\).o:|$(basename $@).o $(basename $@).d:|g" > $@'
 
 $(bin)/$(EXE): $(bin) $(objects)
 	$(CC) $(CFLAGS) -o $@ $(foreach L,$(libincludes),-L$(L)) $(objects) $(foreach lib,$(libs),-l$(lib))
