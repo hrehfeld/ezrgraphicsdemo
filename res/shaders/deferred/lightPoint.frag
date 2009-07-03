@@ -3,8 +3,6 @@ struct clippingPlanes {
 	float nearDistance;
 };
 
-//eye pos
-uniform vec3 eye;
 uniform vec3 light;
 
 uniform sampler2D color3_depth1;
@@ -64,7 +62,7 @@ void main (void)
 	float att = clamp(1.0 - 0.2725 * dot(lightHit, lightHit), 0.0, 1.0);
 
 	vec3 lightDir = normalize(lightHit);
-	float lightAmount = max(dot(lightDir, normalView), 0.0 );
+	float lightAmount = max(dot(lightDir, normalView), 0.0);
 	vec4 lightColor = gl_LightSource[0].diffuse * lightAmount;
 
 
@@ -78,23 +76,23 @@ void main (void)
 	
 //debug stuff
 //	vec2 test = texture2D(normal2, current).zw;
-//	gl_FragData[0] = vec4(-light * 0.1, 1);
+//	gl_FragData[0] = vec4(-light, 1);
 //	gl_FragData[0] = vec4(vec2(test.x) + 10.0, vec2(test.y) + 10.0);
 //	gl_FragData[0] = diffuseColor;
-	gl_FragData[0] = vec4(lightAmount);
+//	gl_FragData[0] = vec4(lightAmount);
+//	gl_FragData[0] = vec4(-fragmentView, 1);
 //	gl_FragData[0] = modelViewMatrixInverse * vec4(light, 1) - vec4(normalMatrixInverse * normalView, 1);	
-//	gl_FragData[0] = (modelViewMatrixInverse * vec4(-light, 1)
+//	gl_FragData[0] = (modelViewMatrixInverse * vec4(light, 1)
 //					  - modelViewMatrixInverse * vec4(hitView, 1)) * 0.3;	
-//	gl_FragData[0] = (modelViewMatrixInverse * vec4(-light, 1)) * 0.4;
-//	gl_FragData[0] = modelViewMatrixInverse * vec4(-hitView, 1) * 0.1;
+//	gl_FragData[0] = -(modelViewMatrixInverse * vec4(light, 1)) * 0.4;
+//	gl_FragData[0] = -modelViewMatrixInverse * vec4(hitView, 1) * 0.1;
 //	gl_FragData[0] = vec4(att);
 
 //	gl_FragData[0] = vec4(length(light) * 0.5);
 //	gl_FragData[0] = vec4(normalView, 1);
 //	gl_FragData[0] = vec4(normalMatrixInverse * normalView, 1);
 //	gl_FragData[0] = vec4(gl_FragCoord.xy, 0, 1);
-//	gl_FragData[0] = vec4(normalView.xyz, 1);
-//	gl_FragData[0] = vec4(normalView2.xyz, 1);
+//	gl_FragData[0] = vec4(normalView - hitView, 1);
 //	gl_FragData[0] = vec4(light - normalView, 1);
 //	gl_FragData[0] = vec4(reflect(eyeRayView, normalView), 1);
 //	gl_FragData[0] = colorDepthSample;

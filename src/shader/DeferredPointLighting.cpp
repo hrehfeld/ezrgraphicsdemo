@@ -94,6 +94,12 @@ namespace Ezr
 		// Matrix4f lightModelViewMatrix((l * t).matrix());
 		// Matrix4f lightModelViewMatrixInverse = lightModelViewMatrix.inverse();
 		
+		// std::cout << "Lightposition: " 
+		// 		  << _lightPosition->x() << ", "
+		// 		  << _lightPosition->y() << ", "
+		// 		  << _lightPosition->z() << ". "
+		// 		  << std::endl;
+
 		//light in view space
 		Vector4f lightPosition(_lightPosition->x(),
 							   _lightPosition->y(),
@@ -115,7 +121,12 @@ namespace Ezr
 					lightPositionView.x(),
 					lightPositionView.y(),
 					lightPositionView.z());
+		// glUniform3f(glGetUniformLocation(program, "light"),
+		// 			_lightPosition->x(),
+		// 			_lightPosition->y(),
+		// 			_lightPosition->z());
 			
+
 		glUniformMatrix4fv(glGetUniformLocation(program, "modelViewMatrix"),
 						   16, false, _modelView->data());
 		glUniformMatrix4fv(glGetUniformLocation(program, "modelViewMatrixInverse"),

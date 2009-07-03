@@ -55,6 +55,7 @@ bool leftButtonDown, leftButtonJustDown, useFbo, useShader, w, s, a, d = false;
 
 Vector3f* lightDirection = new Vector3f(0, 0, 1);
 
+//Vector3f* lightPosition = new Vector3f(2, 1, 0);
 Vector3f* lightPosition = new Vector3f(0, 0, -1);
 float attenuation = 0.01f;
 float lightRadius = 2.0f;
