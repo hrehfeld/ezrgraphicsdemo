@@ -39,17 +39,20 @@ void main (void)
 	//read depth
 	float depth = colorDepthSample.w;
 	
+	
 
 	//read normal
-	vec2 sample = (texture2D(normal2, current).xy - 0.5) * 2.0;
+	vec2 normalSample = texture2D(normal2, current).xy;
+	vec2 sample = (normalSample.xy - 0.5) * 2.0;
 	//reconstruct z component of normal (using the assumption that lenght(normal) == 1)
 	//killzone2: Normal.z = sqrt(1.0 - pow(Normal.x, 2) - pow(Normal.y, 2))
 	float normalZ = sqrt(1.0 - sample.x * sample.x - sample.y * sample.y);
-    vec3 normalView = vec3(sample, normalZ);
+//    vec3 normalView = vec3(sample, normalZ);
 	//read normal without clamping
-//	vec3 normalView = normalize(((texture2D(normal2, current).xyz) - 0.5) * 2.0);
+	vec3 normalView = normalize(((texture2D(normal2, current).xyz) - 0.5) * 2.0);
 	//@todo check clamping - workaround necessary?
 	//vec3 normalView = normalize(texture2D(normal2, current).xyz);
+
 
 	vec4 ambientColor = gl_LightSource[0].ambient;
 
@@ -74,14 +77,21 @@ void main (void)
 	gl_FragData[0] = (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor) * att;
 	
 //debug stuff
-//	gl_FragData[0] = vec4(0);
+//	vec2 test = texture2D(normal2, current).zw;
+//	gl_FragData[0] = vec4(-light * 0.1, 1);
+//	gl_FragData[0] = vec4(vec2(test.x) + 10.0, vec2(test.y) + 10.0);
 //	gl_FragData[0] = diffuseColor;
-//	gl_FragData[0] = vec4(lightAmount);
+	gl_FragData[0] = vec4(lightAmount);
+//	gl_FragData[0] = modelViewMatrixInverse * vec4(light, 1) - vec4(normalMatrixInverse * normalView, 1);	
+//	gl_FragData[0] = (modelViewMatrixInverse * vec4(-light, 1)
+//					  - modelViewMatrixInverse * vec4(hitView, 1)) * 0.3;	
+//	gl_FragData[0] = (modelViewMatrixInverse * vec4(-light, 1)) * 0.4;
+//	gl_FragData[0] = modelViewMatrixInverse * vec4(-hitView, 1) * 0.1;
 //	gl_FragData[0] = vec4(att);
 
 //	gl_FragData[0] = vec4(length(light) * 0.5);
 //	gl_FragData[0] = vec4(normalView, 1);
-//	gl_FragData[0] = modelViewMatrixInverse * vec4(normalView, 1);
+//	gl_FragData[0] = vec4(normalMatrixInverse * normalView, 1);
 //	gl_FragData[0] = vec4(gl_FragCoord.xy, 0, 1);
 //	gl_FragData[0] = vec4(normalView.xyz, 1);
 //	gl_FragData[0] = vec4(normalView2.xyz, 1);

@@ -88,13 +88,29 @@ namespace Ezr
 		Vector3f eye = _camera->GetCamPos();
 		glUniform3f(glGetUniformLocation(program, "eye"), eye.x(), eye.y(), eye.z());
 		
+
+		// Transform3f t(*_modelView);
+		// Translation3f l(*_lightPosition);
+		// Matrix4f lightModelViewMatrix((l * t).matrix());
+		// Matrix4f lightModelViewMatrixInverse = lightModelViewMatrix.inverse();
+		
 		//light in view space
 		Vector4f lightPosition(_lightPosition->x(),
 							   _lightPosition->y(),
 							   _lightPosition->z(),
 							   1);
 		Vector4f lightPositionView = (*_modelView) * lightPosition;
-		lightPositionView.normalize();
+		//lightPositionView *= 1.0/lightPositionView.w();
+
+
+		
+
+		// std::cout << lightPositionView.x() << ", "
+		// 		  << lightPositionView.y() << ", "
+		// 		  << lightPositionView.z() << ", "
+		// 		  << lightPositionView.w() << ", "
+		// 		  << std::endl;
+
 		glUniform3f(glGetUniformLocation(program, "light"),
 					lightPositionView.x(),
 					lightPositionView.y(),

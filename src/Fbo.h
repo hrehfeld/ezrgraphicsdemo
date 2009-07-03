@@ -21,6 +21,13 @@ namespace Ezr{
             Stencil = Depth << 1,
         };
 
+        enum AttachmentFormat
+        {
+            RGB = 0x1,
+            RGBA = RGB << 1,
+            RGBA32f = RGBA << 1,
+        };
+			
 		Fbo(int textureResX, int textureResY, short type);
 		~Fbo();
 		
@@ -33,9 +40,10 @@ namespace Ezr{
 		/**
 		 * attach a new texture to our fbo, target
 		 */
-		void attachColorbuffer(const std::string& name);
+		void attachColorbuffer(const std::string& name, GLenum format);
 
 		const Texture* getColorAttachment(std::string& name);
+		
 		/**
 		 * Clear a certain color attachment
 		 *

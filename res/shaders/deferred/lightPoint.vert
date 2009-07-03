@@ -23,5 +23,6 @@ uniform clippingPlanes planes;
 
 void main(void)
 {
+//    gl_Position = projectionMatrix * modelViewMatrix * gl_Vertex;
     gl_Position = ftransform();
 }

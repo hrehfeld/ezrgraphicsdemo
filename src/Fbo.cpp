@@ -42,11 +42,11 @@ namespace Ezr
 	Fbo::Fbo(int textureResX, int textureResY, short renderTargets)
 		:_fboID(0),
 		 _rboID(0),
+		 _textureResX(textureResX),
+		 _textureResY(textureResY),
 		 _useDepth(false),
 		 _useStencil(false),
-         _useRbo(false),
-		 _textureResX(textureResX),
-		 _textureResY(textureResY)
+         _useRbo(false)
 	{
 		generateFbo();
 		if (renderTargets != None)
@@ -162,11 +162,10 @@ namespace Ezr
         delete[] targets;
 	}
 
-	void Fbo::attachColorbuffer(const std::string& name)
+	void Fbo::attachColorbuffer(const std::string& name, GLenum format)
 	{
 		bind();
-		Texture* buffer = new Texture(_textureResX, _textureResY, GL_RGBA32F, GL_RGBA, GL_FLOAT);
-//		Texture* buffer = new Texture(_textureResX, _textureResY, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
+		Texture* buffer = new Texture(_textureResX, _textureResY, format, GL_RGBA, GL_FLOAT);
 		
 		int attachment = _colorBuffers.size();
 

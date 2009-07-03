@@ -55,7 +55,7 @@ bool leftButtonDown, leftButtonJustDown, useFbo, useShader, w, s, a, d = false;
 
 Vector3f* lightDirection = new Vector3f(0, 0, 1);
 
-Vector3f* lightPosition = new Vector3f(1, 1, 0);
+Vector3f* lightPosition = new Vector3f(0, 0, -1);
 float attenuation = 0.01f;
 float lightRadius = 2.0f;
 
@@ -173,28 +173,24 @@ void display(void){
 			
 			//point light pass
 			lightPass->bind();
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClearColor(0.0f, 0.4f, 0.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			deferredPointLightShader->bind();
-
-			glPushMatrix();
-			Transform3f t(modelViewMatrix);
-			Translation3f l(*lightPosition);
-			Matrix4f bla2 = (l * t).matrix();
-
-			std::cout << bla2 << std::endl;
-
-			modelViewMatrixInverse = modelViewMatrix.inverse();
-			
+			// deferredPointLightShader->setMatrices(&lightModelViewMatrix,
+			// 									  &lightModelViewMatrixInverse,
 			deferredPointLightShader->setMatrices(&modelViewMatrix,
 												  &modelViewMatrixInverse,
 												  &normalMatrix,
 												  &normalMatrixInverse,
 												  &projectionMatrix,
 												  &projectionMatrixInverse);
+			deferredPointLightShader->bind();
+
+			glPushMatrix();
+			glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
 			glutSolidSphere(lightRadius, 24, 12);
 			glPopMatrix();
+
 
 
 			deferredPointLightShader->unbind();
@@ -216,6 +212,7 @@ void display(void){
 			fbo->getColorAttachment(bla)->bind();
 			glEnable(GL_TEXTURE_2D);
 
+			glColor4f(0, 1, 0, 1);
 			drawPass(modelViewMatrix, nearPlane, fov);
 			
 			glDisable(GL_TEXTURE_2D);
@@ -433,15 +430,15 @@ void init(void)
 
 	
     fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth);
-    fbo->attachColorbuffer("color3_depth1");
-	fbo->attachColorbuffer("normal2");
+    fbo->attachColorbuffer("color3_depth1", GL_RGBA32F);
+	fbo->attachColorbuffer("normal2", GL_RGBA32F);
 	glDrawBuffer(GL_NONE);
 	
 	fbo->checkFbo();
 	fbo->unbindFbo();
 
     lightPass = new Ezr::Fbo(wndWidth, wndHeight, Fbo::None);
-    lightPass->attachColorbuffer("result");
+    lightPass->attachColorbuffer("result", GL_RGBA32F);
 	glDrawBuffer(GL_NONE);
 	
 	lightPass->checkFbo();
