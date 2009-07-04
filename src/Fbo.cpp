@@ -194,16 +194,23 @@ namespace Ezr
 		return _colorBuffers[_colorBufferNames[name]];
 	}
 
+
+	void Fbo::setDrawBuffer(std::string& name)
+	{
+		int num = _colorBufferNames[name];
+		glDrawBuffer(_glColorBufferEnums[num]);
+	}
+
+	
 	void Fbo::clearColorAttachment(std::string& name, float r, float g, float b, float a)
 	{
 		bind();
-		int num = _colorBufferNames[name];
-		glDrawBuffer(_glColorBufferEnums[num]);
+		setDrawBuffer(name);
 		glClearColor(r, g, b, a);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		std::stringstream msg;
-		msg << "after FBO colorbuffer " << num << " clear";
+		msg << "after FBO colorbuffer " << name << " clear";
 		OpenGl::printGlError(msg.str().c_str());
 		setDrawBuffers();
 	}
