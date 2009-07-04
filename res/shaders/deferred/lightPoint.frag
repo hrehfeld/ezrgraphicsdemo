@@ -54,25 +54,22 @@ void main (void)
 
 	vec4 ambientColor = gl_LightSource[0].ambient;
 
-	vec3 eyeRayView = normalize(fragmentView);
+	vec3 eyeRayView = fragmentView / planes.nearDistance;
 	vec3 hitView = depth * eyeRayView;
-
 	vec3 lightHit = light - hitView;
-
-	float att = clamp(1.0 - 0.2725 * dot(lightHit, lightHit), 0.0, 1.0);
-
 	vec3 lightDir = normalize(lightHit);
+
 	float lightAmount = max(dot(lightDir, normalView), 0.0);
 	vec4 lightColor = gl_LightSource[0].diffuse * lightAmount;
 
+	float att = clamp(1.0 - attenuation * dot(lightHit, lightHit), 0.0, 1.0);
 
-	float specular = clamp(dot(reflect(eyeRayView, normalView), light), 0.0, 1.0);
+
+	float specular = clamp(dot(reflect(normalize(eyeRayView), normalView), lightDir), 0.0, 1.0);
 	specular = pow(specular, gl_FrontMaterial.shininess);
 	vec4 specularColor = gl_LightSource[0].specular * gl_FrontMaterial.specular * specular;
 
-	specularColor = vec4(0);
-
-	gl_FragData[0] += (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor) * att;
+	gl_FragData[0] = (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor) * att;
 	
 //debug stuff
 //	vec2 test = texture2D(normal2, current).zw;
@@ -80,13 +77,17 @@ void main (void)
 //	gl_FragData[0] = vec4(vec2(test.x) + 10.0, vec2(test.y) + 10.0);
 //	gl_FragData[0] = diffuseColor;
 //	gl_FragData[0] = vec4(lightAmount);
+//	gl_FragData[0] = vec4(att);
 //	gl_FragData[0] = vec4(-fragmentView, 1);
 //	gl_FragData[0] = modelViewMatrixInverse * vec4(light, 1) - vec4(normalMatrixInverse * normalView, 1);	
 //	gl_FragData[0] = (modelViewMatrixInverse * vec4(light, 1)
 //					  - modelViewMatrixInverse * vec4(hitView, 1)) * 0.3;	
 //	gl_FragData[0] = -(modelViewMatrixInverse * vec4(light, 1)) * 0.4;
-//	gl_FragData[0] = -modelViewMatrixInverse * vec4(hitView, 1) * 0.1;
+//	gl_FragData[0] = -modelViewMatrixInverse * vec4(hitView, 1);
 //	gl_FragData[0] = vec4(att);
+//	gl_FragData[0] = vec4(hitView - hitViewConstructed, 1);	
+//	gl_FragData[0] = vec4((hitViewConstructed - hitView).y);	
+
 
 //	gl_FragData[0] = vec4(length(light) * 0.5);
 //	gl_FragData[0] = vec4(normalView, 1);
@@ -101,6 +102,8 @@ void main (void)
 //	gl_FragData[0] = vec4(-eyeRayView, 1);
 //	gl_FragData[0] = vec4(hitView, 1);
 //	gl_FragData[0] = vec4(lightHit, 1);
+//	vec3 lightDirWorld = normalMatrixInverse * lightDir;
+//	gl_FragData[0] = vec4(-lightDirWorld, 1);
 //	gl_FragData[0] = vec4(specular, specular, specular, 1.0);
 //	gl_FragData[0] = vec4(normalView.xy, normalView.z - normalView2.z, 1);
 //	gl_FragData[0] = vec4(vec3(depth) * 0.1, 1.0);	

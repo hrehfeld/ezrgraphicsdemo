@@ -64,7 +64,7 @@ void main (void)
 
 	
 	
-	gl_FragColor = (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor);
+	gl_FragData[0] = (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor);
 //debug stuff
 //	gl_FragColor = diffuseColor;
 //	gl_FragColor = vec4(lightAmount);
