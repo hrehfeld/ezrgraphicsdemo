@@ -185,6 +185,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\shader\DeferredDirectionalLighting.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\shader\DeferredDrawShader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\shader\DeferredPointLighting.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Fbo.cpp"
 				>
 			</File>
@@ -210,6 +222,10 @@
 			</File>
 			<File
 				RelativePath=".\src\Scene.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\shader\Shader.cpp"
 				>
 			</File>
 			<File
@@ -239,6 +255,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\shader\DeferredDirectionalLighting.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\shader\DeferredDrawShader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\shader\DeferredPointLighting.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Fbo.h"
 				>
 			</File>
@@ -264,6 +292,10 @@
 			</File>
 			<File
 				RelativePath=".\src\Scene.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\shader\Shader.h"
 				>
 			</File>
 			<File

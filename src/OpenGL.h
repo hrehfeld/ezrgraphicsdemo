@@ -50,10 +50,9 @@ namespace Ezr
 	public:
 		static void printGlError(const char* reason) {
 			GLenum error = glGetError();
-			if (error == GL_NO_ERROR) {
-				return;
-			}
-			std::cerr <<  reason << ": '" << gluErrorString(error) << "'" << std::endl;
+			if (!(error == GL_NO_ERROR)) {
+			    std::cerr <<  reason << ": " << gluErrorString(error) << " " << std::endl;
+		    }
 		}
 	};
 }

@@ -93,7 +93,7 @@ void display(void){
 		OpenGl::printGlError("after FBO binding");
 
 		fbo->bind();
-		std::string b1("color3_depth1");
+        std::string b1("color3_depth1");
 		fbo->clearColorAttachment(b1, 0, 0, 0, 1);
 
 		std::string b2("normal2");
@@ -431,15 +431,15 @@ void init(void)
 
 	
     fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth);
-    fbo->attachColorbuffer("color3_depth1", GL_RGBA32F);
-	fbo->attachColorbuffer("normal2", GL_RGBA32F);
+    fbo->attachColorbuffer("color3_depth1", GL_RGBA16F);
+    fbo->attachColorbuffer("normal2", GL_RGBA16F);
 	glDrawBuffer(GL_NONE);
 	
 	fbo->checkFbo();
 	fbo->unbindFbo();
 
     lightPass = new Ezr::Fbo(wndWidth, wndHeight, Fbo::None);
-    lightPass->attachColorbuffer("result", GL_RGBA32F);
+    lightPass->attachColorbuffer("result", GL_RGBA16F);
 	glDrawBuffer(GL_NONE);
 	
 	lightPass->checkFbo();
