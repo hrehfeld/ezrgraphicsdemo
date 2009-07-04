@@ -16,7 +16,7 @@ namespace Ezr
 {
 	const string DeferredPointLighting::vertexShaderPath("res/shaders/deferred/lightPoint.vert");
 	const string DeferredPointLighting::fragmentShaderPath("res/shaders/deferred/lightPoint.frag");
-	const float DeferredPointLighting::epsilon(0.1f);
+	const float DeferredPointLighting::epsilon(0.5f);
 																								  
 	DeferredPointLighting::DeferredPointLighting(const Vector3f* lightPosition,
 												 const float lightRadius,
