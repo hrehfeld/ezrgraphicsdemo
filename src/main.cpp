@@ -162,15 +162,19 @@ void display(void){
 		glPopAttrib();
 		glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 		glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 			
 
 		if (useShader)
 		{
+			std::string resultAttachment("result");
+			
 			lightPass->bind();
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT);
 
+			glDepthMask(false);
+			
 			if (useDirectionalLight)
 			{
 				deferredDirectionalLightShader->setMatrices(&modelViewMatrix,
@@ -197,11 +201,17 @@ void display(void){
 													  &projectionMatrixInverse);
 				deferredPointLightShader->bind();
 
+				lightPass->setDrawBuffer(resultAttachment);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_ONE, GL_ONE);
+				lightPass->setDrawBuffers();
+
 				glPushMatrix();
 				glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
 				glutSolidSphere(lightRadius, 24, 12);
 				glPopMatrix();
 
+				glDisable(GL_BLEND);
 
 
 				deferredPointLightShader->unbind();
@@ -216,13 +226,17 @@ void display(void){
 			
 			lightPass->unbindFbo();
 
+
 			//draw quad
-			std::string bla("result");
-			lightPass->getColorAttachment(bla)->bind();
+			lightPass->getColorAttachment(resultAttachment)->bind();
 			glEnable(GL_TEXTURE_2D);
 			drawPass(modelViewMatrix, nearPlane, fov);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glDisable(GL_TEXTURE_2D);
+
+			glDepthMask(true);
+			
+
 		}
 		else
 		{
@@ -277,6 +291,8 @@ void drawPass(const Matrix4f& modelView, const float nearPlane, const float fov)
 		quad[i] = (modelViewInverse * quad[i]);
 	}
 
+	glDisable(GL_DEPTH_TEST);
+		
 	Vector4f p;
 	glBegin (GL_QUADS); 
 		glTexCoord2f(0.0, 0.0);
@@ -295,6 +311,9 @@ void drawPass(const Matrix4f& modelView, const float nearPlane, const float fov)
 		p = quad[3];
         glVertex3f(p.x(), p.y(), p.z());
 	glEnd ();
+
+	glEnable(GL_DEPTH_TEST);
+	
 }
 
 void reshape (int w, int h){
