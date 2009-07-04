@@ -55,13 +55,14 @@ bool leftButtonDown, leftButtonJustDown, useFbo, useShader, w, s, a, d = false;
 
 bool usePointLight = true;
 bool useDirectionalLight = true;
+bool drawLightGeometry = false;
 
 Vector3f* lightDirection = new Vector3f(0, 0, 1);
 
 //Vector3f* lightPosition = new Vector3f(2, 1, 0);
 Vector3f* lightPosition = new Vector3f(0, 0, -1);
 float attenuation = 0.01f;
-float lightRadius = 2.0f;
+float lightRadius = 0.50f;
 
 static Ezr::Shader* deferredShader;
 static Ezr::DeferredDirectionalLighting* deferredDirectionalLightShader;
@@ -206,15 +207,39 @@ void display(void){
 				glBlendFunc(GL_ONE, GL_ONE);
 				lightPass->setDrawBuffers();
 
+				glEnable(GL_CULL_FACE);
+
 				glPushMatrix();
 				glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
 				glutSolidSphere(lightRadius, 24, 12);
 				glPopMatrix();
 
+				glDisable(GL_CULL_FACE);
+
 				glDisable(GL_BLEND);
 
 
 				deferredPointLightShader->unbind();
+
+				if (drawLightGeometry)
+				{
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_ONE, GL_ONE);
+					glEnable(GL_CULL_FACE);
+					
+					glPushMatrix();
+					glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
+					glColor4f(0.1f, 0.1f, 0.1f, 1);
+					glutSolidSphere(lightRadius, 24, 12);
+					glColor4f(1, 1, 1, 1);
+					glPopMatrix();
+					
+					glDisable(GL_CULL_FACE);
+					glDisable(GL_BLEND);
+
+				}
+				
+
 				Ezr::OpenGl::printGlError("pointlight unbind");
 
 				glPushMatrix();
@@ -230,6 +255,7 @@ void display(void){
 			//draw quad
 			lightPass->getColorAttachment(resultAttachment)->bind();
 			glEnable(GL_TEXTURE_2D);
+			glColor4f(1, 1, 1, 1);
 			drawPass(modelViewMatrix, nearPlane, fov);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glDisable(GL_TEXTURE_2D);
@@ -380,6 +406,10 @@ void keyboard(unsigned char key, int x, int y)
 	case '2':
 		usePointLight = !usePointLight;
 		std::cout << "Point light: " << usePointLight << std::endl;
+		break;
+	case 'h':
+		drawLightGeometry = !drawLightGeometry;
+		std::cout << "drawing light geometry: " << drawLightGeometry << std::endl;
 		break;
 		
 	}
