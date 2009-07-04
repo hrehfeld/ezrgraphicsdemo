@@ -72,7 +72,7 @@ void main (void)
 
 	specularColor = vec4(0);
 
-	gl_FragData[0] = (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor) * att;
+	gl_FragData[0] += (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor) * att;
 	
 //debug stuff
 //	vec2 test = texture2D(normal2, current).zw;
