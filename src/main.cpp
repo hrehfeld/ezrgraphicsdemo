@@ -53,10 +53,13 @@ int _x, _y;
 
 bool leftButtonDown, leftButtonJustDown, useFbo, useShader, w, s, a, d = false;
 
+bool usePointLight = true;
+bool useDirectionalLight = true;
+
 Vector3f* lightDirection = new Vector3f(0, 0, 1);
 
 //Vector3f* lightPosition = new Vector3f(2, 1, 0);
-Vector3f* lightPosition = new Vector3f(0, 0, -1);
+Vector3f* lightPosition = new Vector3f(0, 1, -1);
 float attenuation = 0.01f;
 float lightRadius = 2.0f;
 
@@ -135,11 +138,13 @@ void display(void){
 	normalMatrix.transposeInPlace();
 	Matrix3f normalMatrixInverse = normalMatrix.inverse();
 
-	//draw geometry
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 	glColor4f(1,0,0,1);
 	glutSolidTeapot(1);
 	glColor4f(1,1,1,1);
 	//scene->drawScene();
+	glDisable(GL_CULL_FACE);
 	
 
 	if (useShader)
@@ -162,40 +167,47 @@ void display(void){
 
 		if (useShader)
 		{
-			// deferredDirectionalLightShader->setMatrices(&modelViewMatrix,
-			// 											&modelViewMatrixInverse,
-			// 											&normalMatrix,
-			// 											&normalMatrixInverse,
-			// 											&projectionMatrix,
-			// 											&projectionMatrixInverse);
-			// deferredDirectionalLightShader->bind();
-			// drawPass(modelViewMatrix, nearPlane, fov);
-			// deferredDirectionalLightShader->unbind();
-			
-			//point light pass
 			lightPass->bind();
-			glClearColor(0.0f, 0.4f, 0.0f, 1.0f);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			// deferredPointLightShader->setMatrices(&lightModelViewMatrix,
-			// 									  &lightModelViewMatrixInverse,
-			deferredPointLightShader->setMatrices(&modelViewMatrix,
-												  &modelViewMatrixInverse,
-												  &normalMatrix,
-												  &normalMatrixInverse,
-												  &projectionMatrix,
-												  &projectionMatrixInverse);
-			deferredPointLightShader->bind();
+			if (useDirectionalLight)
+			{
+				deferredDirectionalLightShader->setMatrices(&modelViewMatrix,
+															&modelViewMatrixInverse,
+															&normalMatrix,
+															&normalMatrixInverse,
+															&projectionMatrix,
+															&projectionMatrixInverse);
+				deferredDirectionalLightShader->bind();
+				drawPass(modelViewMatrix, nearPlane, fov);
+				deferredDirectionalLightShader->unbind();
+			}
 
-			glPushMatrix();
-			glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
-			glutSolidSphere(lightRadius, 24, 12);
-			glPopMatrix();
+			if (usePointLight)
+			{
+				//point light pass
+				// deferredPointLightShader->setMatrices(&lightModelViewMatrix,
+				// 									  &lightModelViewMatrixInverse,
+				deferredPointLightShader->setMatrices(&modelViewMatrix,
+													  &modelViewMatrixInverse,
+													  &normalMatrix,
+													  &normalMatrixInverse,
+													  &projectionMatrix,
+													  &projectionMatrixInverse);
+				deferredPointLightShader->bind();
+
+				glPushMatrix();
+				glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
+				glutSolidSphere(lightRadius, 24, 12);
+				glPopMatrix();
 
 
 
-			deferredPointLightShader->unbind();
-			Ezr::OpenGl::printGlError("pointlight unbind");
+				deferredPointLightShader->unbind();
+				Ezr::OpenGl::printGlError("pointlight unbind");
+			}
+			
 			lightPass->unbindFbo();
 
 			//draw quad
@@ -335,6 +347,14 @@ void keyboard(unsigned char key, int x, int y)
 		loadImages();
 		std::cout << "finished." << std::endl;
 
+		break;
+	case '1':
+		useDirectionalLight = !useDirectionalLight;
+		std::cout << "Directional light: " << useDirectionalLight << std::endl;
+		break;
+	case '2':
+		usePointLight = !usePointLight;
+		std::cout << "Point light: " << usePointLight << std::endl;
 		break;
 		
 	}
