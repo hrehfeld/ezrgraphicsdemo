@@ -59,7 +59,7 @@ bool useDirectionalLight = true;
 Vector3f* lightDirection = new Vector3f(0, 0, 1);
 
 //Vector3f* lightPosition = new Vector3f(2, 1, 0);
-Vector3f* lightPosition = new Vector3f(0, 1, -1);
+Vector3f* lightPosition = new Vector3f(0, 0, -1);
 float attenuation = 0.01f;
 float lightRadius = 2.0f;
 
@@ -206,6 +206,12 @@ void display(void){
 
 				deferredPointLightShader->unbind();
 				Ezr::OpenGl::printGlError("pointlight unbind");
+
+				glPushMatrix();
+				glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
+				glutSolidSphere(0.03f, 4, 4);
+				glPopMatrix();
+				
 			}
 			
 			lightPass->unbindFbo();
