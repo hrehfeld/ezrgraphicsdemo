@@ -9,7 +9,7 @@ EXE = ezr
 SYSTEM = MINGW
 
 #all directories with source files (cpp/h) in them. edit if you add a new one
-SRC := src src/gl src/shader lib/glm 
+SRC := src src/gl src/shader src/font lib/glm 
 #include these dirs for headers
 INCLUDES := lib lib/eigen lib/devil/include
 

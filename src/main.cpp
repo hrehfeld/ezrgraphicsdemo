@@ -18,6 +18,8 @@
 #include "shader/DeferredDirectionalLighting.h"
 #include "shader/DeferredPointLighting.h"
 
+#include "font/Font.h"
+
 #include "IL/il.h"
 #include "IL/ilu.h"
 #include "IL/ilut.h"
@@ -45,6 +47,8 @@ Fbo* lightPass;
 Ezr::Scene* scene;
 Ezr::Timer* timer;
 
+
+
 /**
  * current Viewport we're using
  */
@@ -63,6 +67,9 @@ Vector3f* lightDirection = new Vector3f(0, 0, 1);
 Vector3f* lightPosition = new Vector3f(0, 0, -1);
 float attenuation = 0.01f;
 float lightRadius = 0.50f;
+
+Ezr::Font* font;
+
 
 static Ezr::Shader* deferredShader;
 static Ezr::DeferredDirectionalLighting* deferredDirectionalLightShader;
@@ -278,6 +285,35 @@ void display(void){
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
+
+	{
+	
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		gluOrtho2D(0.0, 512, 0.0, 512);
+ 
+		//glClear(GL_COLOR_BUFFER_BIT);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+ 
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glColor3f(0.0f, 1.0f, 1.0f);
+		font->renderText("blublublbu");
+    
+		glDisable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_BLEND);
+
+		glPopMatrix();
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+	}
+	
 //	std::cout << timer->GetFramesPerSecond() << std::endl;
 	glutSwapBuffers();
 }
@@ -629,6 +665,8 @@ int main(int argc, char* argv[])
 {
 	Vector2i windowSize(wndWidth, wndHeight);
 	window = new Ezr::Viewport(windowSize);
+
+	font = new Font("res/fonts/arial.glf", window);	
 
 	//setup a GLUT window
 	glutInit(&argc, argv);

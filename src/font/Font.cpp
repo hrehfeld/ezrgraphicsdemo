@@ -31,8 +31,9 @@ namespace Ezr{
     void Font::renderText(std::string text)
     {   
         _font.Begin();
-        glScalef(3.0, 3.0, 3.0);
-        glTranslatef(30, 30, 0);
+		float scale = 0.1f;
+        glTranslatef(3, 300, 0);
+        glScalef(scale, scale, scale);
         _font.DrawString(text, 0.5f, 0.5f);
     }
 }           
