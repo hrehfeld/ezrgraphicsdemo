@@ -25,7 +25,7 @@ namespace Ezr
 		/**
 		 * Return the window size
 		 */
-		inline Vector2i& getWindowSize() { return _windowSize; }
+		inline const Vector2i& getWindowSize()const { return _windowSize; }
 
 		/**
 		 * Set window size

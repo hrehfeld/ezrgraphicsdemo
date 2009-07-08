@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				UseUnicodeResponseFiles="true"
 				Optimization="0"
-				AdditionalIncludeDirectories="lib/FreeImage;src;&quot;$(BOOST_DIR)&quot;;lib/glm;lib/Eigen;lib/devil/include;lib/glut/include;lib/glew/include"
+				AdditionalIncludeDirectories="src;&quot;$(BOOST_DIR)&quot;;lib/glm;lib/Eigen;lib/devil/include;lib/glut/include;lib/glew/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NOMINMAX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,9 +63,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="FreeImage.lib opengl32.lib glut32.lib glew32.lib ILUT.lib ILU.lib DevIL.lib"
+				AdditionalDependencies="opengl32.lib glut32.lib glew32.lib ILUT.lib ILU.lib DevIL.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="lib/FreeImage;lib/devil/lib;lib/glut/lib;lib/glew/lib;&quot;$(BOOST_DIR)/lib&quot;"
+				AdditionalLibraryDirectories="lib/devil/lib;lib/glut/lib;lib/glew/lib;&quot;$(BOOST_DIR)/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -83,6 +83,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(TEMP)\vs_output.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -201,7 +202,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\font\Font.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\gl\GlBindShader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\font\glfont2.cpp"
 				>
 			</File>
 			<File
@@ -271,7 +280,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\font\Font.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\gl\GlBindShader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\font\glfont2.h"
 				>
 			</File>
 			<File
