@@ -48,9 +48,9 @@ namespace Ezr{
        
         _font.Begin();
 		float scale = 0.05f;
-        glTranslatef(450, 500, 0.0);
-        glScalef(scale, scale, scale);
-        _font.DrawString(text, 0.0f, 0.0f);      
+        /*glTranslatef(450, 500, 0.0);
+        glScalef(scale, scale, scale);*/
+        _font.DrawString(text, 0.05f, 450, 500);      
 
         glDisable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
