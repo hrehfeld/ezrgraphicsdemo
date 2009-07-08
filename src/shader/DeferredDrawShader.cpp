@@ -23,7 +23,7 @@ namespace Ezr
 	{
 		glActiveTexture(GL_TEXTURE0);
 		_colorMap->bind();
-		glEnable(GL_TEXTURE_2D);
+        glEnable(GL_TEXTURE_2D);
 
 		// //multitexturing
 		glActiveTexture(GL_TEXTURE1);

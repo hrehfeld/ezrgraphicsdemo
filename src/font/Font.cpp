@@ -21,7 +21,7 @@ namespace Ezr{
     bool Font::createFont(std::string path)
     {
         glGenTextures(1, &_texID);
-
+        	
          //Create font
         if (!_font.Create(path, _texID))
             return false;
@@ -30,10 +30,34 @@ namespace Ezr{
 
     void Font::renderText(std::string text)
     {   
+        glClearColor(0.0, 0.0, 0.0, 1.0);
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+        gluOrtho2D(0.0, 512, 0.0, 512);
+ 
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+ 
+		glColor3f(1.0f, 1.0f, 1.0f);
+        
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+       
         _font.Begin();
-		float scale = 0.1f;
-        glTranslatef(3, 300, 0);
+		float scale = 0.05f;
+        glTranslatef(450, 500, 0.0);
         glScalef(scale, scale, scale);
-        _font.DrawString(text, 0.5f, 0.5f);
+        _font.DrawString(text, 0.0f, 0.0f);      
+
+        glDisable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_BLEND);
+
+		glPopMatrix();
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
     }
 }           

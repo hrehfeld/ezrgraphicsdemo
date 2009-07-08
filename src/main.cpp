@@ -17,6 +17,7 @@
 #include "shader/DeferredDrawShader.h"
 #include "shader/DeferredDirectionalLighting.h"
 #include "shader/DeferredPointLighting.h"
+#include <sstream>
 
 #include "font/Font.h"
 
@@ -244,9 +245,7 @@ void display(void){
 					glDisable(GL_CULL_FACE);
 					glDisable(GL_BLEND);
 
-				}
-				
-
+				}			
 				Ezr::OpenGl::printGlError("pointlight unbind");
 
 				glPushMatrix();
@@ -286,35 +285,10 @@ void display(void){
 		}
 	}
 
-	{
-	
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		gluOrtho2D(0.0, 512, 0.0, 512);
- 
-		//glClear(GL_COLOR_BUFFER_BIT);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
- 
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glColor3f(0.0f, 1.0f, 1.0f);
-		font->renderText("blublublbu");
-    
-		glDisable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_BLEND);
-
-		glPopMatrix();
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-	}
-	
-//	std::cout << timer->GetFramesPerSecond() << std::endl;
+    stringstream stream;
+    stream << timer->GetFramesPerSecond();
+    font->renderText(stream.str());
+   
 	glutSwapBuffers();
 }
 
@@ -540,7 +514,6 @@ void init(void)
 	//glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	
     fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth);
     fbo->attachColorbuffer("color3_depth1", GL_RGBA16F);
     fbo->attachColorbuffer("normal2", GL_RGBA16F);
@@ -565,7 +538,7 @@ void init(void)
 	glMaterialfv(GL_FRONT, GL_SPECULAR, spec);
 	glMateriali(GL_FRONT, GL_SHININESS, 24);
 
-
+    font = new Font("res/fonts/arial.glf", window);	
 
 	//set light like in the phong shader..
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
@@ -666,15 +639,13 @@ int main(int argc, char* argv[])
 	Vector2i windowSize(wndWidth, wndHeight);
 	window = new Ezr::Viewport(windowSize);
 
-	font = new Font("res/fonts/arial.glf", window);	
-
 	//setup a GLUT window
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
+	glutInit(&argc, argv);   
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);    
     glutInitWindowSize(wndWidth, wndHeight);
 
 	glutCreateWindow("Demo");
-	
+  	
 	init();
 
 	//registering callback functions

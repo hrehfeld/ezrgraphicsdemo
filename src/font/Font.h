@@ -3,7 +3,6 @@
 
 #include <string>
 #include <utility>
-#include <Eigen/Geometry>
 #include "glfont2.h"
 
 namespace Ezr
@@ -22,8 +21,6 @@ namespace Ezr
             bool createFont(std::string path);
 
             GLuint _texID;
-            Eigen::Vector2f _pos;
-            Eigen::Vector2f _scale;
             Viewport* _vp;
             glfont::GLFont _font;
     };

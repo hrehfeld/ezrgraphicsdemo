@@ -88,8 +88,6 @@ bool GLFont::Create (const char *file_name, int tex)
 	//Free texture pixels memory
 	delete[] tex_bytes;
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-
 	//Close input file
 	input.close();
 
