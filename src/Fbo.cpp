@@ -11,6 +11,7 @@
 #include "Texture.h"
 #include <stdio.h>
 #include <sstream>
+#include "Exception.h"
 
 using namespace std;
 

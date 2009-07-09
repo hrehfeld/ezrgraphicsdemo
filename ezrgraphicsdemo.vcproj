@@ -276,6 +276,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Exception.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Fbo.h"
 				>
 			</File>
