@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Exception.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Fbo.cpp"
 				>
 			</File>

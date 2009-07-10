@@ -43,15 +43,18 @@
 
 #include <iostream>
 #include <string>
+#include "Exception.h"
 
 namespace Ezr
 {
 	class OpenGl {
 	public:
-		static void printGlError(const char* reason) {
+		static void checkError(const char* reason) {
 			GLenum error = glGetError();
 			if (!(error == GL_NO_ERROR)) {
-			    std::cerr <<  reason << ": " << gluErrorString(error) << " " << std::endl;
+			    std::stringstream errorString;
+                errorString << reason << ": "<< gluErrorString(error);
+                throw GLException(errorString.str());                      
 		    }
 		}
 	};

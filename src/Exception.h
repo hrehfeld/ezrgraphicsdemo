@@ -4,7 +4,6 @@
 #include <exception>
 #include <string>
 #include <sstream>
-#include "OpenGL.h"
 
 namespace Ezr
 {
@@ -14,31 +13,20 @@ namespace Ezr
             virtual const char* what() const = 0;
     };
 
-    class GlException : public Exception {
+    class GLException : public Exception {
 
         public:
-            GlException();
-            GlException(std::string err);
+            GLException();
+            GLException(std::string err);
 
             virtual const char* what() const
-            {
-                GLenum error = glGetError();
-                std::stringstream errorString;
-                errorString << _error << gluErrorString(error);
-                return errorString.str().c_str();
+            {                
+                return _error.c_str();
             }
 
         private:
             std::string _error;
     };
-
-    GlException::GlException():_error("OpenGL Exception occured!")
-    {
-    }
-
-    GlException::GlException(std::string err) : _error(err)
-    {
-    }
 }
 #endif //EXCEPTION_H 
 

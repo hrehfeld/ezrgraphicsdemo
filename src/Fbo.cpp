@@ -11,7 +11,6 @@
 #include "Texture.h"
 #include <stdio.h>
 #include <sstream>
-#include "Exception.h"
 
 using namespace std;
 
@@ -83,12 +82,12 @@ namespace Ezr
 	void Fbo::release()
 	{
 		glDeleteFramebuffersEXT(1, &_fboID);
-		OpenGl::printGlError("Couldn't delete FBO");
+		OpenGl::checkError("Couldn't delete FBO");
 		
 		if(_useDepth)
 		{
 			glDeleteRenderbuffersEXT(1, &_rboID);
-			OpenGl::printGlError("Couldn't delete FBO renderbuffer");
+			OpenGl::checkError("Couldn't delete FBO renderbuffer");
 		}
 	}	
 
@@ -100,7 +99,7 @@ namespace Ezr
 	void Fbo::generateFbo()
 	{
 		glGenFramebuffersEXT(1, &_fboID);
-		OpenGl::printGlError("Couldn't generate Fbo");
+		OpenGl::checkError("Couldn't generate Fbo");
 
 	}
 
@@ -115,7 +114,7 @@ namespace Ezr
         _useRbo = true;	
         bind();        
 		
-		OpenGl::printGlError("Couldn't generate fbo renderbuffer");
+		OpenGl::checkError("Couldn't generate fbo renderbuffer");
 
 		if((renderTargets & Depth) != None)
 		{
@@ -123,7 +122,7 @@ namespace Ezr
                                          GL_DEPTH_ATTACHMENT_EXT,
                                          GL_RENDERBUFFER_EXT,
 										 _rboID);
-            OpenGl::printGlError("Couldn't attach renderbuffer");
+            OpenGl::checkError("Couldn't attach renderbuffer");
 		}
 		if((renderTargets & Stencil) != None)
 		{
@@ -137,14 +136,14 @@ namespace Ezr
 	void Fbo::bind()
 	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fboID);
-		OpenGl::printGlError("Couldn't bind FBO");
+		OpenGl::checkError("Couldn't bind FBO");
 		
 		if(_useRbo)
 		{
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _rboID);
 			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, _textureResX, _textureResY);
 			
-			OpenGl::printGlError("Couldn't bind FBO renderbuffer");
+			OpenGl::checkError("Couldn't bind FBO renderbuffer");
 		}
 
         setDrawBuffers();
@@ -158,7 +157,7 @@ namespace Ezr
 			targets[i] = _glColorBufferEnums[i];
 		}
 		glDrawBuffers(attachments, targets);
-		OpenGl::printGlError("Couldn't set FBO draw buffers");
+		OpenGl::checkError("Couldn't set FBO draw buffers");
 
         delete[] targets;
 	}
@@ -184,7 +183,7 @@ namespace Ezr
 								  GL_TEXTURE_2D,
 								  buffer->getId(),
 								  0);
-		OpenGl::printGlError("Couldn't attach colorbuffer to FBO");
+		OpenGl::checkError("Couldn't attach colorbuffer to FBO");
 
 		_colorBufferNames.insert(std::make_pair(name, attachment));
 		_colorBuffers.push_back(buffer);
@@ -212,7 +211,7 @@ namespace Ezr
 
 		std::stringstream msg;
 		msg << "after FBO colorbuffer " << name << " clear";
-		OpenGl::printGlError(msg.str().c_str());
+		OpenGl::checkError(msg.str().c_str());
 		setDrawBuffers();
 	}
 
@@ -237,11 +236,11 @@ namespace Ezr
 		if (_useRbo)
 		{
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
-			OpenGl::printGlError("Couldn't unbind FBO renderbuffer");
+			OpenGl::checkError("Couldn't unbind FBO renderbuffer");
 		}
 
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		OpenGl::printGlError("Couldn't unbind FBO");
+		OpenGl::checkError("Couldn't unbind FBO");
 		
 		glDrawBuffer(GL_FRONT);
 	}
@@ -262,29 +261,36 @@ namespace Ezr
 
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT){
 			printf("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT\n");
+            throw GLException("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT){
 			printf("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT\n");
+            throw GLException("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT){
 			printf("GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT\n");
+            throw GLException("GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT){
 			printf("GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT\n");
+            throw GLException("GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT){
 			printf("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT\n");
+            throw GLException("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT){
 			printf("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT\n");
+            throw GLException("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_UNSUPPORTED_EXT){
 			printf("GL_FRAMEBUFFER_UNSUPPORTED_EXT\n");
+            throw GLException("GL_FRAMEBUFFER_UNSUPPORTED_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_COMPLETE_EXT){
 			printf("Fbo complete!\n");
 		}
-		OpenGl::printGlError("FBO error checking");
+		OpenGl::checkError("FBO error checking");
 		
 	}
 }
