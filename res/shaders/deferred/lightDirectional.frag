@@ -38,13 +38,13 @@ void main (void)
 	
 
 	//read normal
-    vec2 sample = (texture2D(normal2, current).xy - 0.5) * 2.0;
+//    vec2 sample = (texture2D(normal2, current).xy - 0.5) * 2.0;
 	//reconstruct z component of normal (using the assumption that lenght(normal) == 1)
 	//killzone2: Normal.z = sqrt(1.0 - pow(Normal.x, 2) - pow(Normal.y, 2))
-	float normalZ = sqrt(1.0 - sample.x * sample.x - sample.y * sample.y);
-    vec3 normalView = vec3(sample, normalZ);
+//	float normalZ = sqrt(1.0 - sample.x * sample.x - sample.y * sample.y);
+//    vec3 normalView = vec3(sample, normalZ);
 	//read normal without clamping
-//	vec3 normalView = normalize(((texture2D(normal2, current).xyz) - 0.5) * 2.0);
+	vec3 normalView = normalize(((texture2D(normal2, current).xyz) - 0.5) * 2.0);
 	//@todo check clamping - workaround necessary?
 	//vec3 normalView = normalize(texture2D(normal2, current).xyz);
 
@@ -66,24 +66,24 @@ void main (void)
 	
 	gl_FragData[0] = (ambientColor * diffuseColor + lightColor * diffuseColor + specularColor);
 //debug stuff
-//	gl_FragColor = diffuseColor;
-//	gl_FragColor = vec4(lightAmount);
-//	gl_FragColor = vec4(dot(light, normalView), dot(light, normalView), dot(light, normalView), 1);
+//	gl_FragData[0] = diffuseColor;
+//	gl_FragData[0] = vec4(lightAmount);
+//	gl_FragData[0] = vec4(dot(light, normalView), dot(light, normalView), dot(light, normalView), 1);
 
-//	gl_FragColor = vec4(length(light) * 0.5);
-//	gl_FragColor = vec4(normalView, 1);
-//	gl_FragColor = modelViewMatrixInverse * vec4(normalView, 1);
-//	gl_FragColor = vec4(gl_FragCoord.xy, 0, 1);
-//	gl_FragColor = vec4(normalView.xyz, 1);
-//	gl_FragColor = vec4(light - normalView, 1);
-//	gl_FragColor = vec4(reflect(eyeRayView, normalView), 1);
-//	gl_FragColor = colorDepthSample;
-//	gl_FragColor = vec4(fragmentScreen, 0.0, 1.0);
-//	gl_FragColor = vec4(fragmentView.x, fragmentView.y, fragmentView.z, 1.0);
-//	gl_FragColor = vec4(-eyeRayView, 1);
-//	gl_FragColor = vec4(hitView, 1);
-//	gl_FragColor = vec4(specular, specular, specular, 1.0);
-//	gl_FragColor = vec4(vec3(depth) * 0.1, 1.0);	
-//	gl_FragColor = vec4(z, z, z, 1.0);	
+//	gl_FragData[0] = vec4(length(light) * 0.5);
+//	gl_FragData[0] = vec4(normalView, 1);
+//	gl_FragData[0] = modelViewMatrixInverse * vec4(normalView, 1);
+//	gl_FragData[0] = vec4(gl_FragCoord.xy, 0, 1);
+//	gl_FragData[0] = vec4(normalMatrixInverse * normalView.xyz, 1);
+//	gl_FragData[0] = vec4(light - normalView, 1);
+//	gl_FragData[0] = vec4(reflect(eyeRayView, normalView), 1);
+//	gl_FragData[0] = colorDepthSample;
+//	gl_FragData[0] = vec4(fragmentScreen, 0.0, 1.0);
+//	gl_FragData[0] = vec4(fragmentView.x, fragmentView.y, fragmentView.z, 1.0);
+//	gl_FragData[0] = vec4(-eyeRayView, 1);
+//	gl_FragData[0] = vec4(hitView, 1);
+//	gl_FragData[0] = vec4(specular, specular, specular, 1.0);
+//	gl_FragData[0] = vec4(vec3(depth) * 0.1, 1.0);	
+//	gl_FragData[0] = vec4(z, z, z, 1.0);	
 }
 

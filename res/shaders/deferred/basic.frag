@@ -12,7 +12,7 @@ void main(void)
     //calculate tangent
 	vec3 tangent = cross(normal, vec3(1.0, 0.0, 0.0));
 	//check for linear dependency
-	float epsilon = 0.003;
+	float epsilon = 0.03;
 	if (dot(tangent, tangent) < epsilon)
 	{
 		tangent = cross(normal, vec3(0.0, 1.0, 0.0));
@@ -52,9 +52,9 @@ void main(void)
 
 
 	//normals
-    gl_FragData[1].xyz = worldNormal.xyz * 0.5 + 0.5;
+//    gl_FragData[1].xyz = worldNormal.xyz * 0.5 + 0.5;
 //	gl_FragData[1].xyz = normalM;
-//	gl_FragData[1].xyz = normal * 0.5 + 0.5;
+	gl_FragData[1].xyz = normal * 0.5 + 0.5;
 	//@todo check clamping - workaround necessary?
 //	gl_FragData[1].xyz = normal;
 
