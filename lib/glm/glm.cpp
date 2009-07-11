@@ -914,16 +914,21 @@ glmReverseWinding(GLMmodel* model)
             T(i).tindices[2] = swap;
         }
     }
-    
+
+	glmReverseNormals(model);
+}
+
+GLvoid glmReverseNormals(GLMmodel* model)
+{
     /* reverse facet normals */
-    for (i = 1; i <= model->numfacetnorms; i++) {
+    for (int i = 1; i <= model->numfacetnorms; i++) {
         model->facetnorms[3 * i + 0] = -model->facetnorms[3 * i + 0];
         model->facetnorms[3 * i + 1] = -model->facetnorms[3 * i + 1];
         model->facetnorms[3 * i + 2] = -model->facetnorms[3 * i + 2];
     }
     
     /* reverse vertex normals */
-    for (i = 1; i <= model->numnormals; i++) {
+    for (int i = 1; i <= model->numnormals; i++) {
         model->normals[3 * i + 0] = -model->normals[3 * i + 0];
         model->normals[3 * i + 1] = -model->normals[3 * i + 1];
         model->normals[3 * i + 2] = -model->normals[3 * i + 2];

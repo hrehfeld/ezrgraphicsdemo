@@ -130,6 +130,8 @@ glmScale(GLMmodel* model, GLfloat scale);
 GLvoid
 glmReverseWinding(GLMmodel* model);
 
+GLvoid glmReverseNormals(GLMmodel* model);
+
 /* glmFacetNormals: Generates facet normals for a model (by taking the
  * cross product of the two vectors derived from the sides of each
  * triangle).  Assumes a counter-clockwise winding.
