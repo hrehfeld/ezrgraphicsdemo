@@ -41,7 +41,7 @@ namespace Ezr
 					 0,
 					 format, type,
 					 data);
-		OpenGl::printGlError("Couldn't generate Texture");
+		OpenGl::checkError("Couldn't generate Texture");
 		
 		
 		//with FBO_EXT support, or glGenerateMipmap(GL_TEXTURE_2D)

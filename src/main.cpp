@@ -102,7 +102,7 @@ void display(void){
 	{
 		glPushAttrib(GL_VIEWPORT_BIT);
 		glViewport(0, 0, wndWidth, wndHeight);
-		OpenGl::printGlError("after FBO binding");
+		OpenGl::checkError("after FBO binding");
 
 		fbo->bind();
         std::string b1("color3_depth1");
@@ -112,7 +112,7 @@ void display(void){
 		fbo->clearColorAttachment(b2, 0.5f, 0.5f, 1, 1);
 		
 		glClear(GL_DEPTH_BUFFER_BIT);
-		OpenGl::printGlError("after FBO depth buffer clear");
+		OpenGl::checkError("after FBO depth buffer clear");
 	}
 	else
 	{
@@ -128,7 +128,7 @@ void display(void){
 	if (useShader)
 	{
 		deferredShader->bind();
-		OpenGl::printGlError("after shader binding");
+		OpenGl::checkError("after shader binding");
 	}
 
 
@@ -159,13 +159,13 @@ void display(void){
 	if (useShader)
 	{
 		deferredShader->unbind();
-		OpenGl::printGlError("after shader unbinding");
+		OpenGl::checkError("after shader unbinding");
 	}
 
 	
 	if(useFbo)
 	{
-		Ezr::OpenGl::printGlError("before fbo unbinding");
+		Ezr::OpenGl::checkError("before fbo unbinding");
 		fbo->unbindFbo(); 
 		
 		glPopAttrib();
@@ -246,7 +246,7 @@ void display(void){
 					glDisable(GL_BLEND);
 
 				}			
-				Ezr::OpenGl::printGlError("pointlight unbind");
+				Ezr::OpenGl::checkError("pointlight unbind");
 
 				glPushMatrix();
 				glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
@@ -508,7 +508,7 @@ void init(void)
 	}
 	
 	//disable vsync
-	//wglSwapIntervalEXT(0);
+	wglSwapIntervalEXT(0);
 
 	glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	
 	//glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);	

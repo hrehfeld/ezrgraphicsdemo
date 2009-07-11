@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Exception.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Fbo.cpp"
 				>
 			</File>
@@ -273,6 +277,10 @@
 			</File>
 			<File
 				RelativePath=".\src\shader\DeferredPointLighting.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Exception.h"
 				>
 			</File>
 			<File

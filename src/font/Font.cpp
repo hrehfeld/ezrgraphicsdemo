@@ -47,9 +47,6 @@ namespace Ezr{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
        
         _font.Begin();
-		float scale = 0.05f;
-        /*glTranslatef(450, 500, 0.0);
-        glScalef(scale, scale, scale);*/
         _font.DrawString(text, 0.05f, 450, 500);      
 
         glDisable(GL_TEXTURE_2D);

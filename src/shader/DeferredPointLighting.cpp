@@ -79,10 +79,10 @@ namespace Ezr
 		glUniform1f(glGetUniformLocation(program, "attenuation"), _attenuation);
 		glUniform1f(glGetUniformLocation(program, "lightRadius"), _lightRadius);
 
-		Ezr::OpenGl::printGlError("pointlight bind: before screensize");
+		Ezr::OpenGl::checkError("pointlight bind: before screensize");
 		glUniform2i(glGetUniformLocation(program, "screenSize"),
 					_screenSize->x(), _screenSize->y());
-		Ezr::OpenGl::printGlError("pointlight bind: screensize");
+		Ezr::OpenGl::checkError("pointlight bind: screensize");
 		
 
 		Vector3f eye = _camera->GetCamPos();
