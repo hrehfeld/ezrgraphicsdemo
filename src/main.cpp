@@ -62,12 +62,12 @@ bool usePointLight = true;
 bool useDirectionalLight = true;
 bool drawLightGeometry = false;
 
-Vector3f* lightDirection = new Vector3f(0, 0, 1);
+Vector3f* lightDirection = new Vector3f(0, -2, 1);
 
 //Vector3f* lightPosition = new Vector3f(2, 1, 0);
-Vector3f* lightPosition = new Vector3f(0, 0, -1);
+Vector3f* lightPosition = new Vector3f(0, 4, -1);
 float attenuation = 0.01f;
-float lightRadius = 0.50f;
+float lightRadius = 5.0f;
 
 Ezr::Font* font;
 
@@ -152,7 +152,7 @@ void display(void){
 	glColor4f(1,0,0,1);
 	glutSolidTeapot(1);
 	glColor4f(1,1,1,1);
-	//scene->drawScene();
+	scene->drawScene();
 	glDisable(GL_CULL_FACE);
 	
 
@@ -562,7 +562,7 @@ void init(void)
 	cam->PositionCamera( 1, 0, 0,   0, 0, -1,   0, 1, 0);
 
 	load();
-	//scene = new Ezr::Scene();
+	scene = new Ezr::Scene();
 }
 
 void loadShaders(const Vector3f* lightDirection, const Texture* color3_depth1, const Texture* normal2) {

@@ -12,19 +12,22 @@ using std::endl;
 namespace Ezr{
 
 	Scene::Scene() {
-		_model = glmReadOBJ("res/models/Lighthouse.obj");
+		_model = glmReadOBJ("res/models/all.obj");
 		if (!_model){
 			cerr << "couldn't load model" << endl;
 			exit(0);
 		}
+
+		glmReverseWinding(_model);
+		glmReverseNormals(_model);
+//		glmUnitize(_model);
+//		 glmFacetNormals(_model);
+//		 glmVertexNormals(_model,90);
 	}
 
 	void Scene::drawScene() const
 	{
-		glmUnitize(_model);
-		glmFacetNormals(_model);
-		glmVertexNormals(_model,90);
-		glmDraw(_model, GLM_SMOOTH | GLM_MATERIAL);
+		glmDraw(_model, GLM_SMOOTH | GLM_TEXTURE);
 	}
 
 }
