@@ -43,7 +43,7 @@
 
 #include <iostream>
 #include <string>
-#include "Exception.h"
+#include "EzrException.h"
 
 namespace Ezr
 {
