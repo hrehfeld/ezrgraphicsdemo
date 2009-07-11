@@ -1,144 +1,142 @@
-newmtl initialShadingGroup
-illum 4
-Kd 0.50 0.50 0.50
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-newmtl isla1b:lambert2SG
-illum 4
-Kd 0.42 0.55 0.75
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-newmtl lambert2SG
-illum 4
-Kd 0.44 0.74 0.26
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-newmtl phongE1SG
-illum 4
-Kd 0.13 0.13 0.13
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.50 0.50 0.50
-newmtl phongE2SG
-illum 4
-Kd 0.87 0.82 0.75
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.50 0.50 0.50
-newmtl pineCraggy1LeafShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
-newmtl pineCraggy1ShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
-newmtl pineCraggy4LeafShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
-newmtl pineCraggy4ShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
-newmtl pineCraggy6LeafShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
+# Blender3D MTL File: Lighthouse.blend
+# Material Count: 14
+newmtl pineCraggy8LeafShader
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.370533 0.470769 0.341783
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl pineCraggy10LeafShade
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.385625 0.527453 0.331549
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
 newmtl pineCraggy6ShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
-newmtl pineCraggy8LeafShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
-newmtl pineCraggy8ShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
-newmtl pineCraggy10LeafShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
-newmtl pineCraggy10ShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
-newmtl pineCraggy11LeafShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.633736 0.531457 0.403969
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl pineCraggy4LeafShader
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.223685 0.506197 0.085055
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
 newmtl pineCraggy11ShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
-newmtl pineCraggy12LeafShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.506197 0.397348 0.228521
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
 newmtl pineCraggy12ShaderSG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-Ks 0.00 0.00 0.00
-Ns 1.69
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.598308 0.487093 0.270105
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl pineCraggy1ShaderSG
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.598308 0.406295 0.280703
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl pineCraggy4ShaderSG
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.456598 0.360770 0.121205
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl pineCraggy11LeafShade
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.369239 0.541624 0.376620
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl pineCraggy8ShaderSG
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.626650 0.493240 0.232948
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl pineCraggy12LeafShade
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.305566 0.513282 0.145344
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl pineCraggy10ShaderSG
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.421171 0.388259 0.279662
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl pineCraggy6LeafShader
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.296618 0.527453 0.266147
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl pineCraggy1LeafShader
+Ns 0.000000
+Ka 0.000000 0.000000 0.000000
+Kd 0.334331 0.548710 0.306032
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+

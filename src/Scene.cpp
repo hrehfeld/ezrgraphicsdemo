@@ -12,7 +12,7 @@ using std::endl;
 namespace Ezr{
 
 	Scene::Scene() {
-		_model = glmReadOBJ("res/models/all.obj");
+		_model = glmReadOBJ("res/models/Terrain.obj");
 		if (!_model){
 			cerr << "couldn't load model" << endl;
 			exit(0);
