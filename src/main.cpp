@@ -15,6 +15,8 @@
 #include <Eigen/LU>
 #include "shader/Shader.h"
 #include "DeferredRenderer.h"
+#include "Light.h"
+#include "DirectionalLight.h"
 #include "shader/DeferredDrawShader.h"
 #include "shader/DeferredDirectionalLighting.h"
 #include "shader/DeferredPointLighting.h"
@@ -26,8 +28,11 @@
 #include "IL/ilu.h"
 #include "IL/ilut.h"
 
+#include <vector>
+
 using namespace Eigen;
 using namespace Ezr;
+using namespace std;
 
 
 //non 2^n sizes make FBOs VERY slow
@@ -63,7 +68,7 @@ bool drawLightGeometry = false;
 Vector3f* lightDirection = new Vector3f(0, -2, 1);
 
 //Vector3f* lightPosition = new Vector3f(2, 1, 0);
-Vector3f* lightPosition = new Vector3f(0, 4, -1);
+const Vector3f* lightPosition = new Vector3f(0, 4, -1);
 float attenuation = 0.01f;
 float lightRadius = 5.0f;
 
@@ -259,6 +264,12 @@ void init(void)
 	cam->PositionCamera( 1, 0, 0,   0, 0, -1,   0, 1, 0);
 	scene = new Ezr::Scene(cam);
     deferred = new DeferredRenderer(window, cam, scene);
+
+	std::vector<Light*> lights;
+	Light* l = new DirectionalLight(*lightPosition, 5.0f);
+	lights.push_back(l);
+
+	deferred->setLights(lights);
 }
 
 int main(int argc, char* argv[])

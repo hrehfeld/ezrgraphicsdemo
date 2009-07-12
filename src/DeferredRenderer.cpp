@@ -78,6 +78,9 @@ namespace Ezr
 		glUniform1i(glGetUniformLocation(program, "colorMap"), 0);
 		glUniform1i(glGetUniformLocationARB(program, "normalMap"), 1);
 
+
+		_camera->CamLookAt();
+
 		GLfloat mvm[16];
 		glGetFloatv (GL_MODELVIEW_MATRIX, mvm);
 		GLfloat pm[16];
@@ -159,7 +162,7 @@ namespace Ezr
 
 
 		//draw quad
-		_lightPass->getColorAttachment("result")->bind();
+		_lightPass->getColorAttachment(DeferredRenderer::resultBuffer)->bind();
 		glEnable(GL_TEXTURE_2D);
 		glColor4f(1, 1, 1, 1);
 		drawPass();
