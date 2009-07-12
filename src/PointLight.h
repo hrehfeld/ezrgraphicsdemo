@@ -6,20 +6,23 @@
 
 namespace Ezr{
 
+	class DeferredRenderer;
+ 
     class PointLight : public AbstractPositionalLight{ 
-    
-        public: 
-            PointLight(const Eigen::Vector3f& position, float radius, float intensity); 
-            ~PointLight(); 
+		
+	public: 
+		PointLight(const Eigen::Vector3f& position, float radius, float intensity); 
+		~PointLight(); 
 
-            float getRadius()const {return _radius;}
-            float getIntensity()const {return _intensity;}
-            float setRadius(float radius){_radius = radius;}
-            float setIntensity(float intensity){_intensity = intensity;}
-    
-        private:
-            float _radius;
-            float _intensity;
+		float getRadius()const {return _radius;}
+		float getIntensity()const {return _intensity;}
+		void setRadius(float radius){_radius = radius;}
+		void setIntensity(float intensity){_intensity = intensity;}
+
+		virtual void renderLight(DeferredRenderer* r);
+	private:
+		float _radius;
+		float _intensity;
     };    
 }
 

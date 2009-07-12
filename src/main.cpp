@@ -17,6 +17,7 @@
 #include "DeferredRenderer.h"
 #include "Light.h"
 #include "DirectionalLight.h"
+#include "PointLight.h"
 #include "shader/DeferredDrawShader.h"
 #include "shader/DeferredDirectionalLighting.h"
 #include "shader/DeferredPointLighting.h"
@@ -50,7 +51,7 @@ Ezr::Timer* timer;
 DeferredRenderer* deferred;
 
 float fov = 90.0f;
-float nearPlane = 0.01f;
+float nearPlane = 0.1f;
 float farPlane = 10.0;
 
 /**
@@ -91,7 +92,7 @@ void display(void){
 
     stringstream stream;
     stream << timer->GetFramesPerSecond();
-    font->renderText(stream.str());
+//    font->renderText(stream.str());
    
 	glutSwapBuffers();
 }
@@ -102,11 +103,7 @@ void reshape (int w, int h){
 	
 	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
 
-	glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(fov, (float)(w)/h , nearPlane, farPlane);
-
-    glMatrixMode(GL_MODELVIEW);
+	cam->setPerspective();
 }
 
 
@@ -234,8 +231,8 @@ void init(void)
 		exit(1);
 	}
 	
-	//disable vsync
-	wglSwapIntervalEXT(0);
+	//vsync
+	wglSwapIntervalEXT(1);
 
 	glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	
 	//glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);	
@@ -247,10 +244,7 @@ void init(void)
 
    	glViewport(0, 0, wndWidth, wndHeight);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(fov, (GLfloat)wndWidth/(GLfloat)wndHeight, nearPlane, farPlane);
-	glMatrixMode(GL_MODELVIEW);
+	
 	glLoadIdentity();	
 
 	float spec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -266,7 +260,9 @@ void init(void)
     deferred = new DeferredRenderer(window, cam, scene);
 
 	std::vector<Light*> lights;
-	Light* l = new DirectionalLight(*lightPosition, 5.0f);
+	Light* l = new DirectionalLight(*lightDirection, 5.0f);
+	lights.push_back(l);
+	l = new PointLight(*lightPosition, 5.0f, 5.0f);
 	lights.push_back(l);
 
 	deferred->setLights(lights);
@@ -292,8 +288,13 @@ int main(int argc, char* argv[])
 	glutKeyboardUpFunc(releaseKey);
 	glutMouseFunc(mouse);
 	glutMotionFunc(mouseMotion);
-	
-	glutMainLoop();
+
+	try {
+		glutMainLoop();
+	}
+	catch (EzrException& e) {
+		std::cerr << e.what() << std::endl;
+	}
 
     delete cam;
     delete font;

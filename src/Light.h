@@ -3,10 +3,14 @@
 
 namespace Ezr
 {
+	class DeferredRenderer;
+
 	class Light
 	{
 	public:        
 	    virtual ~Light() = 0;
+		virtual void renderLight(DeferredRenderer* r) = 0;
+		
 	};
 }
 

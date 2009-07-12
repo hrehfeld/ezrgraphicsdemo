@@ -1,11 +1,3 @@
-/*******************************************************************************
- *  Camera.h
- *
- *  Echtzeit-Rendering Framework 2009
- *
- *  Questions?: <fronc@uni-koblenz.de>, <mfreidank@uni-koblenz.de>
- ******************************************************************************/
-
 #ifndef _CAMERA_H
 #define _CAMERA_H
 
@@ -13,11 +5,11 @@
 
 using namespace Eigen;
 
-namespace Ezr{
+namespace Ezr
+{
 		
 	class Camera {
 	public: 
-			
 		//http://eigen.tuxfamily.org/dox/StructHavingEigenMembers.html
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW			
 				
@@ -60,11 +52,26 @@ namespace Ezr{
 		Eigen::Vector3f& GetCamPos();
 
 		//Returns the current position, the camera is looking at
-		Eigen::Vector3f* GetLookAt();
+		Eigen::Vector3f* GetLookAt() const;
 
-        float getFov()const{return _fov;}
-        float getNearPlane()const{return _nearPlane;}
-        float getFarPlane()const{return _farPlane;}
+        float getFov() const { return _fov; }
+        float getNearPlane() const { return _nearPlane; }
+        float getFarPlane() const { return _farPlane; }
+
+		/**
+		 * calculate smallest distance from center of the nearplane to the side
+		 */
+		float nearPlaneSize(const float nearPlaneDist) const;
+
+		/**
+		 * calculate smallest distance from center of the nearplane to the side
+		 */
+		float nearPlaneSize() const;
+		
+		/**
+		 * set gl perspective
+		 */
+		void setPerspective() const;
 
 	private:
 		
@@ -84,7 +91,7 @@ namespace Ezr{
 		float m_camSpeed;
 
 		//screen width and screen heigth
-		int m_screenWidth, m_screenHeight;
+		int _screenWidth, _screenHeight;
 
 		float _pitch;
 		float _yaw;
@@ -100,6 +107,8 @@ namespace Ezr{
         float _fov;
         float _nearPlane;
         float _farPlane;
+
+			
 		
 	};
 }

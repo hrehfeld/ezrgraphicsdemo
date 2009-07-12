@@ -7,6 +7,10 @@
 
 namespace Ezr
 {
+	class DeferredRenderer;
+ 
+
+
 	class DirectionalLight : public Light
 	{
 	public:
@@ -16,6 +20,9 @@ namespace Ezr
 
 		const Eigen::Vector3f& getDirection() const { return _direction; } 
 		float getIntesity() const { return _intensity; } 
+
+		virtual void renderLight(DeferredRenderer* r);
+		
 
 	private:
 		Eigen::Vector3f _direction;

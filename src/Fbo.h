@@ -51,7 +51,7 @@ namespace Ezr{
 		 * rebind other fbos (that you currently want to use) after
 		 * using this.
 		 */
-		void clearColorAttachment(std::string& name, float r, float g, float b, float a);
+		void clearColorAttachment(const std::string& name, float r, float g, float b, float a);
 		
 		GLuint getFboID() const {return _fboID;}
 		GLuint getRBOID() const {return _rboID;}

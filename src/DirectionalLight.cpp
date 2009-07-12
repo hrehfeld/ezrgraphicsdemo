@@ -1,4 +1,5 @@
 #include "DirectionalLight.h"
+#include "DeferredRenderer.h"
 
 using namespace Eigen;
 
@@ -17,5 +18,7 @@ namespace Ezr
 	DirectionalLight::~DirectionalLight()
 	{
 	}
+	
+	void DirectionalLight::renderLight(DeferredRenderer* r) { r->render(this); }
 }
 	

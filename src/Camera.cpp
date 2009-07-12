@@ -15,26 +15,26 @@
 using namespace Eigen;
 
 namespace Ezr{
-
-	//// CAMERA ////////////////////////////////////////////////////////////
-	//
-	// This is our camera constructor. Set the camera speed
-	////////////////////////////////////////////////////////////////////////
-	Camera::Camera(int screenWidth, int screenHeight, float fov, float near, float far) 
-        : sensitivity(1),
-		invertMouseY(true),
-		_pitch(0),
-		_yaw(0),
-        _fov(fov),
-        _nearPlane(near),
-        _farPlane(far)
+	Camera::Camera(int screenWidth, int screenHeight,
+				   float fov,
+				   float nearPlane,
+				   float far) 
+        : _screenWidth(screenWidth),
+		  _screenHeight(screenHeight),
+		  _pitch(0),
+		  _yaw(0),
+		  sensitivity(1),
+		  invertMouseY(true),
+		  _fov(fov),
+		  _nearPlane(nearPlane),
+		  _farPlane(far)
 	{
 		m_camPosition << 0.0, 0.0, 0.0;
 		m_camView << 0.0, 1.0, 0;
 		m_camUpVector << 0.0, 0.0, 1.0;
 
-		m_screenWidth  = screenWidth;
-		m_screenHeight = screenHeight;
+		std::cout << nearPlane << std::endl;
+		std::cout << _nearPlane << std::endl;
 
 		m_camSpeed = 1.0f;
 	}
@@ -208,11 +208,30 @@ namespace Ezr{
 	//
 	//	Returns the current position, the camera is looking at
 	////////////////////////////////////////////////////////////////////////
-	Eigen::Vector3f* Camera::GetLookAt()
+	Eigen::Vector3f* Camera::GetLookAt() const
 	{
 		Vector3f* lookAt = new Vector3f(m_camView + m_camPosition);
 
 		return lookAt;
 	}
 
+	float Camera::nearPlaneSize() const
+	{
+		return nearPlaneSize(_nearPlane);
+	}
+	
+	float Camera::nearPlaneSize(const float nearPlaneDist)  const
+	{
+		float halfFov = _fov / 2.0f;
+		return (nearPlaneDist * tan(halfFov / 360.0f * 2.0f * MyMath::PI));
+	}
+
+	void Camera::setPerspective() const
+	{
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(_fov, ((GLfloat) _screenWidth) / ((GLfloat) _screenHeight), _nearPlane, _farPlane);
+		glMatrixMode(GL_MODELVIEW);
+	}	
+	
 }

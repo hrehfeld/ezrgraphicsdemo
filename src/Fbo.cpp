@@ -202,7 +202,7 @@ namespace Ezr
 	}
 
 	
-	void Fbo::clearColorAttachment(std::string& name, float r, float g, float b, float a)
+	void Fbo::clearColorAttachment(const std::string& name, float r, float g, float b, float a)
 	{
 		bind();
 		setDrawBuffer(name);
