@@ -43,10 +43,10 @@ int anisotropicFiltering = 8;
 float light0QuadraticAttenuation = 0.01f;
 
 Ezr::Camera* cam;
-Ezr::Fbo* fbo;
-Fbo* lightPass;
 Ezr::Scene* scene;
 Ezr::Timer* timer;
+
+DeferredRenderer* deferred;
 
 
 
@@ -71,20 +71,6 @@ float lightRadius = 5.0f;
 
 Ezr::Font* font;
 
-
-static Ezr::Shader* deferredShader;
-static Ezr::DeferredDirectionalLighting* deferredDirectionalLightShader;
-static Ezr::DeferredPointLighting* deferredPointLightShader;
-
-static const std::string colorMapPath("res/textures/lava.tga");
-static const std::string normalMapPath("res/textures/lava-normal.tga");
-//static const std::string normalMapPath("res/textures/defaultnormals.tga");
-Ezr::Texture* colormap;
-Ezr::Texture* normalmap;
-
-std::string color3_depth1Name("color3_depth1");
-std::string normal2Name("normal2");
-
 void init();
 void load();
 void loadImages();
@@ -98,192 +84,7 @@ void display(void){
 	cam->UpdateCamPos(timer->GetFrameInterval(), w, s, a, d);
 	timer->CalculateFrameRate();
 	
-	if(useFbo)
-	{
-		glPushAttrib(GL_VIEWPORT_BIT);
-		glViewport(0, 0, wndWidth, wndHeight);
-		OpenGl::checkError("after FBO binding");
-
-		fbo->bind();
-        std::string b1("color3_depth1");
-		fbo->clearColorAttachment(b1, 0, 0, 0, 1);
-
-		std::string b2("normal2");
-		fbo->clearColorAttachment(b2, 0.5f, 0.5f, 1, 1);
-		
-		glClear(GL_DEPTH_BUFFER_BIT);
-		OpenGl::checkError("after FBO depth buffer clear");
-	}
-	else
-	{
-		glClearColor(0.0, 0.0, 0.0, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-	
-	glMatrixMode(GL_MODELVIEW);	
-	glLoadIdentity();
-
-	cam->CamLookAt();
-	
-	if (useShader)
-	{
-		deferredShader->bind();
-		OpenGl::checkError("after shader binding");
-	}
-
-
-	GLfloat mvm[16];
-	glGetFloatv (GL_MODELVIEW_MATRIX, mvm);
-	GLfloat pm[16];
-	glGetFloatv (GL_PROJECTION_MATRIX, pm);
-	Matrix4f modelViewMatrix(mvm);
-	Matrix4f modelViewMatrixInverse = modelViewMatrix.inverse();
-	
-	Matrix4f projectionMatrix(pm);
-	Matrix4f projectionMatrixInverse = projectionMatrix.inverse();
-	
-	Matrix3f normalMatrix(modelViewMatrix.block(0,0,3,3));
-	normalMatrix = normalMatrix.inverse();
-	normalMatrix.transposeInPlace();
-	Matrix3f normalMatrixInverse = normalMatrix.inverse();
-
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
-	glColor4f(1,0,0,1);
-	glutSolidTeapot(1);
-	glColor4f(1,1,1,1);
-	scene->drawScene();
-	glDisable(GL_CULL_FACE);
-	
-
-	if (useShader)
-	{
-		deferredShader->unbind();
-		OpenGl::checkError("after shader unbinding");
-	}
-
-	
-	if(useFbo)
-	{
-		Ezr::OpenGl::checkError("before fbo unbinding");
-		fbo->unbindFbo(); 
-		
-		glPopAttrib();
-		glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-		glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-			
-
-		if (useShader)
-		{
-			std::string resultAttachment("result");
-			
-			lightPass->bind();
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-
-			glDepthMask(false);
-			
-			if (useDirectionalLight)
-			{
-				deferredDirectionalLightShader->setMatrices(&modelViewMatrix,
-															&modelViewMatrixInverse,
-															&normalMatrix,
-															&normalMatrixInverse,
-															&projectionMatrix,
-															&projectionMatrixInverse);
-				deferredDirectionalLightShader->bind();
-				drawPass(modelViewMatrix, nearPlane, fov);
-				deferredDirectionalLightShader->unbind();
-			}
-
-			if (usePointLight)
-			{
-				//point light pass
-				// deferredPointLightShader->setMatrices(&lightModelViewMatrix,
-				// 									  &lightModelViewMatrixInverse,
-				deferredPointLightShader->setMatrices(&modelViewMatrix,
-													  &modelViewMatrixInverse,
-													  &normalMatrix,
-													  &normalMatrixInverse,
-													  &projectionMatrix,
-													  &projectionMatrixInverse);
-				deferredPointLightShader->bind();
-
-				lightPass->setDrawBuffer(resultAttachment);
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_ONE, GL_ONE);
-				lightPass->setDrawBuffers();
-
-				glEnable(GL_CULL_FACE);
-
-				glPushMatrix();
-				glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
-				glutSolidSphere(lightRadius, 24, 12);
-				glPopMatrix();
-
-				glDisable(GL_CULL_FACE);
-
-				glDisable(GL_BLEND);
-
-
-				deferredPointLightShader->unbind();
-
-				if (drawLightGeometry)
-				{
-					glEnable(GL_BLEND);
-					glBlendFunc(GL_ONE, GL_ONE);
-					glEnable(GL_CULL_FACE);
-					
-					glPushMatrix();
-					glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
-					glColor4f(0.1f, 0.1f, 0.1f, 1);
-					glutSolidSphere(lightRadius, 24, 12);
-					glColor4f(1, 1, 1, 1);
-					glPopMatrix();
-					
-					glDisable(GL_CULL_FACE);
-					glDisable(GL_BLEND);
-
-				}			
-				Ezr::OpenGl::checkError("pointlight unbind");
-
-				glPushMatrix();
-				glTranslatef(lightPosition->x(), lightPosition->y(), lightPosition->z());
-				glutSolidSphere(0.03f, 4, 4);
-				glPopMatrix();
-				
-			}
-			
-			lightPass->unbindFbo();
-
-
-			//draw quad
-			lightPass->getColorAttachment(resultAttachment)->bind();
-			glEnable(GL_TEXTURE_2D);
-			glColor4f(1, 1, 1, 1);
-			drawPass(modelViewMatrix, nearPlane, fov);
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glDisable(GL_TEXTURE_2D);
-
-			glDepthMask(true);
-			
-
-		}
-		else
-		{
-			std::string bla("color3_depth1");
-			//std::string bla("normal2");
-			fbo->getColorAttachment(bla)->bind();
-			glEnable(GL_TEXTURE_2D);
-
-			glColor4f(0, 1, 0, 1);
-			drawPass(modelViewMatrix, nearPlane, fov);
-			
-			glDisable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-	}
+	deferred->draw();
 
     stringstream stream;
     stream << timer->GetFramesPerSecond();
@@ -394,21 +195,6 @@ void keyboard(unsigned char key, int x, int y)
 		case 'd' :
 			d=true;
 			break;
-	case '\'':
-		anisotropicFiltering = (anisotropicFiltering == 0) ? 8 : 0;
-		colormap->setAnisotropicFiltering(anisotropicFiltering);
-		std::cout << "Anisotropic Filtering: " << anisotropicFiltering << std::endl;
-		break;
-	case 'o':
-		reloadShaders();
-		std::cout << "reloading shaders: " << std::endl;
-		break;
-	case 'i':
-		std::cout << "reloading images... ";
-		loadImages();
-		std::cout << "finished." << std::endl;
-
-		break;
 	case '1':
 		useDirectionalLight = !useDirectionalLight;
 		std::cout << "Directional light: " << useDirectionalLight << std::endl;
@@ -514,22 +300,6 @@ void init(void)
 	//glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth);
-    fbo->attachColorbuffer("color3_depth1", GL_RGBA16F);
-    fbo->attachColorbuffer("normal2", GL_RGBA16F);
-	glDrawBuffer(GL_NONE);
-	
-	fbo->checkFbo();
-	fbo->unbindFbo();
-
-    lightPass = new Ezr::Fbo(wndWidth, wndHeight, Fbo::None);
-    lightPass->attachColorbuffer("result", GL_RGBA16F);
-	glDrawBuffer(GL_NONE);
-	
-	lightPass->checkFbo();
-	lightPass->unbindFbo();
-	
-
 	glEnable(GL_COLOR_MATERIAL);
     // set material properties which will be assigned by glColor
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);	
@@ -539,14 +309,6 @@ void init(void)
 	glMateriali(GL_FRONT, GL_SHININESS, 24);
 
     font = new Font("res/fonts/arial.glf", window);	
-
-	//set light like in the phong shader..
-	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
-    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
-    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, light0QuadraticAttenuation);
-		
-	//glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
 
 	timer = new Ezr::Timer();
 	
@@ -562,51 +324,7 @@ void init(void)
 	cam->PositionCamera( 1, 0, 0,   0, 0, -1,   0, 1, 0);
 
 	load();
-	scene = new Ezr::Scene();
-}
-
-void loadShaders(const Vector3f* lightDirection, const Texture* color3_depth1, const Texture* normal2) {
-	deferredShader = new Ezr::DeferredDrawShader(colormap, normalmap);
-
-	deferredDirectionalLightShader
-		= new DeferredDirectionalLighting(lightDirection,
-										  color3_depth1,
-										  normal2,
-										  nearPlane,
-										  nearPlaneSize(nearPlane, fov),
-										  cam,
-										  NULL,
-										  NULL,
-										  NULL,
-										  NULL,
-										  NULL,
-										  NULL);
-
-	deferredPointLightShader
-		= new DeferredPointLighting(lightPosition,
-									lightRadius,
-									attenuation,
-									new Vector2i(lightPass->getWidth(),
-												 lightPass->getHeight()),
-									color3_depth1,
-									normal2,
-									nearPlane,
-									nearPlaneSize(nearPlane, fov),
-									cam,
-									NULL,
-									NULL,
-									NULL,
-									NULL,
-									NULL,
-									NULL);
-}
-
-void reloadShaders() {
-	delete deferredShader;
-	delete deferredDirectionalLightShader;
-	loadShaders(lightDirection,
-				fbo->getColorAttachment(color3_depth1Name),
-				fbo->getColorAttachment(normal2Name));
+	scene = new Ezr::Scene(cam);
 }
 
 void load()
@@ -617,22 +335,22 @@ void load()
 				fbo->getColorAttachment(normal2Name));
 }
 
-void loadImages()
-{
-	if (colormap != NULL)
-	{
-		delete colormap;
-	}
-	Ezr::Image colorImage(colorMapPath);
-	colormap = new Ezr::Texture(colorImage);
+// void loadImages()
+// {
+// 	if (colormap != NULL)
+// 	{
+// 		delete colormap;
+// 	}
+// 	Ezr::Image colorImage(colorMapPath);
+// 	colormap = new Ezr::Texture(colorImage);
 
-	if (normalmap != NULL)
-	{
-		delete normalmap;
-	}
-	Ezr::Image normalImage(normalMapPath);
-	normalmap = new Ezr::Texture(normalImage);
-}
+// 	if (normalmap != NULL)
+// 	{
+// 		delete normalmap;
+// 	}
+// 	Ezr::Image normalImage(normalMapPath);
+// 	normalmap = new Ezr::Texture(normalImage);
+// }
 
 int main(int argc, char* argv[])
 {

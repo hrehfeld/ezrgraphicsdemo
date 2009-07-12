@@ -9,24 +9,22 @@
 namespace Ezr
 {
 
-	class Texture;
-
 	class DeferredDrawShader : public Shader
 	{
 	public:
-	    DeferredDrawShader(const Texture* colorMap, const Texture* normalMap);
+	    DeferredDrawShader();
 	    virtual ~DeferredDrawShader();
 
 		virtual void bind();
 		virtual void unbind();
-		
+
+		GLuint getProgram() { return _program.getProgram(); }
+
 	private:
 		static const std::string vertexShaderPath;
 		static const std::string fragmentShaderPath;
 
 		GlBindShader _program;
-		const Texture* _colorMap;
-		const Texture* _normalMap;
 	};
 }
 

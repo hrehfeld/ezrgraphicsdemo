@@ -42,7 +42,7 @@ namespace Ezr{
 		 */
 		void attachColorbuffer(const std::string& name, GLenum format);
 
-		const Texture* getColorAttachment(std::string& name);
+		const Texture* getColorAttachment(const std::string& name);
 		
 		/**
 		 * Clear a certain color attachment

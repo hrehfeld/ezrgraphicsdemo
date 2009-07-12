@@ -17,12 +17,12 @@ varying vec3 light;
 uniform vec3 eye;
 uniform vec3 lightdir;
 
-uniform mat4 modelViewMatrix;
-uniform mat4 modelViewMatrixInverse;
-uniform mat3 normalMatrix;
-uniform mat3 normalMatrixInverse;
-uniform mat4 projectionMatrix;
-uniform mat4 projectionMatrixInverse;
+/* uniform mat4 modelViewMatrix; */
+/* uniform mat4 modelViewMatrixInverse; */
+/* uniform mat3 normalMatrix; */
+/* uniform mat3 normalMatrixInverse; */
+/* uniform mat4 projectionMatrix; */
+/* uniform mat4 projectionMatrixInverse; */
 
 uniform clippingPlanes planes;
 

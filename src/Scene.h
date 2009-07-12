@@ -6,16 +6,21 @@
 
 namespace Ezr{
 
-class Scene {
+	class Scene {
 
 	public:
-		Scene();
-		void drawScene()const;
+		Scene(Camera* camera);
+		void draw()const;
 
 	private:
-		 GLMmodel* _model;
+		GLMmodel* _model;
+		Camera* _camera;
 		
+
+		Texture* _colormap;
+		Texture* _normalmap;
 		
+
 	};
 
 }

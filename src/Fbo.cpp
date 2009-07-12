@@ -189,7 +189,7 @@ namespace Ezr
 		_colorBuffers.push_back(buffer);
 	}
 
-	const Texture* Fbo::getColorAttachment(std::string& name)
+	const Texture* Fbo::getColorAttachment(const std::string& name)
 	{
 		return _colorBuffers[_colorBufferNames[name]];
 	}
