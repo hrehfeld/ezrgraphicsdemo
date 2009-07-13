@@ -92,7 +92,7 @@ void display(void){
 
     stringstream stream;
     stream << timer->GetFramesPerSecond();
-//    font->renderText(stream.str());
+    font->renderText(stream.str());
    
 	glutSwapBuffers();
 }

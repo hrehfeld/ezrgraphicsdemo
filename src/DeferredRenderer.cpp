@@ -57,7 +57,7 @@ namespace Ezr
 
 	void DeferredRenderer::draw()
 	{
-//		glPushAttrib(GL_VIEWPORT_BIT);
+		glPushAttrib(GL_VIEWPORT_BIT);
 		Vector2i windowSize(_view->getWindowSize());
 		glViewport(0, 0, windowSize.x(), windowSize.y());
 
@@ -87,7 +87,9 @@ namespace Ezr
 		// normalMatrix = normalMatrix.inverse();
 		// normalMatrix.transposeInPlace();
 		// Matrix3f normalMatrixInverse = normalMatrix.inverse();
-			
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
 		_scene->draw();
 
 		GLfloat mvm[16];
@@ -98,7 +100,7 @@ namespace Ezr
 		_geometryShader.unbind();
 		_geometryPass->unbindFbo();
 
-//		glPopAttrib();
+		glPopAttrib();
 //		glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 
 		//light pass
@@ -143,19 +145,21 @@ namespace Ezr
 
 		
 
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDisable(GL_TEXTURE_2D);
 		
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDisable(GL_TEXTURE_2D);
+		
 		glActiveTexture(GL_TEXTURE0);
 
 
 		_lightPass->unbindFbo();
 
 
-		glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+//		glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 //		glClear(GL_COLOR_BUFFER_BIT);
 		
 
@@ -214,6 +218,7 @@ namespace Ezr
 		//std::cout << "directional light" << std::endl;
 
 		_directionalLighting.bind(*light, _modelView);
+		setUniforms(_directionalLighting.getProgram());
 
 		
 		drawPass();
@@ -226,6 +231,7 @@ namespace Ezr
         //std::cout << "point light" << std::endl;
 
 		_pointLighting.bind(*light, _modelView);
+		setUniforms(_pointLighting.getProgram());
 
 
 		glEnable(GL_CULL_FACE);
@@ -273,7 +279,7 @@ namespace Ezr
     void DeferredRenderer::drawPass()
     {
 	    //nearplane, but with a small offset to ensure we don't get clipped
-	    float nearP = _camera->getNearPlane() + 0.01f;
+	    float nearP = _camera->getNearPlane() + 1.0f;
 
         float size = _camera->nearPlaneSize(nearP);
 //		std::cout << size << std::endl;

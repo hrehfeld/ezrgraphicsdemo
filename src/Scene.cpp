@@ -54,10 +54,10 @@ namespace Ezr{
 		glCullFace(GL_FRONT);
 
 		glColor4f(1,0,0,1);
-		//glutSolidTeapot(1);
+		glutSolidTeapot(1);
 
 		glColor4f(1,1,1,1);
-		glmDraw(_model, GLM_SMOOTH | GLM_TEXTURE);
+		//glmDraw(_model, GLM_SMOOTH | GLM_TEXTURE);
 
 		glDisable(GL_CULL_FACE);
 

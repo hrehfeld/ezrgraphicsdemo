@@ -55,6 +55,7 @@ void main(void)
 //    gl_FragData[1].xyz = worldNormal.xyz * 0.5 + 0.5;
 //	gl_FragData[1].xyz = normalM;
 	gl_FragData[1].xyz = normal * 0.5 + 0.5;
+	gl_FragData[1].xyz = vec3(-zView);
 	//@todo check clamping - workaround necessary?
 //	gl_FragData[1].xyz = normal;
 
