@@ -9,7 +9,7 @@ namespace Ezr{
     class PointLight : public AbstractPositionalLight{ 
     
         public: 
-            PointLight(Eigen::Vector3f position, float radius, float intensity); 
+            PointLight(const Eigen::Vector3f& position, float radius, float intensity); 
             ~PointLight(); 
 
             float getRadius()const {return _radius;}

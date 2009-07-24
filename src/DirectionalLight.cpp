@@ -8,9 +8,8 @@ namespace Ezr
 	
 	
 	DirectionalLight::DirectionalLight(const Vector3f& direction, float intensity)
-		: _direction(direction)
-		  //copy
-		, _intensity(intensity)
+		: _direction(direction), 
+        _intensity(intensity)
 	{
 	}
 

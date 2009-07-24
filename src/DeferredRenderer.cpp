@@ -19,11 +19,12 @@ namespace Ezr
 	const std::string DeferredRenderer::normalBuffer("normal2");
     const std::string DeferredRenderer::resultBuffer("result");
 	
-	DeferredRenderer::DeferredRenderer(Viewport* view, Camera* camera)
+	DeferredRenderer::DeferredRenderer(Viewport* view, Camera* camera, Scene* scene)
         : _view(view),
-        _camera(camera)
+        _camera(camera),
+        _scene(scene)
 	{
-		Vector2i windowSize(_view->getWindowSize());
+		Vector2i windowSize = _view->getWindowSize();
 		_geometryPass = new Ezr::Fbo(windowSize.x(), windowSize.y(), Ezr::Fbo::Depth);
 		_geometryPass->attachColorbuffer(DeferredRenderer::colorBuffer, GL_RGBA16F);
 		_geometryPass->attachColorbuffer(DeferredRenderer::normalBuffer, GL_RGBA16F);
@@ -37,9 +38,7 @@ namespace Ezr
 //		glDrawBuffer(GL_NONE);
 		
 		_lightPass->checkFbo();
-		_lightPass->unbindFbo();
-
-		
+		_lightPass->unbindFbo();		
 	}
 
 	DeferredRenderer::~DeferredRenderer()

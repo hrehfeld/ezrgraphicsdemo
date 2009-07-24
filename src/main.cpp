@@ -208,8 +208,6 @@ void mouseMotion(int x, int y)
 	}
 }
 
-
-//init openGL
 void init(void)
 {
 	glShadeModel (GL_SMOOTH);				
@@ -242,15 +240,7 @@ void init(void)
     // set material properties which will be assigned by glColor
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);	
 
-	float spec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glMaterialfv(GL_FRONT, GL_SPECULAR, spec);
-	glMateriali(GL_FRONT, GL_SHININESS, 24);
-
-    font = new Font("res/fonts/arial.glf", window);	
-
-	timer = new Ezr::Timer();
-	
-	glViewport(0, 0, wndWidth, wndHeight);
+   	glViewport(0, 0, wndWidth, wndHeight);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -258,11 +248,50 @@ void init(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();	
 
+	float spec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_SPECULAR, spec);
+	glMateriali(GL_FRONT, GL_SHININESS, 24);
+
+    window = new Ezr::Viewport(Vector2i(wndWidth, wndHeight));
+    font = new Font("res/fonts/arial.glf", window);	
+	timer = new Ezr::Timer();
     cam = new Ezr::Camera(wndWidth, wndHeight, fov, nearPlane, farPlane);
 	cam->PositionCamera( 1, 0, 0,   0, 0, -1,   0, 1, 0);
-
-	//load();
 	scene = new Ezr::Scene(cam);
+    deferred = new DeferredRenderer(window, cam, scene);
+}
+
+int main(int argc, char* argv[])
+{	
+    //setup a GLUT window
+	glutInit(&argc, argv);   
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);    
+    glutInitWindowSize(wndWidth, wndHeight);
+
+	glutCreateWindow("Demo");
+  	
+	init();
+
+	//registering callback functions
+	glutReshapeFunc(reshape);	
+    glutDisplayFunc(display);
+    glutIdleFunc(display);   
+	glutIgnoreKeyRepeat(1);
+    glutKeyboardFunc(keyboard);
+	glutKeyboardUpFunc(releaseKey);
+	glutMouseFunc(mouse);
+	glutMotionFunc(mouseMotion);
+	
+	glutMainLoop();
+
+    delete cam;
+    delete font;
+    delete timer,
+    delete scene;
+	delete deferred;
+    delete window;
+
+	return 0;
 }
 
 //void load()
@@ -289,33 +318,3 @@ void init(void)
 // 	Ezr::Image normalImage(normalMapPath);
 // 	normalmap = new Ezr::Texture(normalImage);
 // }
-
-int main(int argc, char* argv[])
-{
-	Vector2i windowSize(wndWidth, wndHeight);
-	window = new Ezr::Viewport(windowSize);
-
-	//setup a GLUT window
-	glutInit(&argc, argv);   
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);    
-    glutInitWindowSize(wndWidth, wndHeight);
-
-	glutCreateWindow("Demo");
-  	
-	init();
-
-	//registering callback functions
-	glutReshapeFunc(reshape);	
-    glutDisplayFunc(display);
-    glutIdleFunc(display);   
-	glutIgnoreKeyRepeat(1);
-    glutKeyboardFunc(keyboard);
-	glutKeyboardUpFunc(releaseKey);
-	glutMouseFunc(mouse);
-	glutMotionFunc(mouseMotion);
-	
-	glutMainLoop();
-		
-	return 0;
-}
-

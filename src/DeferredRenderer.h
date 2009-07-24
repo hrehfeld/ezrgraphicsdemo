@@ -11,7 +11,6 @@
 
 namespace Ezr
 {
-
 	class Scene;
 	class Light;
 	class Viewport;
@@ -21,7 +20,8 @@ namespace Ezr
 	class DeferredRenderer
 	{
 	public:
-	    DeferredRenderer(Viewport* view, Camera* camera);
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+	    DeferredRenderer(Viewport* view, Camera* camera, Scene* scene);
 	    virtual ~DeferredRenderer();
 
 		void setScene(Scene* scene);

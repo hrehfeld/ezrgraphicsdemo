@@ -10,6 +10,7 @@ namespace Ezr
 	class DirectionalLight : public Light
 	{
 	public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	    DirectionalLight(const Eigen::Vector3f& direction, float intensity);
 	    virtual ~DirectionalLight();
 

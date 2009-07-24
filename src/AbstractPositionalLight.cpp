@@ -2,7 +2,7 @@
 
 namespace Ezr{
 
-    AbstractPositionalLight::AbstractPositionalLight(Eigen::Vector3f pos)
+    AbstractPositionalLight::AbstractPositionalLight(const Eigen::Vector3f& pos)
         : _position(pos)
     {}
     

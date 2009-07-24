@@ -15,22 +15,23 @@ namespace Ezr
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-		Viewport(Vector2i& windowSize);
+		Viewport(const Vector2i& windowSize);
 		virtual ~Viewport();
 		/**
 		 * Return mouse position from center in percent of window size
 		 */
-		Vector2f getMousePosition(Vector2i& mousePosition);
+		Vector2f getMousePosition(const Vector2i& mousePosition);
 
 		/**
 		 * Return the window size
 		 */
-		inline const Vector2i& getWindowSize()const { return _windowSize; }
+		inline const Vector2i getWindowSize()const { return _windowSize; }
 
 		/**
 		 * Set window size
 		 */
-		inline void setWindowSize(Vector2i& windowSize) { _windowSize = windowSize; }
+		inline void setWindowSize(const Vector2i& windowSize) { _windowSize = Vector2i(windowSize); }
+
 	private:
 		Vector2i _windowSize;
 	};

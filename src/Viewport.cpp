@@ -6,11 +6,11 @@ using namespace Eigen;
 namespace Ezr
 {
 
-	Viewport::Viewport(Vector2i& windowSize) : _windowSize(windowSize)
+	Viewport::Viewport(const Vector2i& windowSize) : _windowSize(windowSize)
 	{
 	}
 	
-	Vector2f Viewport::getMousePosition(Vector2i& mousePosition)
+	Vector2f Viewport::getMousePosition(const Vector2i& mousePosition)
 	{
 		Vector2i half = _windowSize / 2;
 

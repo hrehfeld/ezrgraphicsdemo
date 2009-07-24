@@ -9,12 +9,13 @@ namespace Ezr
     class AbstractPositionalLight : public Light
 	{
 	public:        
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	    virtual ~AbstractPositionalLight() = 0;
 
         Eigen::Vector3f getPosition() const {return _position;}
 
     protected:
-        AbstractPositionalLight(Eigen::Vector3f pos);
+        AbstractPositionalLight(const Eigen::Vector3f& pos);
        
         Eigen::Vector3f _position;
 	};
