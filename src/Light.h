@@ -5,7 +5,7 @@ namespace Ezr
 {
 	class Light
 	{
-	public:
+	public:        
 	    virtual ~Light() = 0;
 	};
 }

@@ -1,5 +1,6 @@
 #include "DeferredPointLighting.h"
 
+#include "PointLight.h"
 #include "Texture.h"
 #include "Camera.h"
 #include "Shader.h"
@@ -20,9 +21,9 @@ namespace Ezr
 																								  
 	DeferredPointLighting::DeferredPointLighting()
 		: _program(Utilities::loadFile(DeferredPointLighting::vertexShaderPath),
-				   Utilities::loadFile(DeferredPointLighting::fragmentShaderPath)),
+				   Utilities::loadFile(DeferredPointLighting::fragmentShaderPath))
 	{
-		std::cout << (1.0f - epsilon) / (lightRadius*lightRadius*epsilon) << std::endl;
+		//std::cout << (1.0f - epsilon) / (lightRadius*lightRadius*epsilon) << std::endl;
 	}
 
 	void DeferredPointLighting::bind(const PointLight& light, const Matrix4f& modelView)
@@ -43,9 +44,9 @@ namespace Ezr
 		Vector3f lightPos = light.getPosition();
 
 		//light in view space
-		Vector4f lightPosition(lightPos->x(),
-							   lightPos->y(),
-							   lightPos->z(),
+		Vector4f lightPosition(lightPos.x(),
+							   lightPos.y(),
+							   lightPos.z(),
 							   1);
 		Vector4f lightPositionView = (modelView) * lightPosition;
 		//lightPositionView *= 1.0/lightPositionView.w();

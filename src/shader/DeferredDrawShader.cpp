@@ -13,7 +13,7 @@ namespace Ezr
 																								  
 	DeferredDrawShader::DeferredDrawShader()
 		: _program(Utilities::loadFile(DeferredDrawShader::vertexShaderPath),
-				   Utilities::loadFile(DeferredDrawShader::fragmentShaderPath)),
+				   Utilities::loadFile(DeferredDrawShader::fragmentShaderPath))
 	{
 	}
 

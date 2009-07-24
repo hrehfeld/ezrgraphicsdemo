@@ -195,7 +195,7 @@ namespace Ezr
 	}
 
 
-	void Fbo::setDrawBuffer(std::string& name)
+	void Fbo::setDrawBuffer(const std::string& name)
 	{
 		int num = _colorBufferNames[name];
 		glDrawBuffer(_glColorBufferEnums[num]);

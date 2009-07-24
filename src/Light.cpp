@@ -1,3 +1,7 @@
 #include "Light.h"
 
-Ezr::Light::~Light() {}
+namespace Ezr{
+ 
+    Light::~Light() 
+    {}
+}

@@ -14,6 +14,7 @@
 #include <Eigen/Geometry>
 #include <Eigen/LU>
 #include "shader/Shader.h"
+#include "DeferredRenderer.h"
 #include "shader/DeferredDrawShader.h"
 #include "shader/DeferredDirectionalLighting.h"
 #include "shader/DeferredPointLighting.h"
@@ -33,11 +34,6 @@ using namespace Ezr;
 int wndWidth = 512;
 int wndHeight = 512;
 
-float fov = 90.0f;
-float nearPlane = 0.01f;
-float farPlane = 10.0;
-
-
 int anisotropicFiltering = 8;
 
 float light0QuadraticAttenuation = 0.01f;
@@ -48,7 +44,9 @@ Ezr::Timer* timer;
 
 DeferredRenderer* deferred;
 
-
+float fov = 90.0f;
+float nearPlane = 0.01f;
+float farPlane = 10.0;
 
 /**
  * current Viewport we're using
@@ -72,12 +70,12 @@ float lightRadius = 5.0f;
 Ezr::Font* font;
 
 void init();
-void load();
-void loadImages();
-void reloadShaders();
+//void load();
+//void loadImages();
+//void reloadShaders();
 
-void drawPass(const Matrix4f& modelView, const float nearPlane, const float fov);
-float nearPlaneSize(const float nearPlaneDist, const float fov);
+//void drawPass(const Matrix4f& modelView, const float nearPlane, const float fov);
+//float nearPlaneSize(const float nearPlaneDist, const float fov);
 
 void display(void){    
  
@@ -91,66 +89,6 @@ void display(void){
     font->renderText(stream.str());
    
 	glutSwapBuffers();
-}
-
-/**
- * calculate smallest distance from center of the nearplane to the side
- */
-float nearPlaneSize(const float nearPlaneDist, const float fov)
-{
-	float halfFov = fov / 2.0f;
-	return nearPlaneDist * tan(halfFov / 360.0f * 2.0f * MyMath::PI);
-}
-
-/**
- * draw a screensize rectangle with the fbo rendered scene as texture on it
- *
- * @param modelView Camera modelview matrix so we can position the quad before the camera
- */
-void drawPass(const Matrix4f& modelView, const float nearPlane, const float fov)
-{
-	//nearplane, but with a small offset to ensure we don't get clipped
-	float nearP = nearPlane + 0.01f;
-
-	float size = nearPlaneSize(nearPlane + 0.01f, fov);
-
-	Vector4f quad[] = {
-		Vector4f(-size, -size, -nearP, 1),
-		Vector4f( size, -size, -nearP, 1),
-		Vector4f( size,  size, -nearP, 1),
-		Vector4f(-size,  size, -nearP, 1)
-	};
-
-	Matrix4f modelViewInverse = modelView.inverse();
-
-	//we don't mess with any state, but draw the rectangle perfectly in front of the camera
-	for (int i = 0; i < 4; ++i) {
-		quad[i] = (modelViewInverse * quad[i]);
-	}
-
-	glDisable(GL_DEPTH_TEST);
-		
-	Vector4f p;
-	glBegin (GL_QUADS); 
-		glTexCoord2f(0.0, 0.0);
-		p = quad[0];
-        glVertex3f(p.x(), p.y(), p.z());
-
-        glTexCoord2f(1.0, 0.0);
-		p = quad[1];
-        glVertex3f(p.x(), p.y(), p.z());
-
-        glTexCoord2f(1.0, 1.0);
-		p = quad[2];
-        glVertex3f(p.x(), p.y(), p.z());
-
-        glTexCoord2f(0.0, 1.0);
-		p = quad[3];
-        glVertex3f(p.x(), p.y(), p.z());
-	glEnd ();
-
-	glEnable(GL_DEPTH_TEST);
-	
 }
 
 void reshape (int w, int h){
@@ -320,20 +258,20 @@ void init(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();	
 
-	cam = new Ezr::Camera(wndWidth, wndHeight);
+    cam = new Ezr::Camera(wndWidth, wndHeight, fov, nearPlane, farPlane);
 	cam->PositionCamera( 1, 0, 0,   0, 0, -1,   0, 1, 0);
 
-	load();
+	//load();
 	scene = new Ezr::Scene(cam);
 }
 
-void load()
-{
-	loadImages();
-	loadShaders(lightDirection,
-				fbo->getColorAttachment(color3_depth1Name),
-				fbo->getColorAttachment(normal2Name));
-}
+//void load()
+//{
+//	loadImages();
+//	loadShaders(lightDirection,
+//				fbo->getColorAttachment(color3_depth1Name),
+//				fbo->getColorAttachment(normal2Name));
+//}
 
 // void loadImages()
 // {

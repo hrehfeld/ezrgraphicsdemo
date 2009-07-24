@@ -72,7 +72,7 @@ namespace Ezr{
 		 */
 		void setDrawBuffers();
 
-		void setDrawBuffer(std::string& name);
+		void setDrawBuffer(const std::string& name);
 
 		int getWidth() { return _textureResX; }
 		int getHeight() { return _textureResY; }

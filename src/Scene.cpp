@@ -1,8 +1,10 @@
 #include "Scene.h"
 
-#include <exception>
 #include <iostream>
 #include "stdlib.h"
+#include "Texture.h"
+#include "Camera.h"
+#include "Image.h"
 
 using std::cout;
 using std::cerr;
@@ -12,10 +14,11 @@ using std::endl;
 namespace Ezr{
 
 	Scene::Scene(Camera* camera)
-		: _camera(camera)
-		, _colorMap("res/textures/lava.tga")
-		, _normalMap("res/textures/lava-normal.tga")
+		: _camera(camera)              
 	{
+        _normalmap = new Texture(Image("res/textures/lava-normal.tga"));
+        _colormap = new Texture(Image("res/textures/lava.tga")); 
+
 		_model = glmReadOBJ("res/models/Terrain.obj");
 		if (!_model){
 			cerr << "couldn't load model" << endl;
@@ -34,15 +37,15 @@ namespace Ezr{
 		glMatrixMode(GL_MODELVIEW);	
 		glLoadIdentity();
 		
-		cam->CamLookAt();
+		_camera->CamLookAt();
 
 		glActiveTexture(GL_TEXTURE0);
-		_colorMap->bind();
+		_colormap->bind();
         glEnable(GL_TEXTURE_2D);
 
 		// //multitexturing
 		glActiveTexture(GL_TEXTURE1);
-		_normalMap->bind();
+		_normalmap->bind();
 		glEnable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
 

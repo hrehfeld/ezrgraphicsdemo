@@ -1,5 +1,6 @@
 #include "DeferredDirectionalLighting.h"
 
+#include "DirectionalLight.h"
 #include "Texture.h"
 #include "Camera.h"
 #include "Shader.h"
@@ -18,7 +19,7 @@ namespace Ezr
 																								  
 	DeferredDirectionalLighting::DeferredDirectionalLighting()
 		: _program(Utilities::loadFile(DeferredDirectionalLighting::vertexShaderPath),
-				   Utilities::loadFile(DeferredDirectionalLighting::fragmentShaderPath)),
+				   Utilities::loadFile(DeferredDirectionalLighting::fragmentShaderPath))
 	{
 	}
 
@@ -33,9 +34,9 @@ namespace Ezr
 		Vector3f lightDir = light.getDirection();
 
 		//light in view space
-		Vector4f lightDirection(lightDir->x(),
-								lightDir->y(),
-								lightDir->z(),
+		Vector4f lightDirection(lightDir.x(),
+								lightDir.y(),
+								lightDir.z(),
 								0);
 		Vector4f lightDirectionView = (modelView) * lightDirection;
 		lightDirectionView.normalize();

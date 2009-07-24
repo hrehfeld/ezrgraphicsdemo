@@ -1,12 +1,12 @@
 #include "DeferredRenderer.h"
-
-#include <Eigen/Geometry>
-
-#include "OpenGL.h"
 #include "Viewport.h"
 #include "Fbo.h"
 #include "Scene.h"
 #include "Texture.h"
+#include "Camera.h"
+#include "PointLight.h"
+#include "DirectionalLight.h"
+
 
 using namespace std;
 using namespace Eigen;
@@ -16,9 +16,11 @@ namespace Ezr
 {
 	const std::string DeferredRenderer::colorBuffer("color3_depth1");
 	const std::string DeferredRenderer::normalBuffer("normal2");
+    const std::string DeferredRenderer::resultBuffer("result");
 	
 	DeferredRenderer::DeferredRenderer(Viewport* view, Camera* camera)
-		: _view(view)
+        : _view(view),
+        _camera(camera)
 	{
 		Vector2i windowSize(_view->getWindowSize());
 		_geometryPass = new Ezr::Fbo(windowSize.x(), windowSize.y(), Ezr::Fbo::Depth);
@@ -30,7 +32,7 @@ namespace Ezr
 
 
 		_lightPass = new Ezr::Fbo(windowSize.x(), windowSize.y(), Fbo::None);
-		_lightPass->attachColorbuffer("result", GL_RGBA16F);
+		_lightPass->attachColorbuffer(DeferredRenderer::resultBuffer, GL_RGBA16F);
 //		glDrawBuffer(GL_NONE);
 		
 		_lightPass->checkFbo();
@@ -126,13 +128,13 @@ namespace Ezr
 			boolean blend = passes > 0;
 			if (blend)
 			{
-				_lightPass->setDrawBuffer(resultAttachment);
+                _lightPass->setDrawBuffer(DeferredRenderer::resultBuffer);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_ONE, GL_ONE);
 				_lightPass->setDrawBuffers();
 			}
 			
-			render(it);
+			render(*it);
 
 			if (blend)
 			{
@@ -157,10 +159,10 @@ namespace Ezr
 
 
 		//draw quad
-		lightPass->getColorAttachment("result")->bind();
+		_lightPass->getColorAttachment("result")->bind();
 		glEnable(GL_TEXTURE_2D);
 		glColor4f(1, 1, 1, 1);
-		drawPass(_modelView, nearPlane, fov);
+		drawPass();
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDisable(GL_TEXTURE_2D);
 
@@ -169,15 +171,18 @@ namespace Ezr
 		
 	}
 
-	void setUniforms(GLuint program)
+    void DeferredRenderer::setUniforms(GLuint program)
 	{
+        float nearDistance = _camera->getNearPlane() + 0.01f;
+        float nearSize = nearPlaneSize(nearDistance, _camera->getFov());
+
 		glUniform1i(glGetUniformLocation(program, "color3_depth1"), 0);
 		glUniform1i(glGetUniformLocation(program, "normal2"), 1);
-		glUniform1f(glGetUniformLocation(program, "planes.nearDistance"),_nearPlaneDistance);
-		glUniform1f(glGetUniformLocation(program, "planes.nearSize"), _nearPlaneSize);
+		glUniform1f(glGetUniformLocation(program, "planes.nearDistance"),nearDistance);
+		glUniform1f(glGetUniformLocation(program, "planes.nearSize"), nearSize);
 
 		Ezr::OpenGl::checkError("pointlight bind: before screensize");
-		Vector2i screenSize(_view.getWindowSize());
+		Vector2i screenSize(_view->getWindowSize());
 		glUniform2i(glGetUniformLocation(program, "screenSize"),
 					screenSize.x(), screenSize.y());
 		Ezr::OpenGl::checkError("pointlight bind: screensize");
@@ -201,34 +206,35 @@ namespace Ezr
 		// 				   9, false, normalMatrixInverse.data());
 	}
 
-	void DeferredRenderer::render(DirectionalLight light) {
+	void DeferredRenderer::render(DirectionalLight* light) {
 		std::cout << "directional light" << std::endl;
 
-		_directionalLighting->bind(light, _modelView);
+		_directionalLighting.bind(*light, _modelView);
 
 		
-		drawPass(_modelView, nearPlane, fov);
-		_directionalLighting->unbind();
+		drawPass();
+		_directionalLighting.unbind();
 		
 	}
 
-	void DeferredRenderer::render(Pointlight light) {
-		std::cout << "point light" << std::endl;
+	void DeferredRenderer::render(PointLight* light) {
+		
+        std::cout << "point light" << std::endl;
 
-		_pointLighting->bind();
+		_pointLighting.bind(*light, _modelView);
 
 
 		glEnable(GL_CULL_FACE);
 
 		glPushMatrix();
-		Vector3f lightPosition = light.getPosition();
+		Vector3f lightPosition = light->getPosition();
 		glTranslatef(lightPosition.x(), lightPosition.y(), lightPosition.z());
-		glutSolidSphere(light.getRadius(), 24, 12);
+		glutSolidSphere(light->getRadius(), 24, 12);
 		glPopMatrix();
 
 		glDisable(GL_CULL_FACE);
 
-		_pointLighting->unbind();
+		_pointLighting.unbind();
 
 				// if (drawLightGeometry)
 				// {
@@ -251,9 +257,58 @@ namespace Ezr
 		
 	}
 
-	void DeferredRenderer::render(Light light) {
+	void DeferredRenderer::render(Light* light) {
 		std::cout << "light" << std::endl;
 	}
 	
+    /**
+     * draw a screensize rectangle with the fbo rendered scene as texture on it
+     *
+     * @param modelView Camera modelview matrix so we can position the quad before the camera
+     */
+    void DeferredRenderer::drawPass()
+    {
+	    //nearplane, but with a small offset to ensure we don't get clipped
+	    float nearP = _camera->getNearPlane() + 0.01f;
 
+        float size = nearPlaneSize(_camera->getNearPlane() + 0.01f, _camera->getFov());
+
+	    Vector4f quad[] = {
+		    Vector4f(-size, -size, -nearP, 1),
+		    Vector4f( size, -size, -nearP, 1),
+		    Vector4f( size,  size, -nearP, 1),
+		    Vector4f(-size,  size, -nearP, 1)
+	    };
+
+	    Matrix4f modelViewInverse = _modelView.inverse();
+
+	    //we don't mess with any state, but draw the rectangle perfectly in front of the camera
+	    for (int i = 0; i < 4; ++i) {
+		    quad[i] = (modelViewInverse * quad[i]);
+	    }
+
+	    glDisable(GL_DEPTH_TEST);
+    		
+	    Vector4f p;
+	    glBegin (GL_QUADS); 
+		    glTexCoord2f(0.0, 0.0);
+		    p = quad[0];
+            glVertex3f(p.x(), p.y(), p.z());
+
+            glTexCoord2f(1.0, 0.0);
+		    p = quad[1];
+            glVertex3f(p.x(), p.y(), p.z());
+
+            glTexCoord2f(1.0, 1.0);
+		    p = quad[2];
+            glVertex3f(p.x(), p.y(), p.z());
+
+            glTexCoord2f(0.0, 1.0);
+		    p = quad[3];
+            glVertex3f(p.x(), p.y(), p.z());
+	    glEnd ();
+
+	    glEnable(GL_DEPTH_TEST);
+    	
+    }
 }
