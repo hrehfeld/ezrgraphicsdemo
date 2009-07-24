@@ -20,10 +20,14 @@ namespace Ezr{
 	//
 	// This is our camera constructor. Set the camera speed
 	////////////////////////////////////////////////////////////////////////
-	Camera::Camera(int screenWidth, int screenHeight) : sensitivity(1),
-														invertMouseY(true),
-														_pitch(0),
-														_yaw(0)
+	Camera::Camera(int screenWidth, int screenHeight, float fov, float near, float far) 
+        : sensitivity(1),
+		invertMouseY(true),
+		_pitch(0),
+		_yaw(0),
+        _fov(fov),
+        _nearPlane(near),
+        _farPlane(far)
 	{
 		m_camPosition << 0.0, 0.0, 0.0;
 		m_camView << 0.0, 1.0, 0;

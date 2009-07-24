@@ -21,7 +21,7 @@ namespace Ezr{
 		//http://eigen.tuxfamily.org/dox/StructHavingEigenMembers.html
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW			
 				
-		Camera(int screenWidth, int screenHeight);
+		Camera(int screenWidth, int screenHeight, float fov, float near, float far);
 
 		Eigen::Vector3f& Position() {return m_camPosition;}
 		Eigen::Vector3f& View() {return m_camView;}
@@ -62,6 +62,10 @@ namespace Ezr{
 		//Returns the current position, the camera is looking at
 		Eigen::Vector3f* GetLookAt();
 
+        float getFov()const{return _fov;}
+        float getNearPlane()const{return _nearPlane;}
+        float getFarPlane()const{return _farPlane;}
+
 	private:
 		
 		//camera position
@@ -92,6 +96,10 @@ namespace Ezr{
 
 		float sensitivity;
 		bool invertMouseY;
+
+        float _fov;
+        float _nearPlane;
+        float _farPlane;
 		
 	};
 }
