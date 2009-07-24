@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "PointLight.h"
 #include "DirectionalLight.h"
+#include <Eigen/LU>
 
 
 using namespace std;
