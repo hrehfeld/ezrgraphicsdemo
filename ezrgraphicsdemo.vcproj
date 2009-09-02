@@ -198,7 +198,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Exception.cpp"
+				RelativePath=".\src\EzrException.cpp"
 				>
 			</File>
 			<File
@@ -280,7 +280,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Exception.h"
+				RelativePath=".\src\EzrException.h"
 				>
 			</File>
 			<File

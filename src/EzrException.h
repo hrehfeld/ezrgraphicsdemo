@@ -22,9 +22,9 @@ namespace Ezr
 		virtual ~GLException() throw ();
 
 		virtual const char* what() const throw ()
-            {                
+        {                
                 return _error.c_str();
-            }
+        }
 
 	private:
 		std::string _error;
