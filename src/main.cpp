@@ -35,7 +35,7 @@ int wndHeight = 512;
 
 float fov = 90.0f;
 float nearPlane = 0.01f;
-float farPlane = 10.0;
+float farPlane = 100.0;
 
 
 int anisotropicFiltering = 8;
@@ -152,7 +152,7 @@ void display(void){
 	glColor4f(1,0,0,1);
 	glutSolidTeapot(1);
 	glColor4f(1,1,1,1);
-	scene->drawScene();
+	//scene->drawScene();
 	glDisable(GL_CULL_FACE);
 	
 
@@ -497,6 +497,7 @@ void init(void)
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
 
+    //check for ogl 2.0
 	glewInit();
 	if (glewIsSupported("GL_VERSION_2_0"))
 	{
@@ -514,22 +515,25 @@ void init(void)
 	//glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    fbo = new Ezr::Fbo(wndWidth, wndHeight, Ezr::Fbo::Depth);
+    //create the fbo for the geometry pass
+    fbo = new Ezr::Fbo(wndWidth, wndHeight, Fbo::Depth);
     fbo->attachColorbuffer("color3_depth1", GL_RGBA16F);
     fbo->attachColorbuffer("normal2", GL_RGBA16F);
 	glDrawBuffer(GL_NONE);
 	
+     //error checking
 	fbo->checkFbo();
 	fbo->unbindFbo();
 
+    //create the fbo for the lighting pass
     lightPass = new Ezr::Fbo(wndWidth, wndHeight, Fbo::None);
     lightPass->attachColorbuffer("result", GL_RGBA16F);
 	glDrawBuffer(GL_NONE);
 	
+    //error checking
 	lightPass->checkFbo();
 	lightPass->unbindFbo();
 	
-
 	glEnable(GL_COLOR_MATERIAL);
     // set material properties which will be assigned by glColor
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);	

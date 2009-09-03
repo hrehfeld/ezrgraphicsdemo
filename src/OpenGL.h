@@ -54,6 +54,7 @@ namespace Ezr
 			if (!(error == GL_NO_ERROR)) {
 			    std::stringstream errorString;
                 errorString << reason << ": "<< gluErrorString(error);
+                std::cerr << errorString << std::endl;
                 throw GLException(errorString.str());                      
 		    }
 		}
