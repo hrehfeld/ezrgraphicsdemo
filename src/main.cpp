@@ -218,27 +218,40 @@ void init(void)
     Vector3f lightDirection(0, -2, 1);
     Vector3f lightPosition(0, 4, -1);
     float attenuation = 0.01f;
-    float lightRadius = 5.0f;
-    
-    DeferredDirectionalLight::DirectionalLightPtr directionalLight =
-        DeferredDirectionalLight::create(lightDirection,									
+    float lightRadius = 3.0f;
+       
+    _scene = new Scene();
+    _scene->addDirectionalLight(DeferredDirectionalLight::create(lightDirection,									
 										  nearPlane,
 										  Utilities::nearPlaneSize(nearPlane, fov),
-										  _cam);
-
-    DeferredPointLight::PointLightPtr pointLight =
-        DeferredPointLight::create(lightPosition,
+										  _cam));
+    _scene->addPointLight(DeferredPointLight::create(lightPosition,
 									lightRadius,
 									attenuation,
 									Vector2i(wndWidth,
 									    	 wndHeight),
 									nearPlane,
                                     Utilities::nearPlaneSize(nearPlane, fov),
-									_cam);
+									_cam));
 
-    _scene = new Scene();
-    _scene->addDirectionalLight(directionalLight);
-    _scene->addPointLight(pointLight);
+     _scene->addPointLight(DeferredPointLight::create( Vector3f(-3, 0, -1),
+									3.0f,
+									0.2f,
+									Vector2i(wndWidth,
+									    	 wndHeight),
+									nearPlane,
+                                    Utilities::nearPlaneSize(nearPlane, fov),
+									_cam));
+
+      _scene->addPointLight(DeferredPointLight::create( Vector3f(3, 0, -1),
+									3.0f,
+									0.2f,
+									Vector2i(wndWidth,
+									    	 wndHeight),
+									nearPlane,
+                                    Utilities::nearPlaneSize(nearPlane, fov),
+									_cam));
+
     _deferredRenderer = new DeferredRenderer(_scene, _cam, wndWidth, wndHeight, fov, nearPlane);
 }
 

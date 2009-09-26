@@ -17,23 +17,6 @@ using namespace std;
 
 namespace Ezr
 {
-	std::vector<unsigned int> Fbo::_glColorBufferEnums;
-
-	bool Fbo::staticInit()
-	{
-		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT0_EXT);
-		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT1_EXT);
-		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT2_EXT);
-		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT3_EXT);
-		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT4_EXT);
-		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT5_EXT);
-		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT6_EXT);
-		_glColorBufferEnums.push_back(GL_COLOR_ATTACHMENT7_EXT);
-		return true;
-	}
-	
-	bool bla = Fbo::staticInit();
-
 	//// Fbo ///////////////////////////////////////////////////////////////
 	//
 	// Fbo constructor: create our Fbo

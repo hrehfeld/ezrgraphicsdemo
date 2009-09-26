@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\DeferredSSAO.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\EzrException.cpp"
 				>
 			</File>
@@ -286,6 +290,10 @@
 			</File>
 			<File
 				RelativePath=".\src\DeferredRenderer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DeferredSSAO.h"
 				>
 			</File>
 			<File

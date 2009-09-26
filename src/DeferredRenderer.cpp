@@ -43,8 +43,8 @@ namespace Ezr{
         _deferredShader.reset(new DeferredDrawShader(_colormap, normalmap));
 
         //create the fbo for the g-buffer
-        Texture* colorBuffer = new Texture(_fboWidth, _fboHeight, GL_RGBA16F, GL_RGBA, GL_FLOAT);
-        Texture* normalBuffer = new Texture(_fboWidth, _fboHeight, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+        Texture* colorBuffer = new Texture(_fboWidth, _fboHeight, GL_RGB16F, GL_RGBA, GL_FLOAT);
+        Texture* normalBuffer = new Texture(_fboWidth, _fboHeight, GL_RGB16F, GL_RGBA, GL_FLOAT);
         _gBuffer.reset(new Fbo(_fboWidth, _fboHeight, Fbo::Depth));
         _gBuffer->addColorAttachment(colorBuffer, "color");
         _gBuffer->addColorAttachment(normalBuffer, "normal");

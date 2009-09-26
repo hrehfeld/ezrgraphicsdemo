@@ -60,8 +60,6 @@ namespace Ezr{
 		void checkFbo();
 		void release();
 
-		static bool staticInit();
-
 		/**
 		 * Set the Drawbuffers as needed for the fbo
 		 */
@@ -86,10 +84,6 @@ namespace Ezr{
 		int _textureResY;
 		bool _useDepth, _useStencil, _useRbo;
         int _attachmentId;
-
-		std::map<std::string, int> _colorBufferNames;
-		std::vector<Texture*> _colorBuffers;
-		static std::vector<unsigned int> _glColorBufferEnums;
       
         std::map<std::string, ColorAttachmentPtr> _colorAttachments;
 	};
