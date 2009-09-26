@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 #include "Utilities.h"
+#include "MyMath.h"
+#include <cmath>
 
 namespace Ezr
 {
@@ -39,4 +41,10 @@ namespace Ezr
 	// 	file.close();
 	// 	return result;
 	}
+
+    float Utilities::nearPlaneSize(float nearPlaneDist, float fov)
+    {
+        float halfFov = fov / 2.0f;
+        return nearPlaneDist * tan(halfFov / 360.0f * 2.0f * MyMath::PI);
+    }
 }

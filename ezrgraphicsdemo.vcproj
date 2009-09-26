@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="ezrgraphicsdemo"
+	Name="ezrdemo"
 	ProjectGUID="{A9AB59D1-1BA3-4527-94D1-BFEDD6F4D798}"
 	RootNamespace="ezrgraphicsdemo"
 	Keyword="Win32Proj"
@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				UseUnicodeResponseFiles="true"
 				Optimization="0"
-				AdditionalIncludeDirectories="src;&quot;$(BOOST_DIR)&quot;;lib/glm;lib/Eigen;lib/devil/include;lib/glut/include;lib/glew/include"
+				AdditionalIncludeDirectories="src/shader;src;&quot;$(BOOST_DIR)&quot;;lib/glm;lib/Eigen;lib/devil/include;lib/glut/include;lib/glew/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NOMINMAX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -120,12 +120,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="lib/FreeImage;src;&quot;$(BOOST_DIR)&quot;;lib/glm;lib/Eigen;lib/devil/include;lib/glut/include;lib/glew/include"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="lib/FreeImage;src/shader;src;&quot;$(BOOST_DIR)&quot;;lib/glm;lib/Eigen;lib/devil/include;lib/glut/include;lib/glew/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NOMINMAX"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -186,7 +187,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\shader\DeferredDirectionalLighting.cpp"
+				RelativePath=".\src\shader\DeferredDirectionalLight.cpp"
 				>
 			</File>
 			<File
@@ -194,7 +195,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\shader\DeferredPointLighting.cpp"
+				RelativePath=".\src\shader\DeferredPointLight.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DeferredRenderer.cpp"
 				>
 			</File>
 			<File
@@ -206,7 +211,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\font\Font.cpp"
+				RelativePath=".\src\FboColorAttachment.cpp"
 				>
 			</File>
 			<File
@@ -268,7 +273,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\shader\DeferredDirectionalLighting.h"
+				RelativePath=".\src\shader\DeferredDirectionalLight.h"
 				>
 			</File>
 			<File
@@ -276,7 +281,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\shader\DeferredPointLighting.h"
+				RelativePath=".\src\shader\DeferredPointLight.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DeferredRenderer.h"
 				>
 			</File>
 			<File
@@ -285,6 +294,14 @@
 			</File>
 			<File
 				RelativePath=".\src\Fbo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\FboColorAttachment.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\font\Font.cpp"
 				>
 			</File>
 			<File

@@ -2,7 +2,7 @@
 #define _DEFERREDDRAWSHADER_H_
 
 #include <string>
-
+#include <boost/shared_ptr.hpp>
 #include "Shader.h"
 #include "gl/GlBindShader.h"
 
@@ -14,7 +14,10 @@ namespace Ezr
 	class DeferredDrawShader : public Shader
 	{
 	public:
-	    DeferredDrawShader(const Texture* colorMap, const Texture* normalMap);
+	    DeferredDrawShader( 
+            boost::shared_ptr<Texture> colorMap, 
+            boost::shared_ptr<Texture> normalMap
+            );
 	    virtual ~DeferredDrawShader();
 
 		virtual void bind();
@@ -25,8 +28,8 @@ namespace Ezr
 		static const std::string fragmentShaderPath;
 
 		GlBindShader _program;
-		const Texture* _colorMap;
-		const Texture* _normalMap;
+		boost::shared_ptr<Texture> _colorMap;
+		boost::shared_ptr<Texture> _normalMap;
 	};
 }
 

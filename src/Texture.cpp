@@ -18,6 +18,11 @@ namespace Ezr
 		init(img.getWidth(), img.getHeight(), GL_RGB, img.getFormat(), img.getType(), img.getData());
 	}
 
+    Texture::~Texture()
+	{
+		glDeleteTextures(1, &_id);
+	}
+
 	void Texture::init(int width,
 					   int height,
 					   unsigned int internalFormat,
@@ -48,8 +53,7 @@ namespace Ezr
 		//make sure all drivers gen mipmaps
 		glEnable(GL_TEXTURE_2D);
 		// glGenerateMipmapEXT(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, NULL);
-		
+		unbind();
 	}
 
 	void Texture::setAnisotropicFiltering(int anisotropic)
@@ -63,8 +67,8 @@ namespace Ezr
 		glBindTexture(GL_TEXTURE_2D, _id);
 	}
 
-	Texture::~Texture()
+    void Texture::unbind() const
 	{
-		glDeleteTextures(1, &_id);
-	}
+		glBindTexture(GL_TEXTURE_2D, NULL);
+	}	
 }

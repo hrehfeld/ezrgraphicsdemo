@@ -8,15 +8,18 @@ using namespace std;
 
 namespace Ezr
 {
-	const string DeferredDrawShader::vertexShaderPath("res/shaders/deferred/basic.vert");
-	const string DeferredDrawShader::fragmentShaderPath("res/shaders/deferred/basic.frag");
+	const string DeferredDrawShader::vertexShaderPath("res/shaders/basic.vert");
+	const string DeferredDrawShader::fragmentShaderPath("res/shaders/basic.frag");
 																								  
-	DeferredDrawShader::DeferredDrawShader(const Texture* colorMap, const Texture* normalMap)
+	DeferredDrawShader::DeferredDrawShader(
+        boost::shared_ptr<Texture> colorMap, 
+        boost::shared_ptr<Texture> normalMap)
 		: _program(Utilities::loadFile(DeferredDrawShader::vertexShaderPath),
-				   Utilities::loadFile(DeferredDrawShader::fragmentShaderPath)),
-		  _colorMap(colorMap),
-		  _normalMap(normalMap)
+				   Utilities::loadFile(DeferredDrawShader::fragmentShaderPath))
+		  
 	{
+        _colorMap.swap(colorMap);
+		_normalMap.swap(normalMap);
 	}
 
 	void DeferredDrawShader::bind()

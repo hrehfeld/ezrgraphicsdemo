@@ -1,4 +1,5 @@
 #include "EzrException.h"
+#include <iostream>
 
 
 namespace Ezr
@@ -12,7 +13,8 @@ namespace Ezr
 	}
 
 	GLException::GLException(std::string err) : _error(err)
-	{
+    {
+        std::cout << err << std::endl;
 	}
 	
 }

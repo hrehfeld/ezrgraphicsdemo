@@ -12,6 +12,7 @@ namespace Ezr {
 		 * Read the contents of a file into a string
 		 */
 		static std::string loadFile(std::string filename);
+        static float nearPlaneSize(float nearPlaneDist, float fov);
 	};
 }
 

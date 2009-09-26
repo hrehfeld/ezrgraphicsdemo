@@ -2,6 +2,4 @@
 
 namespace Ezr
 {
-	Shader::Shader() {}
-	Shader::~Shader() {}
 }

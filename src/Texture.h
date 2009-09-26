@@ -16,13 +16,21 @@ namespace Ezr
 
 		void setAnisotropicFiltering(int anisotropic);
 		void bind() const;
-		/**
+        void unbind() const;
+		
+        /**
 		 * Get the ogl texture id
 		 */
-		unsigned int getId() { return _id; }
+		unsigned int getId() {return _id;}
+               
 	private:
-		void init(int width, int height, unsigned int internalFormat, unsigned int format, unsigned int type, unsigned char* data);
-		unsigned int _id;
+		void init(int width, int height, unsigned int internalFormat, 
+            unsigned int format, 
+            unsigned int type, 
+            unsigned char* data
+            );
+
+		unsigned int _id;       
 	};
 }
 

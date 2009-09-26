@@ -3,8 +3,6 @@
 
 #include <Eigen/Core>
 
-using namespace Eigen;
-
 namespace Ezr
 {
     /**
@@ -15,24 +13,25 @@ namespace Ezr
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-		Viewport(Vector2i& windowSize);
+            Viewport(Eigen::Vector2i& size);
 		virtual ~Viewport();
 		/**
 		 * Return mouse position from center in percent of window size
 		 */
-		Vector2f getMousePosition(Vector2i& mousePosition);
+		Eigen::Vector2f getMousePosition(Eigen::Vector2i& mousePosition);
 
 		/**
 		 * Return the window size
 		 */
-		inline const Vector2i& getWindowSize()const { return _windowSize; }
+		inline const Eigen::Vector2i& getViewportSize()const { return _size; }
 
 		/**
 		 * Set window size
 		 */
-		inline void setWindowSize(Vector2i& windowSize) { _windowSize = windowSize; }
+		inline void setViewportSize(Eigen::Vector2i& size) { _size = size; }
+
 	private:
-		Vector2i _windowSize;
+		Eigen::Vector2i _size;
 	};
 }
 #endif /* _VIEWPORT_H_ */
