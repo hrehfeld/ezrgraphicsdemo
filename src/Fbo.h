@@ -5,10 +5,12 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <boost/shared_ptr.hpp>
 
 namespace Ezr{
 
 	class Texture;
+    class FboColorAttachment;
 
 	class Fbo {
 
@@ -19,13 +21,6 @@ namespace Ezr{
             None = 0,
             Depth = 0x1,
             Stencil = Depth << 1,
-        };
-
-        enum AttachmentFormat
-        {
-            RGB = 0x1,
-            RGBA = RGB << 1,
-            RGBA32f = RGBA << 1,
         };
 			
 		Fbo(int textureResX, int textureResY, short type);
@@ -40,10 +35,10 @@ namespace Ezr{
 		/**
 		 * attach a new texture to our fbo, target
 		 */
-		void attachColorbuffer(const std::string& name, GLenum format);
+		void addColorAttachment(Texture* buffer, const std::string& name);
 
-		const Texture* getColorAttachment(std::string& name);
-		
+		Texture* getColorAttachment(const std::string& name);
+        		
 		/**
 		 * Clear a certain color attachment
 		 *
@@ -72,12 +67,14 @@ namespace Ezr{
 		 */
 		void setDrawBuffers();
 
-		void setDrawBuffer(std::string& name);
+		void setDrawBuffer(const std::string& name);
 
 		int getWidth() { return _textureResX; }
 		int getHeight() { return _textureResY; }
 		
 	private:
+        typedef boost::shared_ptr<FboColorAttachment> ColorAttachmentPtr;
+
         /**
 		 * creates a RenderBufferObject, e.g. a depthbuffer
 		 */
@@ -88,11 +85,13 @@ namespace Ezr{
 		int _textureResX;
 		int _textureResY;
 		bool _useDepth, _useStencil, _useRbo;
+        int _attachmentId;
 
 		std::map<std::string, int> _colorBufferNames;
 		std::vector<Texture*> _colorBuffers;
-		
 		static std::vector<unsigned int> _glColorBufferEnums;
+      
+        std::map<std::string, ColorAttachmentPtr> _colorAttachments;
 	};
 }
 #endif

@@ -10,15 +10,14 @@
 #include "Fbo.h"
 #include "Texture.h"
 #include <stdio.h>
+#include "FboColorAttachment.h"
 #include <sstream>
 
 using namespace std;
 
 namespace Ezr
 {
-
 	std::vector<unsigned int> Fbo::_glColorBufferEnums;
-
 
 	bool Fbo::staticInit()
 	{
@@ -48,6 +47,8 @@ namespace Ezr
 		 _useStencil(false),
          _useRbo(false)
 	{
+        _attachmentId = 0x8CE0;
+
 		generateFbo();
 		if (renderTargets != None)
 		{
@@ -65,13 +66,7 @@ namespace Ezr
 			release();
 		}catch(string e){
 			std::cerr << e << std::endl;
-		}
-
-		for (vector<Texture*>::iterator it = _colorBuffers.begin();
-			 it != _colorBuffers.end();
-			 ++it) {
-			delete (*it);
-		}
+		}		
 	}
 	
 	//// release ////////////////////////////////////////////////////////////
@@ -100,7 +95,6 @@ namespace Ezr
 	{
 		glGenFramebuffersEXT(1, &_fboID);
 		OpenGl::checkError("Couldn't generate Fbo");
-
 	}
 
     //// CREATE RBO ////////////////////////////////////////////////////////
@@ -151,54 +145,46 @@ namespace Ezr
 
 	void Fbo::setDrawBuffers()
 	{
-		int attachments = _colorBuffers.size();
-		GLenum* targets = new GLenum[attachments];
-		for (int i = 0; i < attachments; ++i) {
-			targets[i] = _glColorBufferEnums[i];
+		int attachments = _colorAttachments.size();
+        std::vector<GLenum> targets;
+		
+        map<std::string, ColorAttachmentPtr>::iterator it;
+		for (it = _colorAttachments.begin(); it != _colorAttachments.end(); ++it) 
+        {
+            targets.push_back((*it).second->getAttachmentId());
 		}
-		glDrawBuffers(attachments, targets);
-		OpenGl::checkError("Couldn't set FBO draw buffers");
-
-        delete[] targets;
+        
+        if(!targets.empty())
+		    glDrawBuffers(attachments, &targets[0]);
+		
+        OpenGl::checkError("Couldn't set FBO draw buffers");
 	}
 
-	void Fbo::attachColorbuffer(const std::string& name, GLenum format)
+	void Fbo::addColorAttachment(Texture* buffer, const std::string& name)
 	{
 		bind();
-		Texture* buffer = new Texture(_textureResX, _textureResY, format, GL_RGBA, GL_FLOAT);
-		
-		int attachment = _colorBuffers.size();
-
-		// std::cout << "#colorbuffers: "
-		// 		  << Fbo::_glColorBufferEnums[attachment] << ", "
-		// 		  << GL_COLOR_ATTACHMENT0_EXT << ", "
-		// 		  << (_glColorBufferEnums[attachment] == GL_COLOR_ATTACHMENT0_EXT)
-		// 		  << ", bufferid: " << buffer->getId()
-		// 		  << std::endl;
-
-		// std::cout << "#colorbuffers: " << attachment << std::endl;
-		
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-								  _glColorBufferEnums[attachment],
+								  _attachmentId,
 								  GL_TEXTURE_2D,
 								  buffer->getId(),
 								  0);
 		OpenGl::checkError("Couldn't attach colorbuffer to FBO");
 
-		_colorBufferNames.insert(std::make_pair(name, attachment));
-		_colorBuffers.push_back(buffer);
+        _colorAttachments.insert(make_pair(name, new FboColorAttachment(buffer, _attachmentId)));
+        _attachmentId +=1;
 	}
 
-	const Texture* Fbo::getColorAttachment(std::string& name)
+	Texture* Fbo::getColorAttachment(const std::string& name)
 	{
-		return _colorBuffers[_colorBufferNames[name]];
+        if(_colorAttachments.find(name) == _colorAttachments.end())
+            throw GLException("couldn't get colorAttachment: " + name);
+        return _colorAttachments[name]->getTexture();
 	}
 
 
-	void Fbo::setDrawBuffer(std::string& name)
+	void Fbo::setDrawBuffer(const std::string& name)
 	{
-		int num = _colorBufferNames[name];
-		glDrawBuffer(_glColorBufferEnums[num]);
+        glDrawBuffer(_colorAttachments[name]->getAttachmentId());
 	}
 
 	
@@ -260,31 +246,24 @@ namespace Ezr
 		printf("Max supported Fbo color attachments (textures) of your GPU: %d\n",getMaxColorAttach());
 
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT){
-			printf("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT\n");
             throw GLException("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT){
-			printf("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT\n");
             throw GLException("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT){
-			printf("GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT\n");
             throw GLException("GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT){
-			printf("GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT\n");
             throw GLException("GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT){
-			printf("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT\n");
             throw GLException("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT){
-			printf("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT\n");
             throw GLException("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_UNSUPPORTED_EXT){
-			printf("GL_FRAMEBUFFER_UNSUPPORTED_EXT\n");
             throw GLException("GL_FRAMEBUFFER_UNSUPPORTED_EXT\n");
 		}
 		if(error==GL_FRAMEBUFFER_COMPLETE_EXT){
