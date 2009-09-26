@@ -11,7 +11,8 @@ using std::endl;
 
 namespace Ezr{
 
-	Scene::Scene() {
+	Scene::Scene() 
+    {
 		_model = glmReadOBJ("res/models/Terrain.obj");
 		if (!_model){
 			cerr << "couldn't load model" << endl;
@@ -20,9 +21,9 @@ namespace Ezr{
 
 		glmReverseWinding(_model);
 		glmReverseNormals(_model);
-//		glmUnitize(_model);
-//		 glmFacetNormals(_model);
-//		 glmVertexNormals(_model,90);
+        //glmUnitize(_model);
+        //glmFacetNormals(_model);
+        //glmVertexNormals(_model,90);
 	}
 
 	void Scene::drawScene() const
